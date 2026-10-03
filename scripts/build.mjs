@@ -1,0 +1,10 @@
+import { mkdir, rm, cp, readFile, writeFile } from 'node:fs/promises';
+await rm('dist', { recursive: true, force: true });
+await mkdir('dist/server', { recursive: true });
+await mkdir('dist/.openai', { recursive: true });
+await cp('public', 'dist/client', { recursive: true });
+await cp('worker/index.js', 'dist/server/index.js');
+await cp('.openai/hosting.json', 'dist/.openai/hosting.json');
+await cp('drizzle', 'dist/.openai/drizzle', { recursive: true });
+await writeFile('dist/server/wrangler.json', JSON.stringify({name:'spooky-grove',main:'index.js',compatibility_date:'2026-09-01',assets:{directory:'../client',binding:'ASSETS',run_worker_first:['/api/*']}}));
+console.log('Built Spooky Grove with authenticated storage and bundled assets.');
