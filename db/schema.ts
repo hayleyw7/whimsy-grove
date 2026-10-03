@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, index, primaryKey } from 'drizzle-orm/sqlite-core';
 export const drawings = sqliteTable('drawings', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull(),
@@ -12,3 +12,9 @@ export const drawings = sqliteTable('drawings', {
   index('drawings_user_album_created').on(table.userId, table.isAlbum, table.createdAt),
   index('drawings_user_history_created').on(table.userId, table.isHistory, table.createdAt),
 ]);
+
+export const favoriteItems = sqliteTable('favorite_items', {
+  userId: text('user_id').notNull(),
+  itemId: text('item_id').notNull(),
+  createdAt: integer('created_at').notNull(),
+}, (table) => [primaryKey({ columns: [table.userId, table.itemId] })]);

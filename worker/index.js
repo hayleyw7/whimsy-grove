@@ -1,5 +1,5 @@
 const MAX_BODY = 900000;
-const backgrounds = new Set(['none','beach','forest','graveyard','space','underwater','void','hell','heaven','wonderland','steampunk']);
+const backgrounds = new Set(['none','backyard-garden','basement','beach','corn-maze','desert','factory','forest','graveyard','haunted-house','heaven','hell','jungle','pumpkin-patch','river','sandy-dunes','space','steampunk','underwater','void','volcano','wonderland']);
 const palettes = new Set(['haunted','candy','bog','dusk']);
 const moons = new Set(['none','full','crescent','half','blood']);
 const galaxies = new Set(['none','violet','teal','rose']);
@@ -27,6 +27,17 @@ async function api(request,env,url) {
   }
   if(url.pathname==='/api/session')return reply({signedIn:true,email:request.headers.get('oai-authenticated-user-email')||null,storageReady:!!(env.DB?.prepare&&env.BUCKET?.put)});
   const db=database(env);
+  if(url.pathname==='/api/favorites' && request.method==='GET') {
+    const result=await db.prepare('SELECT item_id FROM favorite_items WHERE user_id = ? ORDER BY item_id').bind(owner).all();
+    return reply({items:result.results.map(row=>row.item_id)});
+  }
+  if(url.pathname==='/api/favorites' && request.method==='POST') {
+    const text=await request.text();if(text.length>300)return reply({error:'Invalid favorite item.'},400);
+    let input;try{input=JSON.parse(text);if(!/^[a-z][a-z0-9-]{0,47}$/.test(input.itemId)||typeof input.favorite!=='boolean')throw new Error();}catch{return reply({error:'Invalid favorite item.'},400);}
+    if(input.favorite)await db.prepare('INSERT INTO favorite_items (user_id, item_id, created_at) VALUES (?, ?, ?) ON CONFLICT (user_id, item_id) DO NOTHING').bind(owner,input.itemId,Date.now()).run();
+    else await db.prepare('DELETE FROM favorite_items WHERE user_id = ? AND item_id = ?').bind(owner,input.itemId).run();
+    return reply({saved:true,itemId:input.itemId,favorite:input.favorite});
+  }
   if(url.pathname==='/api/drawings' && request.method==='GET') {
     const collection=url.searchParams.get('collection');
     if(!['album','history'].includes(collection))return reply({error:'Choose Album or History.'},400);
