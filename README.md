@@ -1,10 +1,10 @@
-# The Odd Garden
+# Spooky Grove
 
 A portable, static illustrated garden toy. The complete website is in `dist/`.
 Serve that directory with any ordinary static web server. No build, third-party services, backend, or environment variables are required. All art is bundled and all asset references are relative.
 
 ## Features
-- A pre-grown garden; choose an item and tap to place it.
+- An empty garden on every fresh page load; choose an item and tap to place it.
 - Mushrooms: toadstool, wavy, ruffles, twins, curly, ghost cap.
 - Animals: cat, frog, snail, bunny, raccoon, bat, possum, shrimp, raven, spider.
 - Spooky: ghost, skull, pumpkin, Mothman, jack-o'-lantern, spiderweb.
