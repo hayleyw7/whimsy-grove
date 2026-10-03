@@ -1,6 +1,6 @@
 const MAX_BODY = 900000;
-const backgrounds = new Set(['none','backyard-garden','basement','beach','corn-maze','desert','factory','forest','graveyard','haunted-house','heaven','hell','jungle','pumpkin-patch','river','sandy-dunes','space','steampunk','underwater','void','volcano','wonderland']);
-const palettes = new Set(['haunted','candy','bog','dusk']);
+const backgrounds = new Set(['none','abandoned-prison','under-bridge','cave','backyard-garden','basement','beach','corn-maze','desert','factory','forest','graveyard','haunted-house','heaven','hell','jungle','pumpkin-patch','river','sandy-dunes','space','steampunk','underwater','void','volcano','wonderland']);
+const palettes = new Set(['haunted','candy','bog','dusk','monochrome','ember','ocean','spectral']);
 const moons = new Set(['none','full','crescent','half','blood']);
 const galaxies = new Set(['none','violet','teal','rose']);
 const weather = new Set(['rain','snow','fog','lightning']);
@@ -11,8 +11,8 @@ function database(env) { if(!env.DB?.prepare || !env.BUCKET?.put) throw new Erro
 function sceneValue(value) {
   if(!value || value.version!==2 || !Array.isArray(value.items) || value.items.length>100 || !palettes.has(value.palette) || !backgrounds.has(value.background) || !moons.has(value.moon) || !galaxies.has(value.galaxy) || typeof value.shootingStars!=='boolean' || !Array.isArray(value.weather) || value.weather.length>4 || value.weather.some(x=>!weather.has(x))) throw new Error('Invalid scene');
   const items=value.items.map(v=>{
-    if(!v || typeof v.id!=='string' || !/^[a-z][a-z0-9-]{0,47}$/.test(v.id) || typeof v.uid!=='string' || !uuid.test(v.uid) || !Number.isFinite(v.x) || !Number.isFinite(v.y) || v.x < -1000 || v.x > 2200 || v.y < -1000 || v.y > 2200 || !Number.isFinite(v.size) || v.size<35 || v.size>700 || typeof v.flip!=='boolean') throw new Error('Invalid item');
-    return {uid:v.uid,id:v.id,x:v.x,y:v.y,size:v.size,flip:v.flip};
+    if(!v || typeof v.id!=='string' || !/^[a-z][a-z0-9-]{0,47}$/.test(v.id) || typeof v.uid!=='string' || !uuid.test(v.uid) || !Number.isFinite(v.x) || !Number.isFinite(v.y) || v.x < -3600 || v.x > 4800 || v.y < -3600 || v.y > 4680 || !Number.isFinite(v.size) || v.size<35 || v.size>3600 || typeof v.flip!=='boolean' || (v.flipY!==undefined && typeof v.flipY!=='boolean')) throw new Error('Invalid item');
+    return {uid:v.uid,id:v.id,x:v.x,y:v.y,size:v.size,flip:v.flip,flipY:!!v.flipY};
   });
   if(new Set(items.map(x=>x.uid)).size!==items.length)throw new Error('Duplicate item');
   return {version:2,items,palette:value.palette,background:value.background,moon:value.moon,galaxy:value.galaxy,shootingStars:value.shootingStars,weather:[...new Set(value.weather)],seed:Number.isSafeInteger(value.seed)?value.seed:8921};
