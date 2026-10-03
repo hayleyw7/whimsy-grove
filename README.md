@@ -4,11 +4,12 @@ An illustrated scene editor hosted privately on OpenAI Sites.
 
 ## Editor
 - Starts with a blank canvas and no implicit stamp selection.
-- Exactly eight alphabetized item collections: Creatures, Plants, Mushrooms, Nature, Bones, Structures, Magic, and Sky. The catalogue contains 133 unique items.
+- Exactly eight alphabetized item collections: Creatures, Plants, Mushrooms, Nature, Bones, Structures, Magic, and Sky. The catalogue contains 141 unique items.
 - Place items, move them with a pointer or touch, resize them up to 300% of canvas width, flip them horizontally or vertically, remove them, and use 80-step Undo and Redo beside the canvas. Each drag or resize gesture is one step, and a new edit discards the redo branch. Off-canvas items remain selectable in the placed-item list and can be centered. Blank touch gestures scroll the page, while gestures beginning on the selected illustration drag it.
-- Twenty-four scene choices. Void is a plain near-black plum field. Space and underwater have no ground.
+- Twenty-six scene choices. All world art is free of sun and moon discs so celestial objects can be placed independently. Void is a plain near-black plum field. Space and underwater have no ground.
 - Moons, galaxies, eclipses, a satellite, shooting stars, weather, and a tornado stamp. Sky objects are selected as items, with only weather controls at the bottom.
-- Eight icon-only color moods include a full-scene black-and-white treatment. Collections, Color mood, and Weather use matching collapsible panels.
+- Eight three-color swatch moods include a full-scene black-and-white treatment. Oddities, Color mood, and Weather use matching collapsible panels.
+- World and placed-item menus share a themed popup with keyboard navigation and preserved scroll position. New oddities stack above older ones in the scene array, screen rendering, PNG export, and saved scenes.
 - Download PNG pictures, or use native file sharing where supported.
 
 ## Account persistence
