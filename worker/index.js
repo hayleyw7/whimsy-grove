@@ -7,7 +7,7 @@ const weather = new Set(['rain','snow','fog','lightning']);
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 function reply(data, status=200) { return Response.json(data, {status, headers:{'cache-control':'private, no-store','x-content-type-options':'nosniff'}}); }
 function user(request) { const id=request.headers.get('oai-authenticated-user-id'); return id && id.length<512 ? id : null; }
-function database(env) { if(!env.DB?.prepare || !env.BUCKET?.put) throw new Error('Storage unavailable'); return env.DB; }
+function database(env) { if(!env.DB?.prepare || !env.DB?.batch || !env.BUCKET?.put) throw new Error('Storage unavailable'); return env.DB; }
 function sceneValue(value) {
   if(!value || value.version!==2 || !Array.isArray(value.items) || value.items.length>100 || !palettes.has(value.palette) || !backgrounds.has(value.background) || !moons.has(value.moon) || !galaxies.has(value.galaxy) || typeof value.shootingStars!=='boolean' || !Array.isArray(value.weather) || value.weather.length>4 || value.weather.some(x=>!weather.has(x))) throw new Error('Invalid scene');
   const items=value.items.map(v=>{
@@ -17,15 +17,15 @@ function sceneValue(value) {
   if(new Set(items.map(x=>x.uid)).size!==items.length)throw new Error('Duplicate item');
   return {version:2,items,palette:value.palette,background:value.background,moon:value.moon,galaxy:value.galaxy,shootingStars:value.shootingStars,weather:[...new Set(value.weather)],seed:Number.isSafeInteger(value.seed)?value.seed:8921};
 }
-function publicRow(row) { return {id:row.id,title:row.title,createdAt:row.created_at,inAlbum:!!row.is_album,inHistory:!!row.is_history,thumbnail:'/api/drawings/'+row.id+'/thumbnail'}; }
+function publicRow(row,collection='history') { return {id:row.id,title:collection==='album'?(row.album_title||row.title):row.title,createdAt:row.created_at,inAlbum:!!row.is_album,inHistory:!!row.is_history,thumbnail:'/api/drawings/'+row.id+'/thumbnail'}; }
 async function owned(db,id,owner) {return db.prepare('SELECT * FROM drawings WHERE id = ? AND user_id = ?').bind(id,owner).first();}
 async function api(request,env,url) {
   const owner=user(request);
+  if(url.pathname==='/api/session' && request.method==='GET')return reply({signedIn:!!owner,storageReady:!!(owner&&env.DB?.prepare&&env.DB?.batch&&env.BUCKET?.put)});
   if(!owner)return reply({error:'Sign in with ChatGPT to use your Album and History.',signIn:'/signin-with-chatgpt?return_to=%2F'},401);
   if(request.method!=='GET') {
     if(request.headers.get('origin')!==url.origin || request.headers.get('x-grove-request')!=='1')return reply({error:'This request could not be verified.'},403);
   }
-  if(url.pathname==='/api/session')return reply({signedIn:true,email:request.headers.get('oai-authenticated-user-email')||null,storageReady:!!(env.DB?.prepare&&env.BUCKET?.put)});
   const db=database(env);
   if(url.pathname==='/api/favorites' && request.method==='GET') {
     const result=await db.prepare('SELECT item_id FROM favorite_items WHERE user_id = ? ORDER BY item_id').bind(owner).all();
@@ -43,8 +43,8 @@ async function api(request,env,url) {
     if(!['album','history'].includes(collection))return reply({error:'Choose Album or History.'},400);
     const offset=Math.max(0,Math.min(1000000,Number.parseInt(url.searchParams.get('offset')||'0',10)||0));
     const field=collection==='album'?'is_album':'is_history';
-    const result=await db.prepare(`SELECT id, title, created_at, is_album, is_history FROM drawings WHERE user_id = ? AND ${field} = 1 ORDER BY created_at DESC, id DESC LIMIT 49 OFFSET ?`).bind(owner,offset).all();
-    return reply({items:result.results.slice(0,48).map(publicRow),nextOffset:result.results.length>48?offset+48:null});
+    const result=await db.prepare(`SELECT id, title, album_title, created_at, is_album, is_history FROM drawings WHERE user_id = ? AND ${field} = 1 ORDER BY created_at DESC, id DESC LIMIT 49 OFFSET ?`).bind(owner,offset).all();
+    return reply({items:result.results.slice(0,48).map(row=>publicRow(row,collection)),nextOffset:result.results.length>48?offset+48:null});
   }
   if(url.pathname==='/api/drawings' && request.method==='POST') {
     if(Number(request.headers.get('content-length')||0)>MAX_BODY)return reply({error:'This drawing is too large to save.'},413);
@@ -56,15 +56,20 @@ async function api(request,env,url) {
       const match=/^data:image\/(webp|png|jpeg);base64,([A-Za-z0-9+/=]+)$/.exec(input.thumbnail||'');
       if(!match||match[2].length>650000)throw new Error();mime='image/'+match[1];const raw=atob(match[2]);bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));if(bytes.length<20||bytes.length>490000)throw new Error();
     }catch{return reply({error:'The drawing could not be saved in this format.'},400);}
-    const existing=await owned(db,input.id,owner);if(existing)return reply({drawing:publicRow(existing),saved:true});
+    const existing=await owned(db,input.id,owner);if(existing)return reply({drawing:publicRow(existing,input.collection),saved:true});
     const key='drawings/'+encodeURIComponent(owner)+'/'+input.id;
-    const title=(typeof input.title==='string'?input.title:'Untitled grove').trim().slice(0,100)||'Untitled grove';
     await env.BUCKET.put(key,bytes,{httpMetadata:{contentType:mime},customMetadata:{owner}});
     try {
-      await db.prepare('INSERT INTO drawings (id, user_id, scene_json, thumbnail_key, title, created_at, is_album, is_history) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').bind(input.id,owner,JSON.stringify(scene),key,title,Date.now(),input.collection==='album'?1:0,input.collection==='history'?1:0).run();
-    }catch(error){const check=await owned(db,input.id,owner);if(check)return reply({drawing:publicRow(check),saved:true});await env.BUCKET.delete(key).catch(()=>{});throw error;}
+      const history=input.collection==='history';
+      const counter=history?'history_count':'album_count';
+      const increment=db.prepare(`INSERT INTO drawing_sequences (user_id, history_count, album_count) VALUES (?, ?, ?) ON CONFLICT (user_id) DO UPDATE SET ${counter} = ${counter} + 1`).bind(owner,history?1:0,history?0:1);
+      const insert=history
+        ? db.prepare("INSERT INTO drawings (id, user_id, scene_json, thumbnail_key, title, created_at, is_album, is_history, history_number, album_title) SELECT ?, user_id, ?, ?, 'Auto save ' || history_count, ?, 0, 1, history_count, NULL FROM drawing_sequences WHERE user_id = ?")
+        : db.prepare("INSERT INTO drawings (id, user_id, scene_json, thumbnail_key, title, created_at, is_album, is_history, history_number, album_title) SELECT ?, user_id, ?, ?, 'Grove ' || album_count, ?, 1, 0, NULL, 'Grove ' || album_count FROM drawing_sequences WHERE user_id = ?");
+      await db.batch([increment,insert.bind(input.id,JSON.stringify(scene),key,Date.now(),owner)]);
+    }catch(error){const check=await owned(db,input.id,owner);if(check)return reply({drawing:publicRow(check,input.collection),saved:true});await env.BUCKET.delete(key).catch(()=>{});throw error;}
     const saved=await owned(db,input.id,owner);if(!saved)throw new Error('Save verification failed');
-    return reply({drawing:publicRow(saved),saved:true},201);
+    return reply({drawing:publicRow(saved,input.collection),saved:true},201);
   }
   const match=/^\/api\/drawings\/([0-9a-f-]{36})(?:\/(thumbnail|album))?$/.exec(url.pathname);
   if(match && uuid.test(match[1])) {
@@ -74,8 +79,24 @@ async function api(request,env,url) {
       return new Response(object.body,{headers:{'content-type':object.httpMetadata?.contentType||'image/webp','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
     }
     if(match[2]==='album' && request.method==='POST') {
-      await db.prepare('UPDATE drawings SET is_album = 1 WHERE id = ? AND user_id = ?').bind(row.id,owner).run();
-      return reply({saved:true,drawing:{...publicRow(row),inAlbum:true}});
+      await db.prepare('UPDATE drawings SET is_album = 1, album_title = COALESCE(album_title, title) WHERE id = ? AND user_id = ?').bind(row.id,owner).run();
+      return reply({saved:true,drawing:{...publicRow(row,'album'),inAlbum:true}});
+    }
+    if(!match[2] && request.method==='PATCH') {
+      if(!row.is_album)return reply({error:'Only Album drawings can be renamed.'},400);
+      let title;try{const text=await request.text();if(text.length>1000)throw new Error();title=JSON.parse(text).title;if(typeof title!=='string')throw new Error();title=title.trim().replace(/\s+/g,' ');if(!title||title.length>80)throw new Error();}catch{return reply({error:'Choose a name between 1 and 80 characters.'},400);}
+      const renamed=await db.prepare('UPDATE drawings SET album_title = ? WHERE id = ? AND user_id = ? AND is_album = 1 RETURNING *').bind(title,row.id,owner).first();
+      if(!renamed)return reply({error:'Drawing not found.'},404);
+      return reply({saved:true,drawing:publicRow(renamed,'album')});
+    }
+    if(!match[2] && request.method==='DELETE') {
+      let input;try{const text=await request.text();if(text.length>1000)throw new Error();input=JSON.parse(text);if(input.confirmation!=='permanently-delete'||!['album','history'].includes(input.collection)||typeof input.title!=='string')throw new Error();}catch{return reply({error:'Confirm the permanent deletion of this drawing first.'},400);}
+      const collection=input.collection;if(!(collection==='album'?row.is_album:row.is_history))return reply({error:'Drawing not found.'},404);
+      const titleField=collection==='album'?'COALESCE(album_title, title)':'title';
+      const removed=await db.prepare(`DELETE FROM drawings WHERE id = ? AND user_id = ? AND ${titleField} = ? RETURNING thumbnail_key`).bind(row.id,owner,input.title).first();
+      if(!removed)return reply({error:'This drawing changed. Open it again before deleting it.'},409);
+      let cleanupPending=false;try{await env.BUCKET.delete(removed.thumbnail_key);}catch{cleanupPending=true;}
+      return reply({deleted:true,cleanupPending});
     }
     if(!match[2] && request.method==='GET')return reply({drawing:{...publicRow(row),scene:JSON.parse(row.scene_json)}});
   }
