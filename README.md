@@ -6,9 +6,12 @@ Serve that directory with any ordinary static web server. No build, third-party 
 ## Features
 - An empty garden on every fresh page load; choose an item and tap to place it.
 - Mushrooms: toadstool, wavy, ruffles, twins, curly, ghost cap.
-- Animals: cat, frog, snail, bunny, raccoon, bat, possum, shrimp, raven, spider.
+- Animals: cat, frog, snail, bunny, raccoon, bat, possum, shrimp, raven, spider, fox, owl, hedgehog, mouse.
 - Spooky: ghost, skull, pumpkin, Mothman, jack-o'-lantern, spiderweb.
-- Candy, Bog, and Dusk palettes.
+- Haunted, Candy, Bog, and Dusk light-background palettes.
+- Plants: fern, thorny rose, nightshade, twisted tree, flytrap.
+- Searchable Nature, Ruins, and Magic collections with rocks, logs, stumps, roots, pond, stones, bridge, fairy ring, antlers, statues, bones, cemetery architecture, gates, fences, crystals, candles, lanterns, cauldrons, potions, pentagrams, ritual circles, and a horned idol. Gnome, alien, and UFO join Spooky.
+- Three galaxies and animated shooting stars; reduced-motion support and still-image export.
 - Full, crescent, half, and blood moons; rain, snow, fog, and lightning.
 - Shuffle, undo, clear, and PNG export including the selected sky and effects.
 - Touch, mouse, and keyboard placement; light-mode mobile-first layout.
