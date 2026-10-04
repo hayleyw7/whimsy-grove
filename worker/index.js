@@ -11,8 +11,8 @@ function database(env) { if(!env.DB?.prepare || !env.DB?.batch || !env.BUCKET?.p
 function sceneValue(value) {
   if(!value || value.version!==2 || !Array.isArray(value.items) || value.items.length>100 || !palettes.has(value.palette) || !backgrounds.has(value.background) || !moons.has(value.moon) || !galaxies.has(value.galaxy) || typeof value.shootingStars!=='boolean' || !Array.isArray(value.weather) || value.weather.length>4 || value.weather.some(x=>!weather.has(x))) throw new Error('Invalid scene');
   const items=value.items.map(v=>{
-    if(!v || typeof v.id!=='string' || !/^[a-z][a-z0-9-]{0,47}$/.test(v.id) || typeof v.uid!=='string' || !uuid.test(v.uid) || !Number.isFinite(v.x) || !Number.isFinite(v.y) || v.x < -3600 || v.x > 4800 || v.y < -3600 || v.y > 4680 || !Number.isFinite(v.size) || v.size<35 || v.size>3600 || typeof v.flip!=='boolean' || (v.flipY!==undefined && typeof v.flipY!=='boolean') || (v.rotation!==undefined && (!Number.isFinite(v.rotation) || Math.abs(v.rotation)>180))) throw new Error('Invalid item');
-    return {uid:v.uid,id:v.id,x:v.x,y:v.y,size:v.size,flip:v.flip,flipY:!!v.flipY,rotation:v.rotation||0};
+    if(!v || typeof v.id!=='string' || !/^[a-z][a-z0-9-]{0,47}$/.test(v.id) || typeof v.uid!=='string' || !uuid.test(v.uid) || !Number.isFinite(v.x) || !Number.isFinite(v.y) || v.x < -3600 || v.x > 4800 || v.y < -3600 || v.y > 4680 || !Number.isFinite(v.size) || v.size<35 || v.size>3600 || typeof v.flip!=='boolean' || (v.order!==undefined&&(!Number.isSafeInteger(v.order)||v.order<0)) || (v.flipY!==undefined && typeof v.flipY!=='boolean') || (v.rotation!==undefined && (!Number.isFinite(v.rotation) || Math.abs(v.rotation)>180))) throw new Error('Invalid item');
+    return {uid:v.uid,...(v.order===undefined?{}:{order:v.order}),id:v.id,x:v.x,y:v.y,size:v.size,flip:v.flip,flipY:!!v.flipY,rotation:v.rotation||0};
   });
   if(new Set(items.map(x=>x.uid)).size!==items.length)throw new Error('Duplicate item');
   return {version:2,items,palette:value.palette,background:value.background,moon:value.moon,galaxy:value.galaxy,shootingStars:value.shootingStars,weather:[...new Set(value.weather)],seed:Number.isSafeInteger(value.seed)?value.seed:8921};
@@ -73,7 +73,7 @@ async function api(request,env,url) {
     try {
       input=JSON.parse(text);if(!uuid.test(input.id)||!['album','history'].includes(input.collection))throw new Error();
       scene=sceneValue(input.scene);
-      if(input.collection==='album'&&input.title!==undefined&&input.title!==null){if(typeof input.title!=='string')throw Error();albumTitle=input.title.trim().replace(/\s+/g,' ')||null;if(albumTitle&&albumTitle.length>80)throw Error();}
+      if(input.collection==='album'&&input.title!==undefined&&input.title!==null){if(typeof input.title!=='string')throw Error();albumTitle=input.title.trim().replace(/\s+/g,' ')||null;if(albumTitle&&[...albumTitle].length>15)throw Error();}
       const match=/^data:image\/(webp|png|jpeg);base64,([A-Za-z0-9+/=]+)$/.exec(input.thumbnail||'');
       if(!match||match[2].length>650000)throw new Error();mime='image/'+match[1];const raw=atob(match[2]);bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));if(bytes.length<20||bytes.length>490000)throw new Error();
     }catch{return reply({error:'The creation could not be saved in this format.'},400);}
@@ -91,7 +91,7 @@ async function api(request,env,url) {
         const insert=db.prepare(`WITH RECURSIVE
           base(name) AS (SELECT COALESCE(?, 'Grove ' || album_count) FROM drawing_sequences WHERE user_id = ?),
           candidates(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM candidates WHERE n <= (SELECT COUNT(*) FROM drawings WHERE user_id = ? AND is_album = 1)),
-          names(n,name) AS (SELECT n, CASE WHEN n = 1 THEN base.name ELSE substr(base.name,1,80-length(' (' || n || ')')) || ' (' || n || ')' END FROM candidates,base)
+          names(n,name) AS (SELECT n, CASE WHEN n = 1 THEN base.name ELSE substr(base.name,1,15-length(' (' || n || ')')) || ' (' || n || ')' END FROM candidates,base)
           INSERT INTO drawings (id,user_id,scene_json,thumbnail_key,title,created_at,is_album,is_history,history_number,album_title)
           SELECT ?,user_id,?,?,'Grove ' || album_count,?,1,0,NULL,
             (SELECT name FROM names WHERE NOT EXISTS (SELECT 1 FROM drawings d WHERE d.user_id = ? AND d.is_album = 1 AND COALESCE(d.album_title,d.title) = names.name COLLATE NOCASE) ORDER BY n LIMIT 1)
@@ -111,17 +111,17 @@ async function api(request,env,url) {
     }
     if(match[2]==='album' && request.method==='POST') {
       if(row.is_album)return reply({saved:true,drawing:publicRow(row,'album')});
-      let title;try{const body=await request.text();if(body.length>1000)throw Error();const input=JSON.parse(body||'{}');if(input.title!==undefined&&typeof input.title!=='string')throw Error();title=input.title?.trim().replace(/\s+/g,' ')||displayTitle(row);if(title.length>80)throw Error();}catch{return reply({error:'Choose a name up to 80 characters.'},400);}
+      let title;try{const body=await request.text();if(body.length>1000)throw Error();const input=JSON.parse(body||'{}');if(input.title!==undefined&&typeof input.title!=='string')throw Error();title=input.title?.trim().replace(/\s+/g,' ')||displayTitle(row);if([...title].length>15)throw Error();}catch{return reply({error:'Choose a name up to 15 characters.'},400);}
       const promoted=await db.prepare(`WITH RECURSIVE
         candidates(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM candidates WHERE n <= (SELECT COUNT(*) FROM drawings WHERE user_id = ? AND is_album = 1)),
-        names(n,name) AS (SELECT n, CASE WHEN n=1 THEN ? ELSE substr(?,1,80-length(' (' || n || ')')) || ' (' || n || ')' END FROM candidates)
+        names(n,name) AS (SELECT n, CASE WHEN n=1 THEN ? ELSE substr(?,1,15-length(' (' || n || ')')) || ' (' || n || ')' END FROM candidates)
         UPDATE drawings SET is_album=1, album_title=(SELECT name FROM names WHERE NOT EXISTS (SELECT 1 FROM drawings d WHERE d.user_id = ? AND d.is_album=1 AND d.id != ? AND COALESCE(d.album_title,d.title)=names.name COLLATE NOCASE) ORDER BY n LIMIT 1)
         WHERE id=? AND user_id=? AND is_album=0 RETURNING *`).bind(owner,title,title,owner,row.id,row.id,owner).first();
       return reply({saved:true,drawing:publicRow(promoted||await owned(db,row.id,owner),'album')});
     }
     if(!match[2] && request.method==='PATCH') {
       if(!row.is_album)return reply({error:'Only Album creations can be renamed.'},400);
-      let title;try{const text=await request.text();if(text.length>1000)throw new Error();title=JSON.parse(text).title;if(typeof title!=='string')throw new Error();title=title.trim().replace(/\s+/g,' ');if(!title||title.length>80)throw new Error();}catch{return reply({error:'Choose a name between 1 and 80 characters.'},400);}
+      let title;try{const text=await request.text();if(text.length>1000)throw new Error();title=JSON.parse(text).title;if(typeof title!=='string')throw new Error();title=title.trim().replace(/\s+/g,' ');if(!title||[...title].length>15)throw new Error();}catch{return reply({error:'Choose a name between 1 and 15 characters.'},400);}
       const renamed=await db.prepare('UPDATE drawings SET album_title = ? WHERE id = ? AND user_id = ? AND is_album = 1 RETURNING *').bind(title,row.id,owner).first();
       if(!renamed)return reply({error:'Creation not found.'},404);
       return reply({saved:true,drawing:publicRow(renamed,'album')});
