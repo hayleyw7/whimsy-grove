@@ -48,3 +48,13 @@ New default Album names use the approved short background prefix plus Grove and 
 Clicking or tapping outside a popup closes it. Backdrop dismissal cancels confirmation and naming dialogs, while ongoing work is not canceled. Any pointer press dismisses a visible transient toast without consuming the underlying interaction. Escape and closing dialogs restore focus. Gallery action menus fit their text, and switching collections keeps the existing cards and container height during loading.
 
 Hide Controls creates a reversible view with an always-visible Return to Editing control. Full Screen requests the browser API when supported and falls back to hiding controls with an honest status. Escape, Return to Editing, and browser Back restore controls and focus. Scene data and selection are preserved.
+
+
+## Biomes, inspiration, and animated downloads
+The biome chooser retains the existing background IDs for saved-scene compatibility. All 36 choices have a defined motion style. Blank and Void stay plain, while other biomes use subtle drifting leaves, light, bubbles, ripples, mist, snow, embers, sand, or dust. Weather animates in the same deterministic three-second time cycle. Scene objects stay fixed except the existing shooting-star effect. The Motion preference is saved with the scene. Reduced motion, hidden tabs, and an off-screen canvas stop live animation. A cached static canvas limits repeated work during ordinary ambient animation.
+
+The first fresh session and New offer three optional inspiration ideas plus Free Create. A second step lets the person keep the suggested biome, choose another, or use Surprise Me. Cancelling preserves the current creation. New still confirms and saves the current scene to History before replacement, and failures block replacement. Existing working drafts reopen directly. The inspiration ID and dismissed-reminder state persist with the scene. New scenes have a stable creation ID, and legacy current drafts derive one from their prior edit ID before syncing it once.
+
+Download offers a PNG still or an animated GIF. The local, MIT-licensed gifenc 1.0.3 encoder is bundled with its license, with no CDN. GIFs use 24 opaque 400×360 frames at 120 ms per frame, one shared 256-color palette, and an 8 MiB output limit. Frames stream into the encoder, with one reusable raster canvas, progress, cancellation, and no audio. Explicit GIF export animates even if live motion is paused. Share remains a PNG using the existing native-sharing fallback.
+
+The catalogue now has 191 visible items. Cat (Dancing) keeps the existing tuxedo-cat ID and has a seated, raised-paw pose. Cat (Longhaired, White) and full Cat, Rabbit, Bat, Snake, and Fish skeletons were added. Legacy IDs remain supported.
