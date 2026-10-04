@@ -55,3 +55,7 @@ Actual mobile and desktop Lighthouse runs were blocked by the execution environm
 The complete inventory covers all 198 visible stamps and 36 biome choices. Thirty-three existing creatures were revised to match the navy ink, cream highlights, and natural surface textures of the reference animals. The new sitting calico belongs to the same family. Space and Underwater were redrawn while retaining their groundless compositions. The remaining coherent artwork was kept. Existing IDs, default sizes, saved placements, and original asset files remain available.
 
 See [the reusable art direction](docs/art/art-direction.md), [the per-item audit](docs/art/audit-decisions.json), and [production export details](docs/art/exports-manifest.json). Optimized WebP atlases preserve alpha, and source loading skips sheets with no remaining catalogue entries.
+
+The editor reserves a single-line selected-name area and a fixed-height toolbar, so selecting, copying, or deselecting cannot change the canvas card dimensions. Long names are ellipsized, with full labels available to assistive technology and hover titles.
+
+Choosing an idea or Free Create scrolls to the top, and a completed new-grove load stays there. The chooser returns keyboard focus to the canvas without scrolling back to the bottom actions.

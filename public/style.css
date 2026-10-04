@@ -164,3 +164,7 @@ html[data-theme=light] .canvas-wrap,html[data-theme=light] .loading{background:#
 
 /* The menu reserves a rail only when its contents actually overflow. */
 #userMenu.grove-scrollbar-ready{padding:7px}#userMenu.grove-scrollbar-ready.grove-scroll-overflow-y{padding-right:31px}
+
+/* Keep the editor geometry independent of selection and label length. */
+.selection-label{box-sizing:border-box;min-width:0;height:calc(1.3em + 9px);min-height:calc(1.3em + 9px);max-height:calc(1.3em + 9px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+.canvas-tools{box-sizing:border-box;height:61px;min-height:61px;max-height:61px;flex-wrap:nowrap}
