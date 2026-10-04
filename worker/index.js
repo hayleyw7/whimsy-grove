@@ -64,8 +64,9 @@ async function api(request,env,url) {
     if(!['album','history'].includes(collection))return reply({error:'Choose Album or History.'},400);
     const offset=Math.max(0,Math.min(1000000,Number.parseInt(url.searchParams.get('offset')||'0',10)||0));
     const field=collection==='album'?'is_album':'is_history';
-    const sorts={oldest:'created_at ASC, id ASC',newest:'created_at DESC, id DESC',az:'COALESCE(album_title, title) COLLATE NOCASE ASC, created_at ASC, id ASC',za:'COALESCE(album_title, title) COLLATE NOCASE DESC, created_at DESC, id DESC'};
-    const sort=collection==='album'&&Object.hasOwn(sorts,url.searchParams.get('sort'))?url.searchParams.get('sort'):'newest';
+    const titleField=collection==='album'?'COALESCE(album_title, title)':'title';
+    const sorts={newest:'created_at DESC, id DESC',az:titleField+' COLLATE NOCASE ASC, created_at ASC, id ASC'};
+    const sort=Object.hasOwn(sorts,url.searchParams.get('sort'))?url.searchParams.get('sort'):'newest';
     const result=await db.prepare(`SELECT id, title, album_title, created_at, is_album, is_history FROM drawings WHERE user_id = ? AND ${field} = 1 ORDER BY ${sorts[sort]} LIMIT 49 OFFSET ?`).bind(owner,offset).all();
     return reply({items:result.results.slice(0,48).map(row=>publicRow(row,collection)),nextOffset:result.results.length>48?offset+48:null});
   }
