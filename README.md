@@ -22,11 +22,11 @@ Finish Grove saves the current creation to Album before showing its completion r
 
 ## Motion, sound, and downloads
 
-Only biome atmosphere and weather animate. Placed objects and animals remain still. Biomes use suitable leaves, bubbles, ripples, light, mist, snow, embers, sand, or dust. Blank and Void stay plain. Animations is checked when motion is enabled. Unchecking stops scene animation completely. Device reduced-motion preferences override live motion, and hidden tabs or off-screen canvases stop the loop. Ordinary ambient frames reuse a cached static canvas.
+Only biome atmosphere and weather animate. Placed objects and animals remain still. Biomes use suitable leaves, bubbles, ripples, light, mist, snow, embers, sand, or dust. Blank and Void stay plain. Animations is checked when motion is enabled. Unchecking stops scene animation completely. Device reduced-motion preferences set the initial live-motion default. An explicit app choice overrides that default, persists with the scene, and carries into New. Older saved false choices remain off. Hidden tabs or off-screen canvases stop the loop. Ordinary ambient frames reuse a cached static canvas.
 
 PNG is a clear still. GIF is a local, deterministic short loop of the selected biome and weather, with no audio. The bundled MIT-licensed gifenc 1.0.3 encoder streams 24 opaque 400×360 frames at 120 ms per frame into a shared 256-color palette. Encoding has progress, cancellation, and an 8 MiB output limit. An explicit GIF export animates even when live motion is paused. Share uses native PNG sharing where supported and otherwise downloads a PNG with an honest explanation. Filenames are unique.
 
-Original procedural Web Audio provides Gentle, Haunted, and Cosmic ambient music, independent sound effects, and a master mute. Sound & Motion sits at the top of Menu and groups audio settings with the canvas Animations checkbox. Everything starts off. Remembered enabled, unmuted audio resumes on the next trusted click after loading or returning to the tab. Mute and Off interactions do not briefly start sound. Audio uses bounded voices, hidden-tab suspension, and page-exit cleanup. The music choices use the same themed popup style as other controls.
+Original procedural Web Audio provides Gentle, Haunted, and Cosmic ambient music, independent sound effects, and a master mute. Audio settings and the canvas Animations checkbox are grouped at the top of Menu, with an accessible group label and no visible heading. Everything starts off. Remembered enabled, unmuted audio resumes on the next trusted click after loading or returning to the tab. Mute and Off interactions do not briefly start sound. Audio uses bounded voices, hidden-tab suspension, and page-exit cleanup. The music choices use the same themed popup style as other controls.
 
 Appearance follows the device’s light or dark preference until the user chooses an override. Explicit choices are remembered. Light mode keeps the original flat background, with a pale lavender loading surface. Functional loading indicators rotate independently of scene motion and stay static when the device requests reduced motion. Older local storage keys are intentionally retained for continuity.
 
@@ -49,3 +49,9 @@ Checks cover SQLite-backed ownership and transaction behavior, duplicate/concurr
 There is no tap-only alternative to move, resize, or rotate an item. Canvas gestures and keyboard editing remain available, and full WCAG conformance is not claimed.
 
 Actual mobile and desktop Lighthouse runs were blocked by the execution environment’s Chromium socket and browser-access restrictions. No Lighthouse score, physical Android test, or authenticated production browser pass is claimed.
+
+## Illustration consistency
+
+The complete inventory covers all 198 visible stamps and 36 biome choices. Thirty-three existing creatures were revised to match the navy ink, cream highlights, and natural surface textures of the reference animals. The new sitting calico belongs to the same family. Space and Underwater were redrawn while retaining their groundless compositions. The remaining coherent artwork was kept. Existing IDs, default sizes, saved placements, and original asset files remain available.
+
+See [the reusable art direction](docs/art/art-direction.md), [the per-item audit](docs/art/audit-decisions.json), and [production export details](docs/art/exports-manifest.json). Optimized WebP atlases preserve alpha, and source loading skips sheets with no remaining catalogue entries.

@@ -1,0 +1,714 @@
+{
+  "summary": {
+    "productionFiles": 7,
+    "revisedExistingStamps": 33,
+    "newStamps": 1,
+    "revisedBiomes": 2,
+    "productionBytes": 3912206,
+    "losslessBytes": 12965608,
+    "pngBytes": 16391602,
+    "reductionVsLosslessPercent": 69.8,
+    "qualityTradeoff": "Fine color hatching and paper grain soften slightly at full zoom. Silhouettes, normal-size detail, and all sprite alpha are preserved. Untouched generated PNGs and correction history remain recoverable."
+  },
+  "exports": [
+    {
+      "kind": "sprite-atlas",
+      "file": "cats-representative-v1-production.webp",
+      "png": "cats-representative-v1.png",
+      "lossless": "cats-representative-v1.webp",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "grid": [
+        3,
+        1
+      ],
+      "ids": [
+        "cat",
+        "calico-cat",
+        "tuxedo-cat"
+      ],
+      "quality": 89,
+      "alphaPreservedExactly": true,
+      "bytes": {
+        ".png": 1921784,
+        ".webp": 1471980,
+        "-production.webp": 471466
+      },
+      "integrationStatus": "integrated"
+    },
+    {
+      "kind": "sprite-atlas",
+      "file": "animals-batch-1-atlas-production.webp",
+      "png": "animals-batch-1-atlas.png",
+      "lossless": "animals-batch-1-atlas.webp",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "grid": [
+        3,
+        2
+      ],
+      "ids": [
+        "dolphin",
+        "octopus",
+        "squid",
+        "waterbear",
+        "wolf",
+        "manatee"
+      ],
+      "quality": 89,
+      "alphaPreservedExactly": true,
+      "bytes": {
+        ".png": 1730203,
+        ".webp": 1402170,
+        "-production.webp": 477696
+      },
+      "integrationStatus": "integrated"
+    },
+    {
+      "kind": "sprite-atlas",
+      "file": "animals-batch-2-atlas-production.webp",
+      "png": "animals-batch-2-atlas.png",
+      "lossless": "animals-batch-2-atlas.webp",
+      "dimensions": [
+        1536,
+        1536
+      ],
+      "grid": [
+        3,
+        3
+      ],
+      "ids": [
+        "trex",
+        "triceratops",
+        "deer",
+        "whale",
+        "falcon",
+        "bunny",
+        "raccoon",
+        "sleeping-cat",
+        "stretching-cat"
+      ],
+      "quality": 89,
+      "alphaPreservedExactly": true,
+      "bytes": {
+        ".png": 2240773,
+        ".webp": 1809050,
+        "-production.webp": 634532
+      },
+      "integrationStatus": "integrated"
+    },
+    {
+      "kind": "sprite-atlas",
+      "file": "animals-batch-3-atlas-production.webp",
+      "png": "animals-batch-3-atlas.png",
+      "lossless": "animals-batch-3-atlas.webp",
+      "dimensions": [
+        1536,
+        1536
+      ],
+      "grid": [
+        3,
+        3
+      ],
+      "ids": [
+        "bat",
+        "bigfoot",
+        "dragon",
+        "frog",
+        "griffin",
+        "jackalope",
+        "kraken",
+        "mothman",
+        "nessie"
+      ],
+      "quality": 89,
+      "alphaPreservedExactly": true,
+      "bytes": {
+        ".png": 2485571,
+        ".webp": 2020216,
+        "-production.webp": 692220
+      },
+      "integrationStatus": "integrated-pending-publication"
+    },
+    {
+      "kind": "sprite-atlas",
+      "file": "animals-batch-4-atlas-production.webp",
+      "png": "animals-batch-4-atlas.png",
+      "lossless": "animals-batch-4-atlas.webp",
+      "dimensions": [
+        1536,
+        1536
+      ],
+      "grid": [
+        3,
+        3
+      ],
+      "ids": [
+        "possum",
+        "raven",
+        "shrimp",
+        "snail",
+        "spider",
+        "starfish",
+        "unicorn"
+      ],
+      "quality": 89,
+      "alphaPreservedExactly": true,
+      "bytes": {
+        ".png": 1774681,
+        ".webp": 1424766,
+        "-production.webp": 540880
+      },
+      "integrationStatus": "integrated-pending-publication"
+    },
+    {
+      "kind": "biome",
+      "id": "space",
+      "file": "bg-space-ink-v1-production.webp",
+      "png": "bg-space-ink-v1.png",
+      "lossless": "bg-space-ink-v1.webp",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "quality": 90,
+      "bytes": {
+        ".png": 3347213,
+        ".webp": 2580610,
+        "-production.webp": 622650
+      },
+      "crop": null,
+      "integrationStatus": "integrated-pending-publication"
+    },
+    {
+      "kind": "biome",
+      "id": "underwater",
+      "file": "bg-underwater-ink-v1-production.webp",
+      "png": "bg-underwater-ink-v1.png",
+      "lossless": "bg-underwater-ink-v1.webp",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "quality": 90,
+      "bytes": {
+        ".png": 2891377,
+        ".webp": 2256816,
+        "-production.webp": 472762
+      },
+      "crop": null,
+      "integrationStatus": "integrated-pending-publication"
+    }
+  ],
+  "itemMapping": {
+    "cat": {
+      "file": "cats-representative-v1-production.webp",
+      "cell": 0,
+      "crop": [
+        10,
+        100,
+        720,
+        735
+      ],
+      "grid": [
+        3,
+        1
+      ]
+    },
+    "calico-cat": {
+      "file": "cats-representative-v1-production.webp",
+      "cell": 1,
+      "crop": [
+        730,
+        90,
+        536,
+        735
+      ],
+      "grid": [
+        3,
+        1
+      ]
+    },
+    "tuxedo-cat": {
+      "file": "cats-representative-v1-production.webp",
+      "cell": 2,
+      "crop": [
+        1266,
+        100,
+        508,
+        725
+      ],
+      "grid": [
+        3,
+        1
+      ]
+    },
+    "dolphin": {
+      "file": "animals-batch-1-atlas-production.webp",
+      "cell": 0,
+      "crop": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    },
+    "octopus": {
+      "file": "animals-batch-1-atlas-production.webp",
+      "cell": 1,
+      "crop": [
+        512,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    },
+    "squid": {
+      "file": "animals-batch-1-atlas-production.webp",
+      "cell": 2,
+      "crop": [
+        1024,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    },
+    "waterbear": {
+      "file": "animals-batch-1-atlas-production.webp",
+      "cell": 3,
+      "crop": [
+        0,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    },
+    "wolf": {
+      "file": "animals-batch-1-atlas-production.webp",
+      "cell": 4,
+      "crop": [
+        512,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    },
+    "manatee": {
+      "file": "animals-batch-1-atlas-production.webp",
+      "cell": 5,
+      "crop": [
+        1024,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    },
+    "trex": {
+      "file": "animals-batch-2-atlas-production.webp",
+      "cell": 0,
+      "crop": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "triceratops": {
+      "file": "animals-batch-2-atlas-production.webp",
+      "cell": 1,
+      "crop": [
+        512,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "deer": {
+      "file": "animals-batch-2-atlas-production.webp",
+      "cell": 2,
+      "crop": [
+        1024,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "whale": {
+      "file": "animals-batch-2-atlas-production.webp",
+      "cell": 3,
+      "crop": [
+        0,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "falcon": {
+      "file": "animals-batch-2-atlas-production.webp",
+      "cell": 4,
+      "crop": [
+        512,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "bunny": {
+      "file": "animals-batch-2-atlas-production.webp",
+      "cell": 5,
+      "crop": [
+        1024,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "raccoon": {
+      "file": "animals-batch-2-atlas-production.webp",
+      "cell": 6,
+      "crop": [
+        0,
+        1024,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "sleeping-cat": {
+      "file": "animals-batch-2-atlas-production.webp",
+      "cell": 7,
+      "crop": [
+        512,
+        1024,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "stretching-cat": {
+      "file": "animals-batch-2-atlas-production.webp",
+      "cell": 8,
+      "crop": [
+        1024,
+        1024,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "bat": {
+      "file": "animals-batch-3-atlas-production.webp",
+      "cell": 0,
+      "crop": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "bigfoot": {
+      "file": "animals-batch-3-atlas-production.webp",
+      "cell": 1,
+      "crop": [
+        512,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "dragon": {
+      "file": "animals-batch-3-atlas-production.webp",
+      "cell": 2,
+      "crop": [
+        1024,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "frog": {
+      "file": "animals-batch-3-atlas-production.webp",
+      "cell": 3,
+      "crop": [
+        0,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "griffin": {
+      "file": "animals-batch-3-atlas-production.webp",
+      "cell": 4,
+      "crop": [
+        512,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "jackalope": {
+      "file": "animals-batch-3-atlas-production.webp",
+      "cell": 5,
+      "crop": [
+        1024,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "kraken": {
+      "file": "animals-batch-3-atlas-production.webp",
+      "cell": 6,
+      "crop": [
+        0,
+        1024,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "mothman": {
+      "file": "animals-batch-3-atlas-production.webp",
+      "cell": 7,
+      "crop": [
+        512,
+        1024,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "nessie": {
+      "file": "animals-batch-3-atlas-production.webp",
+      "cell": 8,
+      "crop": [
+        1024,
+        1024,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "possum": {
+      "file": "animals-batch-4-atlas-production.webp",
+      "cell": 0,
+      "crop": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "raven": {
+      "file": "animals-batch-4-atlas-production.webp",
+      "cell": 1,
+      "crop": [
+        512,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "shrimp": {
+      "file": "animals-batch-4-atlas-production.webp",
+      "cell": 2,
+      "crop": [
+        1024,
+        0,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "snail": {
+      "file": "animals-batch-4-atlas-production.webp",
+      "cell": 3,
+      "crop": [
+        0,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "spider": {
+      "file": "animals-batch-4-atlas-production.webp",
+      "cell": 4,
+      "crop": [
+        512,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "starfish": {
+      "file": "animals-batch-4-atlas-production.webp",
+      "cell": 5,
+      "crop": [
+        1024,
+        512,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    },
+    "unicorn": {
+      "file": "animals-batch-4-atlas-production.webp",
+      "cell": 6,
+      "crop": [
+        0,
+        1024,
+        512,
+        512
+      ],
+      "grid": [
+        3,
+        3
+      ]
+    }
+  },
+  "generationMode": "Built-in imagegen with existing art references",
+  "generationRequestCount": 11,
+  "correctionHistory": [
+    "cephalopods-corrected-v1",
+    "octopus-corrected-v2",
+    "frog-corrected-v1",
+    "kraken-corrected-v1"
+  ],
+  "promptFiles": [
+    "generation-prompts.json",
+    "final-generation-prompts.json"
+  ],
+  "reviewBoards": [
+    "audit/revisions-light.jpg",
+    "audit/revisions-dark.jpg"
+  ],
+  "unicornTransparencyProof": "audit/unicorn-alpha-inspection.png",
+  "integrationSummary": {
+    "publishedExistingStampRevisions": 17,
+    "publishedNewStamps": 1,
+    "existingStampRevisionsAwaitingPublication": 16,
+    "biomesAwaitingPublication": 2,
+    "parentConfirmedChecks": [
+      "crop",
+      "palette",
+      "transform",
+      "unicorn alpha on dark and pale canvas"
+    ]
+  }
+}

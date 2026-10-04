@@ -1,0 +1,12 @@
+# Whimsical Grove illustration direction
+
+Use the existing fox, owl, hedgehog, mouse, penguin, and chipmunk as the reference family. The adjacent reference board contains their current artwork.
+
+- Draw confident navy outer contours with finer etched interior lines. Use cream highlights and lively coral, teal, and violet accents within natural surface texture. Avoid thick sticker outlines, plastic gloss, and photographic airbrushing.
+- Match texture to the material. Fur and feathers use tapered directional marks. Skin uses fine stippling, folds, and restrained hatching. Scales, bark, stone, glass, and bone retain their own recognizable surfaces.
+- Keep natural animal anatomy and count important limbs, wings, arms, and tentacles. Decorative color is welcome, but literal mushrooms, flowers, stars, and vines should not be painted onto animal bodies. Standalone mushrooms and fungi growing naturally in scenes or on environmental props remain welcome.
+- Preserve each existing creature's face, expression, pose direction, silhouette, and personality unless a pose change was explicitly requested. Cat (Dancing) keeps its seated raised-paw pose with only two forelegs. Cat (Rolling) keeps the approved white rolling pose. Distinguish individual cats through anatomy, fur markings, and posture.
+- Keep coherent artwork. A material difference or purposeful fantasy costume is not sufficient reason to redraw an asset. Reference animals, naturally textured newer creatures, existing botanical art, and most props should remain intact.
+- Retain biome compositions and open placement space. Background detail and contrast support the foreground stamps. Space and Underwater remain groundless, with no horizon, floor, seabed, or decorative frame. Do not bake sun or moon discs into any biome. Haze, Blank, and Void are intentionally quiet.
+- Preserve stable catalogue IDs, saved positions, and existing versions. Export revised art to new paths. Measure trimmed aspect ratios before integration, retain bottom-center anchors, and use an explicit render scale only when required to preserve an existing footprint.
+- Inspect at the 112px catalogue thumbnail and normal canvas size on both pale and dark backgrounds. Check alpha edges, complete silhouettes, limb counts, and clean crop separation. Keep original PNG and lossless exports. Production WebP may compress color at high quality, but must preserve alpha exactly.

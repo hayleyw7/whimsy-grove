@@ -13,6 +13,7 @@ function database(env) { if(!env.DB?.prepare || !env.DB?.batch || !env.BUCKET?.p
 function sceneValue(value) {
   if(!value || value.version!==2 || !Array.isArray(value.items) || value.items.length>100 || !palettes.has(value.palette) || !backgrounds.has(value.background) || !moons.has(value.moon) || !galaxies.has(value.galaxy) || typeof value.shootingStars!=='boolean' || !Array.isArray(value.weather) || value.weather.length>4 || value.weather.some(x=>!weather.has(x))) throw new Error('Invalid scene');
   if((value.promptId!==undefined&&value.promptId!==null&&!promptIds.has(value.promptId))||(value.promptHidden!==undefined&&typeof value.promptHidden!=='boolean'))throw new Error('Invalid inspiration');
+  if(value.motionPreference!==undefined&&value.motionPreference!=='auto'&&typeof value.motionPreference!=='boolean')throw new Error('Invalid animation preference');
   if(value.albumSourceId!==undefined&&!uuid.test(value.albumSourceId))throw new Error('Invalid Album reference');
   if((value.motion!==undefined&&typeof value.motion!=='boolean')||(value.creationId!==undefined&&!uuid.test(value.creationId)))throw new Error('Invalid scene preferences');
   const items=value.items.map(v=>{
@@ -20,7 +21,7 @@ function sceneValue(value) {
     return {uid:v.uid,...(v.order===undefined?{}:{order:v.order}),id:v.id,x:v.x,y:v.y,size:v.size,flip:v.flip,flipY:!!v.flipY,rotation:v.rotation||0};
   });
   if(new Set(items.map(x=>x.uid)).size!==items.length)throw new Error('Duplicate item');
-  return {version:2,...(value.albumSourceId===undefined?{}:{albumSourceId:value.albumSourceId}),...(value.promptId===undefined?{}:{promptId:value.promptId}),...(value.promptHidden===undefined?{}:{promptHidden:value.promptHidden}),...(value.creationId===undefined?{}:{creationId:value.creationId}),...(value.motion===undefined?{}:{motion:value.motion}),items,palette:value.palette,background:value.background,moon:value.moon,galaxy:value.galaxy,shootingStars:value.shootingStars,weather:[...new Set(value.weather)],seed:Number.isSafeInteger(value.seed)?value.seed:8921};
+  return {version:2,...(value.motionPreference===undefined?{}:{motionPreference:value.motionPreference}),...(value.albumSourceId===undefined?{}:{albumSourceId:value.albumSourceId}),...(value.promptId===undefined?{}:{promptId:value.promptId}),...(value.promptHidden===undefined?{}:{promptHidden:value.promptHidden}),...(value.creationId===undefined?{}:{creationId:value.creationId}),...(value.motion===undefined?{}:{motion:value.motion}),items,palette:value.palette,background:value.background,moon:value.moon,galaxy:value.galaxy,shootingStars:value.shootingStars,weather:[...new Set(value.weather)],seed:Number.isSafeInteger(value.seed)?value.seed:8921};
 }
 const nameSegments=typeof Intl.Segmenter==='function'?new Intl.Segmenter(undefined,{granularity:'grapheme'}):null;
 const nameCharacters=value=>nameSegments?Array.from(nameSegments.segment(value),part=>part.segment):Array.from(value);

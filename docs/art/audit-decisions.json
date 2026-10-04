@@ -1,0 +1,3441 @@
+{
+  "collection": "Whimsical Grove",
+  "auditDate": "2026-10-04",
+  "liveCommitReportedByParent": "da1c076664236547fb35b7d5edf936b6866de429",
+  "sourceSnapshotSha256": "c510e0b5f37d355c21467d9cc78e47f0f46fd866cdbf2bdc15cbdae338a16178",
+  "coverage": {
+    "visibleStamps": 198,
+    "stampKeep": 165,
+    "stampRevise": 33,
+    "biomeChoices": 36,
+    "biomeKeep": 34,
+    "biomeRevise": 2,
+    "imageBiomes": 34,
+    "proceduralBiomes": [
+      "none",
+      "void"
+    ]
+  },
+  "referenceIds": [
+    "chipmunk",
+    "fox",
+    "hedgehog",
+    "mouse",
+    "owl",
+    "penguin"
+  ],
+  "referenceBoard": "audit/reference-board.png",
+  "artDirection": "art-direction.md",
+  "excludedHiddenLegacyIds": [
+    "black-cat"
+  ],
+  "stamps": [
+    {
+      "id": "calico-cat",
+      "name": "Cat (Sitting)",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "integrated",
+      "batch": null,
+      "reason": "New approved sitting calico already matches the natural-fur reference family.",
+      "sourceSheet": "cats26",
+      "sourceCell": 1,
+      "defaultSize": 210,
+      "renderScale": 1,
+      "output": {
+        "file": "cats-representative-v1-production.webp",
+        "cell": 1,
+        "crop": [
+          730,
+          90,
+          536,
+          735
+        ],
+        "grid": [
+          3,
+          1
+        ],
+        "deployedAsset": "public/assets/cats-consistent-v27.webp"
+      }
+    },
+    {
+      "id": "willow-tree",
+      "name": "Willow Tree",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "garden25",
+      "sourceCell": 0,
+      "defaultSize": 350,
+      "renderScale": 1
+    },
+    {
+      "id": "birch-tree",
+      "name": "Birch Tree",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "garden25",
+      "sourceCell": 1,
+      "defaultSize": 345,
+      "renderScale": 1
+    },
+    {
+      "id": "bare-tree",
+      "name": "Bare Tree",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "garden25",
+      "sourceCell": 2,
+      "defaultSize": 345,
+      "renderScale": 1
+    },
+    {
+      "id": "bush",
+      "name": "Bush",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "garden25",
+      "sourceCell": 3,
+      "defaultSize": 210,
+      "renderScale": 1
+    },
+    {
+      "id": "horse",
+      "name": "Horse",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "garden25",
+      "sourceCell": 4,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "smoking-pipe",
+      "name": "Smoking Pipe",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "garden25",
+      "sourceCell": 5,
+      "defaultSize": 180,
+      "renderScale": 1
+    },
+    {
+      "id": "white-longhaired-cat",
+      "name": "Cat (Rolling)",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Approved rolling pose, blue eyes, and long white fur remain coherent. Preserve this artwork and pose.",
+      "sourceSheet": "garden25",
+      "sourceCell": 6,
+      "defaultSize": 230,
+      "renderScale": 1
+    },
+    {
+      "id": "rabbit-skeleton",
+      "name": "Skeleton (Rabbit)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "cats23",
+      "sourceCell": 2,
+      "defaultSize": 250,
+      "renderScale": 1
+    },
+    {
+      "id": "cat-skeleton",
+      "name": "Skeleton (Cat)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "cats23",
+      "sourceCell": 3,
+      "defaultSize": 260,
+      "renderScale": 1
+    },
+    {
+      "id": "bat-skeleton",
+      "name": "Skeleton (Bat)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "cats23",
+      "sourceCell": 4,
+      "defaultSize": 245,
+      "renderScale": 1
+    },
+    {
+      "id": "snake-skeleton",
+      "name": "Skeleton (Snake)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "cats23",
+      "sourceCell": 5,
+      "defaultSize": 250,
+      "renderScale": 1
+    },
+    {
+      "id": "fish-skeleton",
+      "name": "Skeleton (Fish)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "cats23",
+      "sourceCell": 6,
+      "defaultSize": 230,
+      "renderScale": 1
+    },
+    {
+      "id": "cat-skull",
+      "name": "Skull (Cat)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "creatures18a",
+      "sourceCell": 0,
+      "defaultSize": 175,
+      "renderScale": 1
+    },
+    {
+      "id": "jackalope-skull",
+      "name": "Skull (Jackalope)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "creatures18a",
+      "sourceCell": 1,
+      "defaultSize": 235,
+      "renderScale": 1
+    },
+    {
+      "id": "snake",
+      "name": "Snake",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18a",
+      "sourceCell": 2,
+      "defaultSize": 230,
+      "renderScale": 1
+    },
+    {
+      "id": "lizard",
+      "name": "Lizard",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18a",
+      "sourceCell": 3,
+      "defaultSize": 210,
+      "renderScale": 1
+    },
+    {
+      "id": "alien-antennae",
+      "name": "Alien (Standing)",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18a",
+      "sourceCell": 4,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "alien-cyclops",
+      "name": "Cyclops",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18a",
+      "sourceCell": 5,
+      "defaultSize": 180,
+      "renderScale": 1
+    },
+    {
+      "id": "beanstalk",
+      "name": "Beanstalk",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "creatures18a",
+      "sourceCell": 6,
+      "defaultSize": 330,
+      "renderScale": 1
+    },
+    {
+      "id": "tadpole",
+      "name": "Tadpole",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18a",
+      "sourceCell": 7,
+      "defaultSize": 140,
+      "renderScale": 1
+    },
+    {
+      "id": "turtle",
+      "name": "Turtle",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18a",
+      "sourceCell": 8,
+      "defaultSize": 190,
+      "renderScale": 1
+    },
+    {
+      "id": "butterfly",
+      "name": "Butterfly",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "wonders18b",
+      "sourceCell": 0,
+      "defaultSize": 165,
+      "renderScale": 1
+    },
+    {
+      "id": "bird-nest",
+      "name": "Bird Nest",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "wonders18b",
+      "sourceCell": 1,
+      "defaultSize": 175,
+      "renderScale": 1
+    },
+    {
+      "id": "snowman",
+      "name": "Snowman",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "wonders18b",
+      "sourceCell": 2,
+      "defaultSize": 240,
+      "renderScale": 1
+    },
+    {
+      "id": "fairy",
+      "name": "Fairy",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "wonders18b",
+      "sourceCell": 3,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "submarine",
+      "name": "Submarine",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "wonders18b",
+      "sourceCell": 4,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "crystal-ball",
+      "name": "Crystal Ball",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "wonders18b",
+      "sourceCell": 5,
+      "defaultSize": 185,
+      "renderScale": 1
+    },
+    {
+      "id": "cactus",
+      "name": "Cactus",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "wonders18b",
+      "sourceCell": 6,
+      "defaultSize": 245,
+      "renderScale": 1
+    },
+    {
+      "id": "raindrop",
+      "name": "Raindrop",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "wonders18b",
+      "sourceCell": 7,
+      "defaultSize": 140,
+      "renderScale": 1
+    },
+    {
+      "id": "snowflake",
+      "name": "Snowflake",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "wonders18b",
+      "sourceCell": 8,
+      "defaultSize": 155,
+      "renderScale": 1
+    },
+    {
+      "id": "chipmunk",
+      "name": "Chipmunk",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Canonical reference: coherent navy linework, cream highlights, natural anatomy, and colorful directional texture.",
+      "sourceSheet": "creatures18c",
+      "sourceCell": 0,
+      "defaultSize": 165,
+      "renderScale": 1
+    },
+    {
+      "id": "dove",
+      "name": "Dove",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18c",
+      "sourceCell": 1,
+      "defaultSize": 190,
+      "renderScale": 1
+    },
+    {
+      "id": "jellyfish",
+      "name": "Jellyfish",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18c",
+      "sourceCell": 2,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "shell",
+      "name": "Shell",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "creatures18c",
+      "sourceCell": 3,
+      "defaultSize": 165,
+      "renderScale": 1
+    },
+    {
+      "id": "worm",
+      "name": "Worm",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18c",
+      "sourceCell": 4,
+      "defaultSize": 140,
+      "renderScale": 1
+    },
+    {
+      "id": "caterpillar",
+      "name": "Caterpillar",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18c",
+      "sourceCell": 5,
+      "defaultSize": 160,
+      "renderScale": 1
+    },
+    {
+      "id": "ladybug",
+      "name": "Ladybug",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18c",
+      "sourceCell": 6,
+      "defaultSize": 110,
+      "renderScale": 1
+    },
+    {
+      "id": "dragonfly",
+      "name": "Dragonfly",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "creatures18c",
+      "sourceCell": 7,
+      "defaultSize": 175,
+      "renderScale": 1
+    },
+    {
+      "id": "crystal-point",
+      "name": "Crystal (Point)",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "magic16",
+      "sourceCell": 0,
+      "defaultSize": 185,
+      "renderScale": 1
+    },
+    {
+      "id": "crystal-heart",
+      "name": "Crystal (Heart)",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "magic16",
+      "sourceCell": 1,
+      "defaultSize": 165,
+      "renderScale": 1
+    },
+    {
+      "id": "crystal-sphere",
+      "name": "Crystal (Sphere)",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "magic16",
+      "sourceCell": 2,
+      "defaultSize": 165,
+      "renderScale": 1
+    },
+    {
+      "id": "kelpie",
+      "name": "Kelpie",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "magic16",
+      "sourceCell": 3,
+      "defaultSize": 320,
+      "renderScale": 1
+    },
+    {
+      "id": "will-o-the-wisp",
+      "name": "Wisp",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "magic16",
+      "sourceCell": 4,
+      "defaultSize": 185,
+      "renderScale": 1
+    },
+    {
+      "id": "gargoyle",
+      "name": "Gargoyle",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "magic16",
+      "sourceCell": 5,
+      "defaultSize": 245,
+      "renderScale": 1
+    },
+    {
+      "id": "forest-spirit",
+      "name": "Tiny Forest Spirit",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "magic16",
+      "sourceCell": 6,
+      "defaultSize": 165,
+      "renderScale": 1
+    },
+    {
+      "id": "antique-key",
+      "name": "Antique Key",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "magic16",
+      "sourceCell": 7,
+      "defaultSize": 160,
+      "renderScale": 1
+    },
+    {
+      "id": "potion-bottle",
+      "name": "Potion Bottle (Single)",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "magic16",
+      "sourceCell": 8,
+      "defaultSize": 175,
+      "renderScale": 1
+    },
+    {
+      "id": "hourglass",
+      "name": "Hourglass",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "objects16",
+      "sourceCell": 0,
+      "defaultSize": 200,
+      "renderScale": 1
+    },
+    {
+      "id": "broken-column",
+      "name": "Broken Column",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "objects16",
+      "sourceCell": 1,
+      "defaultSize": 270,
+      "renderScale": 1
+    },
+    {
+      "id": "driftwood",
+      "name": "Driftwood",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "objects16",
+      "sourceCell": 2,
+      "defaultSize": 265,
+      "renderScale": 1
+    },
+    {
+      "id": "lily-pad",
+      "name": "Lily Pad",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "objects16",
+      "sourceCell": 3,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "feather",
+      "name": "Single Feather",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "objects16",
+      "sourceCell": 4,
+      "defaultSize": 170,
+      "renderScale": 1
+    },
+    {
+      "id": "seal",
+      "name": "Seal",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "animals16",
+      "sourceCell": 0,
+      "defaultSize": 235,
+      "renderScale": 1
+    },
+    {
+      "id": "red-panda",
+      "name": "Panda (Red)",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "animals16",
+      "sourceCell": 1,
+      "defaultSize": 225,
+      "renderScale": 1
+    },
+    {
+      "id": "giant-panda",
+      "name": "Panda (Giant)",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "animals16",
+      "sourceCell": 2,
+      "defaultSize": 250,
+      "renderScale": 1
+    },
+    {
+      "id": "grizzly-bear",
+      "name": "Bear (Grizzly)",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "animals16",
+      "sourceCell": 3,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "polar-bear",
+      "name": "Bear (Polar)",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "animals16",
+      "sourceCell": 4,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "single-candle",
+      "name": "Candle (Single)",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "props5fire",
+      "sourceCell": 4,
+      "defaultSize": 170,
+      "renderScale": 1
+    },
+    {
+      "id": "rabbit-skull",
+      "name": "Skull (Rabbit)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "props5fire",
+      "sourceCell": 3,
+      "defaultSize": 165,
+      "renderScale": 1
+    },
+    {
+      "id": "bubble",
+      "name": "Bubble",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "props5fire",
+      "sourceCell": 2,
+      "defaultSize": 145,
+      "renderScale": 1
+    },
+    {
+      "id": "flame",
+      "name": "Flame",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "props5fire",
+      "sourceCell": 1,
+      "defaultSize": 180,
+      "renderScale": 1
+    },
+    {
+      "id": "bonfire",
+      "name": "Bonfire",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "props5fire",
+      "sourceCell": 0,
+      "defaultSize": 290,
+      "renderScale": 1
+    },
+    {
+      "id": "scarecrow",
+      "name": "Scarecrow",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "animals5cats",
+      "sourceCell": 8,
+      "defaultSize": 320,
+      "renderScale": 1
+    },
+    {
+      "id": "starfish",
+      "name": "Starfish",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 4,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5cats",
+      "sourceCell": 7,
+      "defaultSize": 150,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-4-atlas-production.webp",
+        "cell": 5,
+        "crop": [
+          1024,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v30.webp"
+      }
+    },
+    {
+      "id": "tuxedo-cat",
+      "name": "Cat (Dancing)",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 1,
+      "reason": "Explicit approved cat pose/anatomy change completed in the canonical etched-fur style, with body decals removed.",
+      "sourceSheet": "cats26",
+      "sourceCell": 2,
+      "defaultSize": 210,
+      "renderScale": 1,
+      "output": {
+        "file": "cats-representative-v1-production.webp",
+        "cell": 2,
+        "crop": [
+          1266,
+          100,
+          508,
+          725
+        ],
+        "grid": [
+          3,
+          1
+        ],
+        "deployedAsset": "public/assets/cats-consistent-v27.webp"
+      }
+    },
+    {
+      "id": "dragon",
+      "name": "Dragon",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 3,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5myth",
+      "sourceCell": 0,
+      "defaultSize": 320,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-3-atlas-production.webp",
+        "cell": 2,
+        "crop": [
+          1024,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v29.webp"
+      }
+    },
+    {
+      "id": "phoenix",
+      "name": "Phoenix",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "animals5myth",
+      "sourceCell": 1,
+      "defaultSize": 290,
+      "renderScale": 1
+    },
+    {
+      "id": "slender-man",
+      "name": "Slender Man",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "mythic",
+      "sourceCell": 2,
+      "defaultSize": 350,
+      "renderScale": 1
+    },
+    {
+      "id": "chupacabra",
+      "name": "Chupacabra",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "mythic",
+      "sourceCell": 3,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "bigfoot",
+      "name": "Bigfoot",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 3,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5myth",
+      "sourceCell": 3,
+      "defaultSize": 300,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-3-atlas-production.webp",
+        "cell": 1,
+        "crop": [
+          512,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v29.webp"
+      }
+    },
+    {
+      "id": "jackalope",
+      "name": "Jackalope",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 3,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5myth",
+      "sourceCell": 4,
+      "defaultSize": 220,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-3-atlas-production.webp",
+        "cell": 5,
+        "crop": [
+          1024,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v29.webp"
+      }
+    },
+    {
+      "id": "unicorn",
+      "name": "Unicorn",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 4,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5myth",
+      "sourceCell": 5,
+      "defaultSize": 280,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-4-atlas-production.webp",
+        "cell": 6,
+        "crop": [
+          0,
+          1024,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v30.webp"
+      }
+    },
+    {
+      "id": "griffin",
+      "name": "Griffin",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 3,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5myth",
+      "sourceCell": 6,
+      "defaultSize": 300,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-3-atlas-production.webp",
+        "cell": 4,
+        "crop": [
+          512,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v29.webp"
+      }
+    },
+    {
+      "id": "kraken",
+      "name": "Kraken",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 3,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5myth",
+      "sourceCell": 7,
+      "defaultSize": 330,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-3-atlas-production.webp",
+        "cell": 6,
+        "crop": [
+          0,
+          1024,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v29.webp"
+      }
+    },
+    {
+      "id": "voodoo-doll",
+      "name": "Voodoo doll",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "bonesprops",
+      "sourceCell": 0,
+      "defaultSize": 200,
+      "renderScale": 1
+    },
+    {
+      "id": "vines",
+      "name": "Vines",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "bonesprops",
+      "sourceCell": 1,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "deer-skull",
+      "name": "Skull (Deer)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "bonesprops",
+      "sourceCell": 2,
+      "defaultSize": 230,
+      "renderScale": 1
+    },
+    {
+      "id": "wolf-skull",
+      "name": "Skull (Wolf)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "bonesprops",
+      "sourceCell": 3,
+      "defaultSize": 190,
+      "renderScale": 1
+    },
+    {
+      "id": "bird-skull",
+      "name": "Skull (Bird)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "bonesprops",
+      "sourceCell": 4,
+      "defaultSize": 170,
+      "renderScale": 1
+    },
+    {
+      "id": "teeth",
+      "name": "Fang",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "props5bones",
+      "sourceCell": 0,
+      "defaultSize": 130,
+      "renderScale": 1
+    },
+    {
+      "id": "skeletal-arm",
+      "name": "Skeleton (Arm)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "props5bones",
+      "sourceCell": 2,
+      "defaultSize": 260,
+      "renderScale": 1
+    },
+    {
+      "id": "skeletal-leg",
+      "name": "Skeleton (Leg)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "props5bones",
+      "sourceCell": 3,
+      "defaultSize": 280,
+      "renderScale": 1
+    },
+    {
+      "id": "skeletal-hips",
+      "name": "Skeleton (Pelvis)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "pelvis24",
+      "sourceCell": 0,
+      "defaultSize": 210,
+      "renderScale": 1.1648936170212767
+    },
+    {
+      "id": "skeletal-hand",
+      "name": "Skeleton (Hand)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "oddities",
+      "sourceCell": 0,
+      "defaultSize": 155,
+      "renderScale": 1
+    },
+    {
+      "id": "skeletal-foot",
+      "name": "Skeleton (Foot)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "oddities",
+      "sourceCell": 1,
+      "defaultSize": 165,
+      "renderScale": 1
+    },
+    {
+      "id": "orb-web",
+      "name": "Spiderweb (Fine Weave)",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "oddities",
+      "sourceCell": 2,
+      "defaultSize": 240,
+      "renderScale": 1
+    },
+    {
+      "id": "corner-web",
+      "name": "Spiderweb (Tangled)",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "props5fire",
+      "sourceCell": 5,
+      "defaultSize": 250,
+      "renderScale": 1
+    },
+    {
+      "id": "eyeball",
+      "name": "Eyeball",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "oddities",
+      "sourceCell": 4,
+      "defaultSize": 130,
+      "renderScale": 1
+    },
+    {
+      "id": "leaf",
+      "name": "Leaf (Single)",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "oddities",
+      "sourceCell": 5,
+      "defaultSize": 110,
+      "renderScale": 1
+    },
+    {
+      "id": "leaf-pile",
+      "name": "Leaf (Pile)",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "oddities",
+      "sourceCell": 6,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "knife",
+      "name": "Knife",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "oddities",
+      "sourceCell": 7,
+      "defaultSize": 200,
+      "renderScale": 1
+    },
+    {
+      "id": "noose",
+      "name": "Noose",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "oddities",
+      "sourceCell": 8,
+      "defaultSize": 250,
+      "renderScale": 1
+    },
+    {
+      "id": "clown",
+      "name": "Clown",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "companions",
+      "sourceCell": 0,
+      "defaultSize": 260,
+      "renderScale": 1
+    },
+    {
+      "id": "sleeping-cat",
+      "name": "Cat (Sleeping)",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 2,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5cats",
+      "sourceCell": 4,
+      "defaultSize": 200,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-2-atlas-production.webp",
+        "cell": 7,
+        "crop": [
+          512,
+          1024,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v28.webp"
+      }
+    },
+    {
+      "id": "stretching-cat",
+      "name": "Cat (Stretching)",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 2,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5cats",
+      "sourceCell": 5,
+      "defaultSize": 230,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-2-atlas-production.webp",
+        "cell": 8,
+        "crop": [
+          1024,
+          1024,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v28.webp"
+      }
+    },
+    {
+      "id": "mirror",
+      "name": "Mirror",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "companions",
+      "sourceCell": 4,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "grass",
+      "name": "Grass",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "companions",
+      "sourceCell": 5,
+      "defaultSize": 210,
+      "renderScale": 1
+    },
+    {
+      "id": "weeds",
+      "name": "Weeds",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "companions",
+      "sourceCell": 6,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "clovers",
+      "name": "Clovers",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "companions",
+      "sourceCell": 7,
+      "defaultSize": 150,
+      "renderScale": 1
+    },
+    {
+      "id": "penguin",
+      "name": "Penguin",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Canonical reference: coherent navy linework, cream highlights, natural anatomy, and colorful directional texture.",
+      "sourceSheet": "penguin13",
+      "sourceCell": 0,
+      "defaultSize": 200,
+      "renderScale": 1
+    },
+    {
+      "id": "dolphin",
+      "name": "Dolphin",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 1,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5a",
+      "sourceCell": 1,
+      "defaultSize": 290,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-1-atlas-production.webp",
+        "cell": 0,
+        "crop": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          2
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v27.webp"
+      }
+    },
+    {
+      "id": "octopus",
+      "name": "Octopus",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 1,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5a",
+      "sourceCell": 2,
+      "defaultSize": 235,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-1-atlas-production.webp",
+        "cell": 1,
+        "crop": [
+          512,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          2
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v27.webp"
+      }
+    },
+    {
+      "id": "falcon",
+      "name": "Falcon",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 2,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5a",
+      "sourceCell": 3,
+      "defaultSize": 210,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-2-atlas-production.webp",
+        "cell": 4,
+        "crop": [
+          512,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v28.webp"
+      }
+    },
+    {
+      "id": "wolf",
+      "name": "Wolf",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 1,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5a",
+      "sourceCell": 4,
+      "defaultSize": 240,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-1-atlas-production.webp",
+        "cell": 4,
+        "crop": [
+          512,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          2
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v27.webp"
+      }
+    },
+    {
+      "id": "waterbear",
+      "name": "Water bear",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 1,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5a",
+      "sourceCell": 5,
+      "defaultSize": 160,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-1-atlas-production.webp",
+        "cell": 3,
+        "crop": [
+          0,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          2
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v27.webp"
+      }
+    },
+    {
+      "id": "squid",
+      "name": "Squid",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 1,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5a",
+      "sourceCell": 6,
+      "defaultSize": 250,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-1-atlas-production.webp",
+        "cell": 2,
+        "crop": [
+          1024,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          2
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v27.webp"
+      }
+    },
+    {
+      "id": "trex",
+      "name": "Tyrannosaurus",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 2,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5a",
+      "sourceCell": 7,
+      "defaultSize": 300,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-2-atlas-production.webp",
+        "cell": 0,
+        "crop": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v28.webp"
+      }
+    },
+    {
+      "id": "triceratops",
+      "name": "Triceratops",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 2,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5a",
+      "sourceCell": 8,
+      "defaultSize": 285,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-2-atlas-production.webp",
+        "cell": 1,
+        "crop": [
+          512,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v28.webp"
+      }
+    },
+    {
+      "id": "nessie",
+      "name": "Nessie",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 3,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5myth",
+      "sourceCell": 8,
+      "defaultSize": 310,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-3-atlas-production.webp",
+        "cell": 8,
+        "crop": [
+          1024,
+          1024,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v29.webp"
+      }
+    },
+    {
+      "id": "deer",
+      "name": "Deer",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 2,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5cats",
+      "sourceCell": 0,
+      "defaultSize": 280,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-2-atlas-production.webp",
+        "cell": 2,
+        "crop": [
+          1024,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v28.webp"
+      }
+    },
+    {
+      "id": "whale",
+      "name": "Whale",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 2,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5cats",
+      "sourceCell": 1,
+      "defaultSize": 345,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-2-atlas-production.webp",
+        "cell": 3,
+        "crop": [
+          0,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v28.webp"
+      }
+    },
+    {
+      "id": "manatee",
+      "name": "Manatee",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 1,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "animals5cats",
+      "sourceCell": 2,
+      "defaultSize": 265,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-1-atlas-production.webp",
+        "cell": 5,
+        "crop": [
+          1024,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          2
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v27.webp"
+      }
+    },
+    {
+      "id": "coral",
+      "name": "Coral",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "newnature",
+      "sourceCell": 4,
+      "defaultSize": 230,
+      "renderScale": 1
+    },
+    {
+      "id": "pine",
+      "name": "Pine Tree",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "newnature",
+      "sourceCell": 5,
+      "defaultSize": 345,
+      "renderScale": 1
+    },
+    {
+      "id": "moss",
+      "name": "Moss",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "newnature",
+      "sourceCell": 6,
+      "defaultSize": 180,
+      "renderScale": 1
+    },
+    {
+      "id": "lily",
+      "name": "Lily",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "newnature",
+      "sourceCell": 7,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "morning-glory",
+      "name": "Morning glory",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "newnature",
+      "sourceCell": 8,
+      "defaultSize": 240,
+      "renderScale": 1
+    },
+    {
+      "id": "dandelion",
+      "name": "Dandelion",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "newskyplants",
+      "sourceCell": 0,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "poppy-seeds",
+      "name": "Poppy Seed Pods",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "newskyplants",
+      "sourceCell": 1,
+      "defaultSize": 190,
+      "renderScale": 1
+    },
+    {
+      "id": "cannabis",
+      "name": "Cannabis",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "newskyplants",
+      "sourceCell": 2,
+      "defaultSize": 275,
+      "renderScale": 1
+    },
+    {
+      "id": "solar-eclipse",
+      "name": "Eclipse (Solar)",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "newskyplants",
+      "sourceCell": 3,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "lunar-eclipse",
+      "name": "Eclipse (Lunar)",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "companions",
+      "sourceCell": 8,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "satellite",
+      "name": "Satellite",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "newskyplants",
+      "sourceCell": 5,
+      "defaultSize": 250,
+      "renderScale": 1
+    },
+    {
+      "id": "moon-full",
+      "name": "Moon (Full)",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "sky",
+      "sourceCell": 0,
+      "defaultSize": 180,
+      "renderScale": 1
+    },
+    {
+      "id": "moon-crescent",
+      "name": "Moon (Crescent)",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "sky",
+      "sourceCell": 1,
+      "defaultSize": 170,
+      "renderScale": 1
+    },
+    {
+      "id": "moon-half",
+      "name": "Moon (Half)",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "sky",
+      "sourceCell": 2,
+      "defaultSize": 170,
+      "renderScale": 1
+    },
+    {
+      "id": "moon-blood",
+      "name": "Moon (Blood)",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "sky",
+      "sourceCell": 3,
+      "defaultSize": 180,
+      "renderScale": 1
+    },
+    {
+      "id": "lightning",
+      "name": "Lightning",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "sky",
+      "sourceCell": 5,
+      "defaultSize": 260,
+      "renderScale": 1
+    },
+    {
+      "id": "galaxy-violet",
+      "name": "Galaxy (Violet)",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "cosmic",
+      "sourceCell": 0,
+      "defaultSize": 380,
+      "renderScale": 1
+    },
+    {
+      "id": "galaxy-teal",
+      "name": "Galaxy (Teal)",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "cosmic",
+      "sourceCell": 1,
+      "defaultSize": 380,
+      "renderScale": 1
+    },
+    {
+      "id": "galaxy-rose",
+      "name": "Galaxy (Rose)",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "cosmic",
+      "sourceCell": 2,
+      "defaultSize": 380,
+      "renderScale": 1
+    },
+    {
+      "id": "shooting-star",
+      "name": "Shooting star",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "cosmic",
+      "sourceCell": 3,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "comet",
+      "name": "Comet",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "skyextra",
+      "sourceCell": 0,
+      "defaultSize": 250,
+      "renderScale": 1
+    },
+    {
+      "id": "sun",
+      "name": "Sun",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "skyextra",
+      "sourceCell": 1,
+      "defaultSize": 210,
+      "renderScale": 1
+    },
+    {
+      "id": "rainbow",
+      "name": "Rainbow",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "skyextra",
+      "sourceCell": 2,
+      "defaultSize": 350,
+      "renderScale": 1
+    },
+    {
+      "id": "planet",
+      "name": "Planet",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "skyextra",
+      "sourceCell": 3,
+      "defaultSize": 250,
+      "renderScale": 1
+    },
+    {
+      "id": "clouds",
+      "name": "Clouds",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "skyextra",
+      "sourceCell": 4,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "tornado",
+      "name": "Tornado",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "skyextra",
+      "sourceCell": 5,
+      "defaultSize": 340,
+      "renderScale": 1
+    },
+    {
+      "id": "rock",
+      "name": "Mossy rock",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "grounds",
+      "sourceCell": 0,
+      "defaultSize": 190,
+      "renderScale": 1
+    },
+    {
+      "id": "log",
+      "name": "Hollow log",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "grounds",
+      "sourceCell": 1,
+      "defaultSize": 270,
+      "renderScale": 1
+    },
+    {
+      "id": "stump",
+      "name": "Tree stump",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "grounds",
+      "sourceCell": 2,
+      "defaultSize": 240,
+      "renderScale": 1
+    },
+    {
+      "id": "roots",
+      "name": "Twisting roots",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "grounds",
+      "sourceCell": 3,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "pond",
+      "name": "Pond",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "grounds",
+      "sourceCell": 4,
+      "defaultSize": 330,
+      "renderScale": 1
+    },
+    {
+      "id": "stones",
+      "name": "Stepping stones",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "grounds",
+      "sourceCell": 5,
+      "defaultSize": 260,
+      "renderScale": 1
+    },
+    {
+      "id": "bridge",
+      "name": "Bridge",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "grounds",
+      "sourceCell": 6,
+      "defaultSize": 340,
+      "renderScale": 1
+    },
+    {
+      "id": "fairyring",
+      "name": "Fairy Ring",
+      "group": "mushrooms",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Standalone fantastical fungi are intentional and cohesive with the botanical ink style.",
+      "sourceSheet": "grounds",
+      "sourceCell": 7,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "antlers",
+      "name": "Antlers",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "grounds",
+      "sourceCell": 8,
+      "defaultSize": 200,
+      "renderScale": 1
+    },
+    {
+      "id": "statue",
+      "name": "Cracked statue",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "ruins",
+      "sourceCell": 0,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "ribs",
+      "name": "Skeleton (Ribs)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "ruins",
+      "sourceCell": 1,
+      "defaultSize": 190,
+      "renderScale": 1
+    },
+    {
+      "id": "bones",
+      "name": "Scattered bones",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "ruins",
+      "sourceCell": 2,
+      "defaultSize": 175,
+      "renderScale": 1
+    },
+    {
+      "id": "gravestone",
+      "name": "Gravestone",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "ruins",
+      "sourceCell": 3,
+      "defaultSize": 225,
+      "renderScale": 1
+    },
+    {
+      "id": "mausoleum",
+      "name": "Mausoleum",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "ruins",
+      "sourceCell": 4,
+      "defaultSize": 330,
+      "renderScale": 1
+    },
+    {
+      "id": "arch",
+      "name": "Ruined arch",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "ruins",
+      "sourceCell": 5,
+      "defaultSize": 340,
+      "renderScale": 1
+    },
+    {
+      "id": "gate",
+      "name": "Iron gate",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "ruins",
+      "sourceCell": 6,
+      "defaultSize": 330,
+      "renderScale": 1
+    },
+    {
+      "id": "fence",
+      "name": "Iron fence",
+      "group": "structures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "ruins",
+      "sourceCell": 7,
+      "defaultSize": 275,
+      "renderScale": 1
+    },
+    {
+      "id": "crystals",
+      "name": "Crystal (Cluster)",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "ruins",
+      "sourceCell": 8,
+      "defaultSize": 180,
+      "renderScale": 1
+    },
+    {
+      "id": "candles",
+      "name": "Candle (Cluster)",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "rituals",
+      "sourceCell": 0,
+      "defaultSize": 190,
+      "renderScale": 1
+    },
+    {
+      "id": "lantern",
+      "name": "Lantern",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "rituals",
+      "sourceCell": 1,
+      "defaultSize": 200,
+      "renderScale": 1
+    },
+    {
+      "id": "cauldron",
+      "name": "Cauldron",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "rituals",
+      "sourceCell": 2,
+      "defaultSize": 225,
+      "renderScale": 1
+    },
+    {
+      "id": "potions",
+      "name": "Potion Bottle (Set)",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "rituals",
+      "sourceCell": 3,
+      "defaultSize": 180,
+      "renderScale": 1
+    },
+    {
+      "id": "gnome",
+      "name": "Gnome",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "rituals",
+      "sourceCell": 4,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "alien",
+      "name": "Alien (Seated)",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "rituals",
+      "sourceCell": 5,
+      "defaultSize": 210,
+      "renderScale": 1
+    },
+    {
+      "id": "ufo",
+      "name": "UFO",
+      "group": "sky",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Celestial/weather material treatment is purposeful and compatible with the ink palette. Retain distinct effects and silhouettes.",
+      "sourceSheet": "rituals",
+      "sourceCell": 6,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "pentagram",
+      "name": "Pentagram",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "rituals",
+      "sourceCell": 7,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "ritualcircle",
+      "name": "Ritual circle",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "rituals",
+      "sourceCell": 8,
+      "defaultSize": 300,
+      "renderScale": 1
+    },
+    {
+      "id": "idol",
+      "name": "Horned idol",
+      "group": "magic",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "idol",
+      "sourceCell": 0,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "toadstool",
+      "name": "Mushroom (Spots)",
+      "group": "mushrooms",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Standalone fantastical fungi are intentional and cohesive with the botanical ink style.",
+      "sourceSheet": "mushrooms",
+      "sourceCell": 0,
+      "defaultSize": 245,
+      "renderScale": 1
+    },
+    {
+      "id": "wavy",
+      "name": "Mushroom (Wavy)",
+      "group": "mushrooms",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Standalone fantastical fungi are intentional and cohesive with the botanical ink style.",
+      "sourceSheet": "mushrooms",
+      "sourceCell": 1,
+      "defaultSize": 265,
+      "renderScale": 1
+    },
+    {
+      "id": "ruffles",
+      "name": "Mushroom (Ruffled)",
+      "group": "mushrooms",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Standalone fantastical fungi are intentional and cohesive with the botanical ink style.",
+      "sourceSheet": "mushrooms",
+      "sourceCell": 2,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "twins",
+      "name": "Mushroom (Pair)",
+      "group": "mushrooms",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Standalone fantastical fungi are intentional and cohesive with the botanical ink style.",
+      "sourceSheet": "mushrooms",
+      "sourceCell": 3,
+      "defaultSize": 185,
+      "renderScale": 1
+    },
+    {
+      "id": "curly",
+      "name": "Mushroom (Curled Cap)",
+      "group": "mushrooms",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Standalone fantastical fungi are intentional and cohesive with the botanical ink style.",
+      "sourceSheet": "mushrooms",
+      "sourceCell": 4,
+      "defaultSize": 225,
+      "renderScale": 1
+    },
+    {
+      "id": "bell",
+      "name": "Mushroom (Ghost)",
+      "group": "mushrooms",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Standalone fantastical fungi are intentional and cohesive with the botanical ink style.",
+      "sourceSheet": "mushrooms",
+      "sourceCell": 5,
+      "defaultSize": 235,
+      "renderScale": 1
+    },
+    {
+      "id": "fern",
+      "name": "Fern",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "woodland",
+      "sourceCell": 0,
+      "defaultSize": 250,
+      "renderScale": 1
+    },
+    {
+      "id": "rose",
+      "name": "Thorny rose",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "woodland",
+      "sourceCell": 1,
+      "defaultSize": 260,
+      "renderScale": 1
+    },
+    {
+      "id": "nightshade",
+      "name": "Nightshade",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "woodland",
+      "sourceCell": 2,
+      "defaultSize": 245,
+      "renderScale": 1
+    },
+    {
+      "id": "sapling",
+      "name": "Crooked Tree",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "woodland",
+      "sourceCell": 3,
+      "defaultSize": 345,
+      "renderScale": 1
+    },
+    {
+      "id": "flytrap",
+      "name": "Flytrap",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "woodland",
+      "sourceCell": 4,
+      "defaultSize": 215,
+      "renderScale": 1
+    },
+    {
+      "id": "fox",
+      "name": "Fox",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Canonical reference: coherent navy linework, cream highlights, natural anatomy, and colorful directional texture.",
+      "sourceSheet": "woodland",
+      "sourceCell": 5,
+      "defaultSize": 220,
+      "renderScale": 1
+    },
+    {
+      "id": "owl",
+      "name": "Owl",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Canonical reference: coherent navy linework, cream highlights, natural anatomy, and colorful directional texture.",
+      "sourceSheet": "woodland",
+      "sourceCell": 6,
+      "defaultSize": 205,
+      "renderScale": 1
+    },
+    {
+      "id": "hedgehog",
+      "name": "Hedgehog",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Canonical reference: coherent navy linework, cream highlights, natural anatomy, and colorful directional texture.",
+      "sourceSheet": "woodland",
+      "sourceCell": 7,
+      "defaultSize": 150,
+      "renderScale": 1
+    },
+    {
+      "id": "mouse",
+      "name": "Mouse",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Canonical reference: coherent navy linework, cream highlights, natural anatomy, and colorful directional texture.",
+      "sourceSheet": "woodland",
+      "sourceCell": 8,
+      "defaultSize": 130,
+      "renderScale": 1
+    },
+    {
+      "id": "cat",
+      "name": "Cat (Walking)",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 1,
+      "reason": "Explicit approved cat pose/anatomy change completed in the canonical etched-fur style, with body decals removed.",
+      "sourceSheet": "cats26",
+      "sourceCell": 0,
+      "defaultSize": 190,
+      "renderScale": 1,
+      "output": {
+        "file": "cats-representative-v1-production.webp",
+        "cell": 0,
+        "crop": [
+          10,
+          100,
+          720,
+          735
+        ],
+        "grid": [
+          3,
+          1
+        ],
+        "deployedAsset": "public/assets/cats-consistent-v27.webp"
+      }
+    },
+    {
+      "id": "frog",
+      "name": "Frog",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 3,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "visitors",
+      "sourceCell": 1,
+      "defaultSize": 145,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-3-atlas-production.webp",
+        "cell": 3,
+        "crop": [
+          0,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v29.webp"
+      }
+    },
+    {
+      "id": "snail",
+      "name": "Snail",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 4,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "visitors",
+      "sourceCell": 2,
+      "defaultSize": 130,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-4-atlas-production.webp",
+        "cell": 3,
+        "crop": [
+          0,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v30.webp"
+      }
+    },
+    {
+      "id": "bunny",
+      "name": "Bunny",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 2,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "critters",
+      "sourceCell": 0,
+      "defaultSize": 190,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-2-atlas-production.webp",
+        "cell": 5,
+        "crop": [
+          1024,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v28.webp"
+      }
+    },
+    {
+      "id": "raccoon",
+      "name": "Raccoon",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 2,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "critters",
+      "sourceCell": 1,
+      "defaultSize": 200,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-2-atlas-production.webp",
+        "cell": 6,
+        "crop": [
+          0,
+          1024,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/animals-consistent-v28.webp"
+      }
+    },
+    {
+      "id": "bat",
+      "name": "Bat",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 3,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "critters",
+      "sourceCell": 2,
+      "defaultSize": 165,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-3-atlas-production.webp",
+        "cell": 0,
+        "crop": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v29.webp"
+      }
+    },
+    {
+      "id": "possum",
+      "name": "Possum",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 4,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "critters",
+      "sourceCell": 3,
+      "defaultSize": 180,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-4-atlas-production.webp",
+        "cell": 0,
+        "crop": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v30.webp"
+      }
+    },
+    {
+      "id": "shrimp",
+      "name": "Shrimp",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 4,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "critters",
+      "sourceCell": 4,
+      "defaultSize": 140,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-4-atlas-production.webp",
+        "cell": 2,
+        "crop": [
+          1024,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v30.webp"
+      }
+    },
+    {
+      "id": "raven",
+      "name": "Raven",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 4,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "critters",
+      "sourceCell": 5,
+      "defaultSize": 190,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-4-atlas-production.webp",
+        "cell": 1,
+        "crop": [
+          512,
+          0,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v30.webp"
+      }
+    },
+    {
+      "id": "spider",
+      "name": "Spider",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 4,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "critters",
+      "sourceCell": 6,
+      "defaultSize": 115,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-4-atlas-production.webp",
+        "cell": 4,
+        "crop": [
+          512,
+          512,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v30.webp"
+      }
+    },
+    {
+      "id": "ghost",
+      "name": "Ghost",
+      "group": "creatures",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Natural surface treatment or intentional fantasy character design is cohesive. No clear stylistic outlier requiring a redraw.",
+      "sourceSheet": "visitors",
+      "sourceCell": 3,
+      "defaultSize": 180,
+      "renderScale": 1
+    },
+    {
+      "id": "skull",
+      "name": "Skull (Human)",
+      "group": "bones",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Ivory, navy, teal, and lavender etched bone treatment is coherent. Retain existing stylized bone artwork and labels.",
+      "sourceSheet": "props5bones",
+      "sourceCell": 1,
+      "defaultSize": 130,
+      "renderScale": 1
+    },
+    {
+      "id": "pumpkin",
+      "name": "Pumpkin (Whole)",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "visitors",
+      "sourceCell": 5,
+      "defaultSize": 160,
+      "renderScale": 1
+    },
+    {
+      "id": "mothman",
+      "name": "Mothman",
+      "group": "creatures",
+      "decision": "revise",
+      "status": "integrated",
+      "batch": 3,
+      "reason": "Literal mushroom/floral body decals and heavier flat surface treatment differ from the natural-texture reference family. Preserve identity, palette, and pose while revising.",
+      "sourceSheet": "critters",
+      "sourceCell": 7,
+      "defaultSize": 240,
+      "renderScale": 1,
+      "output": {
+        "file": "animals-batch-3-atlas-production.webp",
+        "cell": 7,
+        "crop": [
+          512,
+          1024,
+          512,
+          512
+        ],
+        "grid": [
+          3,
+          3
+        ],
+        "deployedAsset": "public/assets/creatures-consistent-v29.webp"
+      }
+    },
+    {
+      "id": "jack",
+      "name": "Pumpkin (Carved)",
+      "group": "plants",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Botanical form, navy detail, and natural material texture fit the collection. Retain existing plant identity.",
+      "sourceSheet": "critters",
+      "sourceCell": 8,
+      "defaultSize": 160,
+      "renderScale": 1
+    },
+    {
+      "id": "web",
+      "name": "Spiderweb (Wide Weave)",
+      "group": "nature",
+      "decision": "keep",
+      "status": "retained",
+      "batch": null,
+      "reason": "Material-specific ink detail and environmental/fantasy decoration fit the collection. Natural scene fungi and intentional props remain welcome.",
+      "sourceSheet": "sky",
+      "sourceCell": 4,
+      "defaultSize": 200,
+      "renderScale": 1
+    }
+  ],
+  "biomes": [
+    {
+      "id": "none",
+      "name": "Blank",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Intentionally quiet background that supports free placement. Preserve its minimal treatment.",
+      "sourceAsset": null
+    },
+    {
+      "id": "swamp",
+      "name": "Swamp",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-swamp.webp"
+    },
+    {
+      "id": "greenhouse",
+      "name": "Greenhouse",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-greenhouse.webp"
+    },
+    {
+      "id": "tide-pools",
+      "name": "Tide Pools",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-tide-pools.webp"
+    },
+    {
+      "id": "ruins",
+      "name": "Ruins",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-ruins.webp"
+    },
+    {
+      "id": "attic",
+      "name": "Attic",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-attic.webp"
+    },
+    {
+      "id": "crystal-cavern",
+      "name": "Crystal Cavern",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-crystal-cavern.webp"
+    },
+    {
+      "id": "frozen-lake",
+      "name": "Frozen Lake",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-frozen-lake.webp"
+    },
+    {
+      "id": "rooftop",
+      "name": "Rooftop",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-rooftop.webp"
+    },
+    {
+      "id": "haze",
+      "name": "Haze",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Intentionally quiet background that supports free placement. Preserve its minimal treatment.",
+      "sourceAsset": "assets/bg-haze.webp"
+    },
+    {
+      "id": "gnome-hollow",
+      "name": "Gnome Hollow",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-gnome-hollow-v5.webp"
+    },
+    {
+      "id": "ember-river",
+      "name": "Ember River",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Stronger red contrast is an intentional biome identity. Etched environment and usable foreground remain cohesive.",
+      "sourceAsset": "assets/bg-ember-river-v5.webp"
+    },
+    {
+      "id": "abandoned-prison",
+      "name": "Prison",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-abandoned-prison.webp"
+    },
+    {
+      "id": "under-bridge",
+      "name": "Bridge",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-under-bridge.webp"
+    },
+    {
+      "id": "cave",
+      "name": "Cave",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-cave.webp"
+    },
+    {
+      "id": "backyard-garden",
+      "name": "Backyard",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-backyard-garden.webp"
+    },
+    {
+      "id": "basement",
+      "name": "Basement",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-basement.webp"
+    },
+    {
+      "id": "beach",
+      "name": "Beach",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-beach.webp"
+    },
+    {
+      "id": "corn-maze",
+      "name": "Corn maze",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-corn-maze-v5.webp"
+    },
+    {
+      "id": "desert",
+      "name": "Desert",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-desert.webp"
+    },
+    {
+      "id": "factory",
+      "name": "Factory",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-factory-v2.webp"
+    },
+    {
+      "id": "forest",
+      "name": "Forest",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-forest.webp"
+    },
+    {
+      "id": "graveyard",
+      "name": "Graveyard",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-graveyard-v5.webp"
+    },
+    {
+      "id": "haunted-house",
+      "name": "Haunted house",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-haunted-house-v2.webp"
+    },
+    {
+      "id": "heaven",
+      "name": "Heaven",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-heaven.webp"
+    },
+    {
+      "id": "hell",
+      "name": "Hell",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Stronger red contrast is an intentional biome identity. Etched environment and usable foreground remain cohesive.",
+      "sourceAsset": "assets/bg-hell-v5.webp"
+    },
+    {
+      "id": "jungle",
+      "name": "Jungle",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-jungle.webp"
+    },
+    {
+      "id": "pumpkin-patch",
+      "name": "Pumpkin patch",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-pumpkin-patch-v5.webp"
+    },
+    {
+      "id": "river",
+      "name": "River",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-river.webp"
+    },
+    {
+      "id": "sandy-dunes",
+      "name": "Dunes",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-sandy-dunes-v5.webp"
+    },
+    {
+      "id": "space",
+      "name": "Space",
+      "decision": "revise",
+      "status": "integrated",
+      "reason": "Rendering is more photographic than the rest of the illustrated collection. Preserve the existing groundless composition and apply restrained etched ink/material texture.",
+      "sourceAsset": "assets/bg-space-v2.webp",
+      "output": {
+        "file": "bg-space-ink-v1-production.webp",
+        "crop": null,
+        "deployedAsset": "public/assets/bg-space-ink-v29.webp"
+      }
+    },
+    {
+      "id": "steampunk",
+      "name": "Steampunk",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-steampunk-v2.webp"
+    },
+    {
+      "id": "underwater",
+      "name": "Underwater",
+      "decision": "revise",
+      "status": "integrated",
+      "reason": "Rendering is more photographic than the rest of the illustrated collection. Preserve the existing groundless composition and apply restrained etched ink/material texture.",
+      "sourceAsset": "assets/bg-underwater-v2.webp",
+      "output": {
+        "file": "bg-underwater-ink-v1-production.webp",
+        "crop": null,
+        "deployedAsset": "public/assets/bg-underwater-ink-v29.webp"
+      }
+    },
+    {
+      "id": "void",
+      "name": "Void",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Intentionally quiet background that supports free placement. Preserve its minimal treatment.",
+      "sourceAsset": null
+    },
+    {
+      "id": "volcano",
+      "name": "Volcano",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-volcano.webp"
+    },
+    {
+      "id": "wonderland",
+      "name": "Wonderland",
+      "decision": "keep",
+      "status": "retained",
+      "reason": "Cohesive illustrated scenery with appropriate material detail and usable placement space. Preserve the setting and composition.",
+      "sourceAsset": "assets/bg-wonderland-v2.webp"
+    }
+  ],
+  "statusMeaning": {
+    "retained": "Coherent existing art kept unchanged.",
+    "integrated": "Parent confirmed publication.",
+    "integrated-pending-publication": "Parent confirmed integration in the working checkout and passing crop, palette, and transform checks. Publication is pending."
+  },
+  "passStatus": "All selected revisions are integrated in this source version. Native deployment status is tracked separately.",
+  "deliverables": {
+    "referenceBoard": "audit/reference-board.png",
+    "artDirection": "art-direction.md",
+    "exports": "exports-manifest.json"
+  },
+  "qualityChecks": [
+    "All 198 visible stamp IDs and all 36 biome IDs accounted for.",
+    "Hidden legacy black-cat excluded from redesign.",
+    "Stable existing IDs preserved; calico-cat is the single newly approved ID.",
+    "Dancing cat has only two forelegs, with one raised paw. Rolling cat retained unchanged.",
+    "Final octopus and Kraken each show eight arms. Squid has eight shorter arms and two longer club-ended tentacles.",
+    "Final frog has no mushroom remnants. Natural coat markings and requested poses retained.",
+    "Packaged cells preserve visible silhouettes without neighboring major components.",
+    "Production sprite alpha is byte-identical to its PNG atlas.",
+    "Space and Underwater remain groundless and contain no baked sun/moon or decorative frame.",
+    "Unicorn source PNG and production WebP were composited over true black and pale lavender. Apparent white/checker patches in raw previews are hidden near-transparent RGB, not baked opaque backgrounds. No redraw required."
+  ]
+}
