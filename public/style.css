@@ -111,3 +111,6 @@ html[data-theme=light] .toast{background:#59304fe0;color:#fff1f7}html[data-theme
 .saved-card .saved-date{display:flex;justify-content:space-between;align-items:baseline;gap:6px;white-space:nowrap;height:auto;min-height:0;line-height:1.25;margin-top:3px}.saved-date .saved-clock{margin-left:auto;flex-shrink:0}.saved-card .saved-actions.saved-menu{padding:4px;min-width:0}.saved-card .saved-menu>button{padding:10px;min-height:44px;min-width:0;white-space:nowrap}
 
 .gallery-refreshing{pointer-events:none}
+
+/* Keep the catalogue rail aligned with the complete visible image grid. */
+.grove-section .stamps{width:100%;max-width:100%;min-width:0}.grove-scroll-track[data-axis=x][aria-controls=stamps]:before{left:0;right:0;background:#754b665c}html[data-theme=dark] .grove-scroll-track[data-axis=x][aria-controls=stamps]:before{background:#b28fb366}
