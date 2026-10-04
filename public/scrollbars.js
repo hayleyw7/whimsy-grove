@@ -1,6 +1,6 @@
 'use strict';
 (() => {
-const selector='.stamps,.dropdown-menu,.floating-panel,.grove-dialog,.gallery-dialog,.saved-menu,.adjust-item-list,.toast[data-kind=error]',entries=new Map();
+const selector='.stamps,.dropdown-menu,.floating-panel,.grove-dialog,.gallery-dialog,.saved-menu,.toast[data-kind=error]',entries=new Map();
 let queued=false,drag=null;
 function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;sync();});}
 function setStyle(el,values){for(const[key,value]of Object.entries(values))if(el.style[key]!==value)el.style[key]=value;}
