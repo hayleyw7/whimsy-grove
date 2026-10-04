@@ -27,3 +27,10 @@ export const drawingSequences = sqliteTable('drawing_sequences', {
   historyCount: integer('history_count').notNull().default(0),
   albumCount: integer('album_count').notNull().default(0),
 });
+
+export const currentDrafts = sqliteTable('current_drafts', {
+  userId: text('user_id').primaryKey(),
+  sceneJson: text('scene_json').notNull(),
+  editId: text('edit_id').notNull(),
+  updatedAt: integer('updated_at').notNull(),
+});

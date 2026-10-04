@@ -19,14 +19,31 @@ function sceneValue(value) {
 }
 function publicRow(row,collection='history') { return {id:row.id,title:collection==='album'?(row.album_title||row.title):row.title,createdAt:row.created_at,inAlbum:!!row.is_album,inHistory:!!row.is_history,thumbnail:'/api/drawings/'+row.id+'/thumbnail'}; }
 async function owned(db,id,owner) {return db.prepare('SELECT * FROM drawings WHERE id = ? AND user_id = ?').bind(id,owner).first();}
+async function draftScope(owner) {const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('spooky-grove-draft:'+owner));return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');}
+function draftRow(row){return row?{scene:JSON.parse(row.scene_json),editId:row.edit_id,updatedAt:row.updated_at}:null;}
 async function api(request,env,url) {
   const owner=user(request);
-  if(url.pathname==='/api/session' && request.method==='GET')return reply({signedIn:!!owner,storageReady:!!(owner&&env.DB?.prepare&&env.DB?.batch&&env.BUCKET?.put)});
+  if(url.pathname==='/api/session' && request.method==='GET')return reply({signedIn:!!owner,draftScope:owner?await draftScope(owner):null,storageReady:!!(owner&&env.DB?.prepare&&env.DB?.batch&&env.BUCKET?.put)});
   if(!owner)return reply({error:'Sign in with ChatGPT to use your Album and History.',signIn:'/signin-with-chatgpt?return_to=%2F'},401);
   if(request.method!=='GET') {
     if(request.headers.get('origin')!==url.origin || request.headers.get('x-grove-request')!=='1')return reply({error:'This request could not be verified.'},403);
   }
   const db=database(env);
+  if(url.pathname==='/api/draft' && request.method==='GET') {
+    const row=await db.prepare('SELECT scene_json, edit_id, updated_at FROM current_drafts WHERE user_id = ?').bind(owner).first();
+    return reply({draft:draftRow(row),scope:await draftScope(owner)});
+  }
+  if(url.pathname==='/api/draft' && request.method==='PUT') {
+    const text=await request.text();if(text.length>100000)return reply({error:'This creation is too large to keep.'},413);
+    let input,scene;try{input=JSON.parse(text);scene=sceneValue(input.scene);if(!uuid.test(input.editId)||typeof input.scope!=='string'||(input.initialize!==undefined&&typeof input.initialize!=='boolean'))throw Error();}catch{return reply({error:'The current creation could not be saved in this format.'},400);}
+    const scope=await draftScope(owner);if(input.scope!==scope)return reply({error:'Your signed-in account changed. Refresh before continuing.'},409);
+    const conflict=input.initialize?'DO NOTHING':'DO UPDATE SET scene_json = excluded.scene_json, edit_id = excluded.edit_id, updated_at = excluded.updated_at WHERE current_drafts.edit_id != excluded.edit_id';
+    let row=await db.prepare(`INSERT INTO current_drafts (user_id,scene_json,edit_id,updated_at) VALUES (?,?,?,?) ON CONFLICT(user_id) ${conflict} RETURNING scene_json, edit_id, updated_at`).bind(owner,JSON.stringify(scene),input.editId,Date.now()).first();
+    if(!row)row=await db.prepare('SELECT scene_json, edit_id, updated_at FROM current_drafts WHERE user_id = ?').bind(owner).first();
+    if(!row)throw Error('Current creation save verification failed');
+    return reply({saved:true,draft:draftRow(row),scope});
+  }
+
   if(url.pathname==='/api/favorites' && request.method==='GET') {
     const result=await db.prepare('SELECT item_id FROM favorite_items WHERE user_id = ? ORDER BY item_id').bind(owner).all();
     return reply({items:result.results.map(row=>row.item_id)});
