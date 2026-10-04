@@ -1,6 +1,6 @@
 # Whimsical Grove
 
-A private Sites art toy with 197 placeable illustrations, 36 biomes, and 10 categories. Built-in ChatGPT sign-in protects each account’s creations, favorites, achievements, and prompt progress. The Site identity and URL are retained across updates.
+A private Sites art toy with 198 placeable illustrations, 36 biomes, and 10 categories. Built-in ChatGPT sign-in protects each account’s creations, favorites, achievements, and prompt progress. The Site identity and URL are retained across updates.
 
 ## Editor
 
@@ -18,7 +18,7 @@ Existing working drafts reopen directly. A fresh visit offers two inspiration pr
 
 New first shows its memory confirmation, then saves the current creation to History. Only a verified save opens the prompt chooser. The current creation stays intact until Start Creating commits the new scene. Failure stops the flow, and there is no duplicate History save. A first empty session does not invent a previous-memory confirmation. Inspiration reminders are dismissible and remain part of saved scene state.
 
-Finish Grove reveals the current creation and marks a prompt finished only when the person chooses Finish. There are no item requirements or judging. Each prompt ID counts once, with free replays. Add to Album and Keep Editing leave the creation editable.
+Finish Grove saves the current creation to Album before showing its completion reveal. The Album save, achievement credits, and prompt completion commit atomically. Retry preserves the creation on failure. A deterministic owner-scoped version ID prevents repeated or concurrent Finish requests from making duplicate records. Existing matching Album saves and their custom titles are reused. Changed versions are saved separately, preserving older artwork. The completed view offers Download, Share, New Grove, and Keep Editing, with a gentle reveal and an optional sound effect. Each prompt ID counts once, with no item requirements or judging.
 
 ## Motion, sound, and downloads
 
