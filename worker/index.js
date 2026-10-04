@@ -43,19 +43,21 @@ async function api(request,env,url) {
     if(!['album','history'].includes(collection))return reply({error:'Choose Album or History.'},400);
     const offset=Math.max(0,Math.min(1000000,Number.parseInt(url.searchParams.get('offset')||'0',10)||0));
     const field=collection==='album'?'is_album':'is_history';
-    const result=await db.prepare(`SELECT id, title, album_title, created_at, is_album, is_history FROM drawings WHERE user_id = ? AND ${field} = 1 ORDER BY created_at DESC, id DESC LIMIT 49 OFFSET ?`).bind(owner,offset).all();
+    const sorts={oldest:'created_at ASC, id ASC',newest:'created_at DESC, id DESC',az:'COALESCE(album_title, title) COLLATE NOCASE ASC, created_at ASC, id ASC',za:'COALESCE(album_title, title) COLLATE NOCASE DESC, created_at DESC, id DESC'};
+    const sort=collection==='album'&&Object.hasOwn(sorts,url.searchParams.get('sort'))?url.searchParams.get('sort'):'newest';
+    const result=await db.prepare(`SELECT id, title, album_title, created_at, is_album, is_history FROM drawings WHERE user_id = ? AND ${field} = 1 ORDER BY ${sorts[sort]} LIMIT 49 OFFSET ?`).bind(owner,offset).all();
     return reply({items:result.results.slice(0,48).map(row=>publicRow(row,collection)),nextOffset:result.results.length>48?offset+48:null});
   }
   if(url.pathname==='/api/drawings' && request.method==='POST') {
-    if(Number(request.headers.get('content-length')||0)>MAX_BODY)return reply({error:'This drawing is too large to save.'},413);
-    const text=await request.text();if(text.length>MAX_BODY)return reply({error:'This drawing is too large to save.'},413);
+    if(Number(request.headers.get('content-length')||0)>MAX_BODY)return reply({error:'This creation is too large to save.'},413);
+    const text=await request.text();if(text.length>MAX_BODY)return reply({error:'This creation is too large to save.'},413);
     let input,scene,bytes,mime;
     try {
       input=JSON.parse(text);if(!uuid.test(input.id)||!['album','history'].includes(input.collection))throw new Error();
       scene=sceneValue(input.scene);
       const match=/^data:image\/(webp|png|jpeg);base64,([A-Za-z0-9+/=]+)$/.exec(input.thumbnail||'');
       if(!match||match[2].length>650000)throw new Error();mime='image/'+match[1];const raw=atob(match[2]);bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));if(bytes.length<20||bytes.length>490000)throw new Error();
-    }catch{return reply({error:'The drawing could not be saved in this format.'},400);}
+    }catch{return reply({error:'The creation could not be saved in this format.'},400);}
     const existing=await owned(db,input.id,owner);if(existing)return reply({drawing:publicRow(existing,input.collection),saved:true});
     const key='drawings/'+encodeURIComponent(owner)+'/'+input.id;
     await env.BUCKET.put(key,bytes,{httpMetadata:{contentType:mime},customMetadata:{owner}});
@@ -73,7 +75,7 @@ async function api(request,env,url) {
   }
   const match=/^\/api\/drawings\/([0-9a-f-]{36})(?:\/(thumbnail|album))?$/.exec(url.pathname);
   if(match && uuid.test(match[1])) {
-    const row=await owned(db,match[1],owner);if(!row)return reply({error:'Drawing not found.'},404);
+    const row=await owned(db,match[1],owner);if(!row)return reply({error:'Creation not found.'},404);
     if(match[2]==='thumbnail' && request.method==='GET') {
       const object=await env.BUCKET.get(row.thumbnail_key);if(!object)return reply({error:'Picture unavailable.'},404);
       return new Response(object.body,{headers:{'content-type':object.httpMetadata?.contentType||'image/webp','cache-control':'private, no-store','x-content-type-options':'nosniff'}});
@@ -83,18 +85,18 @@ async function api(request,env,url) {
       return reply({saved:true,drawing:{...publicRow(row,'album'),inAlbum:true}});
     }
     if(!match[2] && request.method==='PATCH') {
-      if(!row.is_album)return reply({error:'Only Album drawings can be renamed.'},400);
+      if(!row.is_album)return reply({error:'Only Album creations can be renamed.'},400);
       let title;try{const text=await request.text();if(text.length>1000)throw new Error();title=JSON.parse(text).title;if(typeof title!=='string')throw new Error();title=title.trim().replace(/\s+/g,' ');if(!title||title.length>80)throw new Error();}catch{return reply({error:'Choose a name between 1 and 80 characters.'},400);}
       const renamed=await db.prepare('UPDATE drawings SET album_title = ? WHERE id = ? AND user_id = ? AND is_album = 1 RETURNING *').bind(title,row.id,owner).first();
-      if(!renamed)return reply({error:'Drawing not found.'},404);
+      if(!renamed)return reply({error:'Creation not found.'},404);
       return reply({saved:true,drawing:publicRow(renamed,'album')});
     }
     if(!match[2] && request.method==='DELETE') {
-      let input;try{const text=await request.text();if(text.length>1000)throw new Error();input=JSON.parse(text);if(input.confirmation!=='permanently-delete'||!['album','history'].includes(input.collection)||typeof input.title!=='string')throw new Error();}catch{return reply({error:'Confirm the permanent deletion of this drawing first.'},400);}
-      const collection=input.collection;if(!(collection==='album'?row.is_album:row.is_history))return reply({error:'Drawing not found.'},404);
+      let input;try{const text=await request.text();if(text.length>1000)throw new Error();input=JSON.parse(text);if(input.confirmation!=='permanently-delete'||!['album','history'].includes(input.collection)||typeof input.title!=='string')throw new Error();}catch{return reply({error:'Confirm the permanent deletion of this creation first.'},400);}
+      const collection=input.collection;if(!(collection==='album'?row.is_album:row.is_history))return reply({error:'Creation not found.'},404);
       const titleField=collection==='album'?'COALESCE(album_title, title)':'title';
       const removed=await db.prepare(`DELETE FROM drawings WHERE id = ? AND user_id = ? AND ${titleField} = ? RETURNING thumbnail_key`).bind(row.id,owner,input.title).first();
-      if(!removed)return reply({error:'This drawing changed. Open it again before deleting it.'},409);
+      if(!removed)return reply({error:'This creation changed. Open it again before deleting it.'},409);
       let cleanupPending=false;try{await env.BUCKET.delete(removed.thumbnail_key);}catch{cleanupPending=true;}
       return reply({deleted:true,cleanupPending});
     }
@@ -109,6 +111,6 @@ export default {
       if(url.pathname.startsWith('/api/'))return await api(request,env,url);
       if(env.ASSETS?.fetch)return env.ASSETS.fetch(request);
       return new Response('The garden is temporarily unavailable.',{status:503,headers:{'content-type':'text/plain','cache-control':'no-store'}});
-    }catch(error){console.error('Grove request failed',url.pathname,error?.message);return reply({error:'Your drawing was not changed. Account storage is temporarily unavailable. Please try again.'},503);}
+    }catch(error){console.error('Grove request failed',url.pathname,error?.message);return reply({error:'Your creation was not changed. Account storage is temporarily unavailable. Please try again.'},503);}
   }
 };
