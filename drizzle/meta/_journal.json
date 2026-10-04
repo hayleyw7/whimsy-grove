@@ -29,6 +29,20 @@
       "when": 1791078268743,
       "tag": "0003_premium_legion",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1791142649654,
+      "tag": "0004_dashing_firedrake",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1791142732764,
+      "tag": "0005_true_kingpin",
+      "breakpoints": true
     }
   ]
 }

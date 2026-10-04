@@ -34,3 +34,38 @@ export const currentDrafts = sqliteTable('current_drafts', {
   editId: text('edit_id').notNull(),
   updatedAt: integer('updated_at').notNull(),
 });
+
+export const achievementBadges = sqliteTable('achievement_badges', {
+  userId: text('user_id').notNull(),
+  badgeId: text('badge_id').notNull(),
+  earnedAt: integer('earned_at').notNull(),
+}, table => [primaryKey({ columns: [table.userId, table.badgeId] })]);
+
+export const achievementCreations = sqliteTable('achievement_creations', {
+  userId: text('user_id').notNull(),
+  creationId: text('creation_id').notNull(),
+  contentHash: text('content_hash').notNull(),
+  savedAt: integer('saved_at').notNull(),
+}, table => [primaryKey({ columns: [table.userId, table.creationId] }), uniqueIndex('achievement_creation_content').on(table.userId, table.contentHash)]);
+
+export const achievementBiomes = sqliteTable('achievement_biomes', {
+  userId: text('user_id').notNull(),
+  biomeId: text('biome_id').notNull(),
+  savedAt: integer('saved_at').notNull(),
+}, table => [primaryKey({ columns: [table.userId, table.biomeId] })]);
+
+export const achievementScans = sqliteTable('achievement_scans', {
+  userId: text('user_id').notNull(),
+  drawingId: text('drawing_id').notNull(),
+}, table => [primaryKey({ columns: [table.userId, table.drawingId] })]);
+
+export const achievementContents = sqliteTable('achievement_contents', {
+  userId: text('user_id').notNull(),
+  contentHash: text('content_hash').notNull(),
+}, table => [primaryKey({ columns: [table.userId, table.contentHash] })]);
+
+export const promptCompletions = sqliteTable('prompt_completions', {
+  userId: text('user_id').notNull(),
+  promptId: text('prompt_id').notNull(),
+  completedAt: integer('completed_at').notNull(),
+}, table => [primaryKey({ columns: [table.userId, table.promptId] })]);
