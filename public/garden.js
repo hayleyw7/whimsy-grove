@@ -56,7 +56,7 @@ const catalog=[
 {id:'bonfire',name:'Bonfire',group:'magic',sheet:'props5fire',cell:0,size:290},
 {id:'scarecrow',name:'Scarecrow',group:'structures',sheet:'animals5cats',cell:8,size:320},
 {id:'starfish',name:'Starfish',group:'creatures',sheet:'animals5cats',cell:7,size:150},
-{id:'tuxedo-cat',name:'Cat (Tuxedo)',group:'creatures',sheet:'creatures18c',cell:8,size:210},
+{id:'tuxedo-cat',name:'Cat (Tuxedo)',group:'creatures',sheet:'animals5cats',cell:6,size:210},
 {id:'dragon',name:'Dragon',group:'creatures',sheet:'animals5myth',cell:0,size:320},
 {id:'phoenix',name:'Phoenix',group:'creatures',sheet:'animals5myth',cell:1,size:290},
 {id:'slender-man',name:'Slender Man',group:'creatures',sheet:'mythic',cell:2,size:350},
