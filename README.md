@@ -10,7 +10,7 @@ Items are selected on the canvas. Drag to move, use square corners to resize, us
 
 Keyboard users can select items with Enter or Shift+Enter, jump to the first or last with Home or End, and deselect with Escape. Arrows move, plus and minus resize, and brackets rotate. Focused corner controls accept arrow keys. The selected object’s name, position, size, and angle have a persistent screen-reader status. Browser zoom shortcuts retain their normal behavior.
 
-Full Screen uses the browser API when supported and otherwise hides editing controls with an honest fallback. Return to Editing, Escape, and browser Back restore editing without changing the creation. There is no separate Hide Controls or Randomize entry.
+Full Screen uses the browser API when supported and otherwise hides editing controls with an honest fallback. Keep Editing, Escape, and browser Back restore editing without changing the creation. There is no separate Hide Controls or Randomize entry.
 
 ## New groves and inspiration
 
@@ -18,7 +18,7 @@ Existing working drafts reopen directly. A fresh visit offers two inspiration pr
 
 New first shows its memory confirmation, then saves the current creation to History. Only a verified save opens the prompt chooser. The current creation stays intact until Start Creating commits the new scene. Failure stops the flow, and there is no duplicate History save. A first empty session does not invent a previous-memory confirmation. Inspiration reminders are dismissible and remain part of saved scene state.
 
-Finish Grove reveals the current creation and marks a prompt finished only when the person chooses Finish. There are no item requirements or judging. Each prompt ID counts once, with free replays. Add to Album and Keep Creating leave the creation editable.
+Finish Grove reveals the current creation and marks a prompt finished only when the person chooses Finish. There are no item requirements or judging. Each prompt ID counts once, with free replays. Add to Album and Keep Editing leave the creation editable.
 
 ## Motion, sound, and downloads
 
