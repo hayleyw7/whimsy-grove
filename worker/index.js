@@ -1,5 +1,6 @@
+const saveNamePrefixes={"attic":"Loft","backyard-garden":"Yard","basement":"Below","beach":"Shore","none":"Blank","under-bridge":"Span","cave":"Cave","corn-maze":"Maize","crystal-cavern":"Gem","desert":"Arid","sandy-dunes":"Dunes","ember-river":"Ember","factory":"Works","forest":"Woods","frozen-lake":"Frost","gnome-hollow":"Gnome","graveyard":"Grave","greenhouse":"Glass","haunted-house":"Haunt","haze":"Haze","heaven":"Halo","hell":"Hell","jungle":"Vines","abandoned-prison":"Cell","pumpkin-patch":"Patch","river":"River","rooftop":"Roof","ruins":"Ruins","space":"Orbit","steampunk":"Brass","swamp":"Swamp","tide-pools":"Tide","underwater":"Deep","void":"Void","volcano":"Lava","wonderland":"Fable"};
 const MAX_BODY = 900000;
-const backgrounds = new Set(['none','greenhouse','tide-pools','ruins','attic','crystal-cavern','frozen-lake','rooftop','haze','gnome-hollow','ember-river','abandoned-prison','under-bridge','cave','backyard-garden','basement','beach','corn-maze','desert','factory','forest','graveyard','haunted-house','heaven','hell','jungle','pumpkin-patch','river','sandy-dunes','space','steampunk','underwater','void','volcano','wonderland']);
+const backgrounds = new Set(['none','swamp','greenhouse','tide-pools','ruins','attic','crystal-cavern','frozen-lake','rooftop','haze','gnome-hollow','ember-river','abandoned-prison','under-bridge','cave','backyard-garden','basement','beach','corn-maze','desert','factory','forest','graveyard','haunted-house','heaven','hell','jungle','pumpkin-patch','river','sandy-dunes','space','steampunk','underwater','void','volcano','wonderland']);
 const palettes = new Set(['haunted','candy','bog','dusk','monochrome','ember','ocean','spectral']);
 const moons = new Set(['none','full','crescent','half','blood']);
 const galaxies = new Set(['none','violet','teal','rose']);
@@ -66,7 +67,7 @@ async function api(request,env,url) {
     const field=collection==='album'?'is_album':'is_history';
     const titleField=collection==='album'?'COALESCE(album_title, title)':'title';
     const sorts={newest:'created_at DESC, id DESC',oldest:'created_at ASC, id ASC',az:titleField+' COLLATE NOCASE ASC, created_at ASC, id ASC'};
-    const sort=Object.hasOwn(sorts,url.searchParams.get('sort'))?url.searchParams.get('sort'):'newest';
+    const sort=Object.hasOwn(sorts,url.searchParams.get('sort'))&&(collection==='album'||url.searchParams.get('sort')!=='az')?url.searchParams.get('sort'):'newest';
     const result=await db.prepare(`SELECT id, title, album_title, created_at, is_album, is_history FROM drawings WHERE user_id = ? AND ${field} = 1 ORDER BY ${sorts[sort]} LIMIT 49 OFFSET ?`).bind(owner,offset).all();
     return reply({items:result.results.slice(0,48).map(row=>publicRow(row,collection)),nextOffset:result.results.length>48?offset+48:null});
   }
@@ -93,13 +94,13 @@ async function api(request,env,url) {
         await db.batch([increment,insert]);
       }else{
         const insert=db.prepare(`WITH RECURSIVE
-          base(name,prefixes) AS (SELECT COALESCE(?, 'Grove ' || album_count), ? FROM drawing_sequences WHERE user_id = ?),
+          base(name,prefixes,number) AS (SELECT COALESCE(?, CASE WHEN album_count<=999 THEN ? || ' Grove ' || album_count ELSE 'Grove ' || album_count END), ?, album_count FROM drawing_sequences WHERE user_id = ?),
           candidates(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM candidates WHERE n <= (SELECT COUNT(*) FROM drawings WHERE user_id = ? AND is_album = 1)),
-          names(n,name) AS (SELECT n, CASE WHEN n = 1 THEN base.name ELSE (CASE WHEN base.prefixes IS NULL THEN substr(base.name,1,15-length(' (' || n || ')')) ELSE json_extract(base.prefixes,'$[' || max(0,15-length(' (' || n || ')')) || ']') END) || ' (' || n || ')' END FROM candidates,base)
+          names(n,name) AS (SELECT n, CASE WHEN n = 1 THEN base.name ELSE (CASE WHEN base.prefixes IS NULL THEN CASE WHEN length('Grove ' || base.number || ' (' || n || ')')<=15 THEN 'Grove ' || base.number ELSE 'G' || base.number END ELSE json_extract(base.prefixes,'$[' || max(0,15-length(' (' || n || ')')) || ']') END) || ' (' || n || ')' END FROM candidates,base)
           INSERT INTO drawings (id,user_id,scene_json,thumbnail_key,title,created_at,is_album,is_history,history_number,album_title)
           SELECT ?,user_id,?,?,'Grove ' || album_count,?,1,0,NULL,
             (SELECT name FROM names WHERE NOT EXISTS (SELECT 1 FROM drawings d WHERE d.user_id = ? AND d.is_album = 1 AND COALESCE(d.album_title,d.title) = names.name COLLATE NOCASE) ORDER BY n LIMIT 1)
-          FROM drawing_sequences WHERE user_id = ?`).bind(albumTitle,namePrefixes(albumTitle),owner,owner,input.id,JSON.stringify(scene),key,Date.now(),owner,owner);
+          FROM drawing_sequences WHERE user_id = ?`).bind(albumTitle,saveNamePrefixes[scene.background],namePrefixes(albumTitle),owner,owner,input.id,JSON.stringify(scene),key,Date.now(),owner,owner);
         await db.batch([increment,insert]);
       }
     }catch(error){const check=await owned(db,input.id,owner);if(check)return reply({drawing:publicRow(check,input.collection),saved:true});await env.BUCKET.delete(key).catch(()=>{});throw error;}
