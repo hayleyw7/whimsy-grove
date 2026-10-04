@@ -28,7 +28,7 @@ PNG is a clear still. GIF is a local, deterministic short loop of the selected b
 
 Original procedural Web Audio provides Gentle, Haunted, and Cosmic ambient music, independent sound effects, and a master mute. Audio settings and the canvas Animations checkbox are grouped at the top of Menu, with an accessible group label and no visible heading. Everything starts off. Remembered enabled, unmuted audio resumes on the next trusted click after loading or returning to the tab. Mute and Off interactions do not briefly start sound. Audio uses bounded voices, hidden-tab suspension, and page-exit cleanup. The music choices use the same themed popup style as other controls.
 
-Appearance follows the device’s light or dark preference until the user chooses an override. Explicit choices are remembered. Light mode keeps the original flat background, with a pale lavender loading surface. Functional loading indicators rotate independently of scene motion and stay static when the device requests reduced motion. Older local storage keys are intentionally retained for continuity.
+First visits start in Dark Mode. Explicit returning-user appearance choices are remembered. Light mode keeps the original flat background, with a pale lavender loading surface. Functional loading indicators rotate independently of scene motion and stay static when the device requests reduced motion. Older local storage keys are intentionally retained for continuity.
 
 ## Storage and progress
 

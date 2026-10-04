@@ -161,3 +161,6 @@ html[data-theme=light] .canvas-wrap,html[data-theme=light] .loading{background:#
 @media(max-width:359px){.actions{column-gap:6px}.actions .restart-actions{padding-right:6px}.actions .restart-actions .clear-action{min-width:38px;padding:9px 5px;font-size:13px}.actions .creation-actions{gap:4px;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 34px}.actions .creation-actions>button{font-size:12px;padding:9px 3px;gap:3px}.actions .creation-actions #share{width:34px;min-width:34px;padding:8px}.actions .creation-actions>button .ui-icon{width:14px;height:14px;flex-basis:14px}}
 
 @media(max-width:359px){.gallery-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* The menu reserves a rail only when its contents actually overflow. */
+#userMenu.grove-scrollbar-ready{padding:7px}#userMenu.grove-scrollbar-ready.grove-scroll-overflow-y{padding-right:31px}
