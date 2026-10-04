@@ -1,4 +1,4 @@
-# Spooky Grove
+# Whimsical Grove
 
 An illustrated scene editor hosted privately on OpenAI Sites.
 
