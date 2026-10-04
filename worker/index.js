@@ -1,5 +1,5 @@
 const MAX_BODY = 900000;
-const backgrounds = new Set(['none','haze','gnome-hollow','ember-river','abandoned-prison','under-bridge','cave','backyard-garden','basement','beach','corn-maze','desert','factory','forest','graveyard','haunted-house','heaven','hell','jungle','pumpkin-patch','river','sandy-dunes','space','steampunk','underwater','void','volcano','wonderland']);
+const backgrounds = new Set(['none','greenhouse','tide-pools','ruins','attic','crystal-cavern','frozen-lake','rooftop','haze','gnome-hollow','ember-river','abandoned-prison','under-bridge','cave','backyard-garden','basement','beach','corn-maze','desert','factory','forest','graveyard','haunted-house','heaven','hell','jungle','pumpkin-patch','river','sandy-dunes','space','steampunk','underwater','void','volcano','wonderland']);
 const palettes = new Set(['haunted','candy','bog','dusk','monochrome','ember','ocean','spectral']);
 const moons = new Set(['none','full','crescent','half','blood']);
 const galaxies = new Set(['none','violet','teal','rose']);
