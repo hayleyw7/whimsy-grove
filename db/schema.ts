@@ -55,6 +55,7 @@ export const achievementBiomes = sqliteTable('achievement_biomes', {
 }, table => [primaryKey({ columns: [table.userId, table.biomeId] })]);
 
 export const achievementScans = sqliteTable('achievement_scans', {
+  ruleVersion: integer('rule_version').notNull().default(1),
   userId: text('user_id').notNull(),
   drawingId: text('drawing_id').notNull(),
 }, table => [primaryKey({ columns: [table.userId, table.drawingId] })]);
@@ -69,3 +70,10 @@ export const promptCompletions = sqliteTable('prompt_completions', {
   promptId: text('prompt_id').notNull(),
   completedAt: integer('completed_at').notNull(),
 }, table => [primaryKey({ columns: [table.userId, table.promptId] })]);
+
+export const achievementObservations = sqliteTable('achievement_observations', {
+  userId: text('user_id').notNull(),
+  kind: text('kind').notNull(),
+  value: text('value').notNull(),
+  savedAt: integer('saved_at').notNull(),
+}, table => [primaryKey({ columns: [table.userId, table.kind, table.value] })]);

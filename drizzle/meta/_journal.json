@@ -43,6 +43,13 @@
       "when": 1791142732764,
       "tag": "0005_true_kingpin",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1791152265903,
+      "tag": "0006_sharp_zemo",
+      "breakpoints": true
     }
   ]
 }
