@@ -18,7 +18,7 @@ Existing working drafts reopen directly. A fresh visit offers two inspiration pr
 
 New first shows its memory confirmation, then saves the current creation to History. Only a verified save opens the prompt chooser. The current creation stays intact until Start Creating commits the new scene. Failure stops the flow, and there is no duplicate History save. A first empty session does not invent a previous-memory confirmation. Inspiration reminders are dismissible and remain part of saved scene state.
 
-Finish Grove saves the current creation to Album before showing its completion reveal. The Album save, achievement credits, and prompt completion commit atomically. Retry preserves the creation on failure. A deterministic owner-scoped version ID prevents repeated or concurrent Finish requests from making duplicate records. Existing matching Album saves and their custom titles are reused. Changed versions are saved separately, preserving older artwork. The completed view offers Download, Share, New Grove, and Keep Editing, with a gentle reveal and an optional sound effect. Each prompt ID counts once, with no item requirements or judging.
+Prompts are optional inspiration. Creations have no finish or win condition. Add to Album uses the ordinary naming and save flow. Existing artwork, earned badges, and historical ledger records are preserved.
 
 ## Motion, sound, and downloads
 
@@ -36,7 +36,7 @@ The Worker trusts only the Sites-authenticated user header. Every record, thumbn
 
 Album saves are manual. New and Open verify a History save before replacing current work. Names allow 15 grapheme clusters with a hard input limit and matching server validation. Existing long names are preserved. Album names can be changed independently of History titles. Deletion requires explicit named confirmation and removes the record from both collections when applicable. Gallery sorting preserves the open view and layout. Mobile cards open an action menu, while desktop uses the ellipsis.
 
-Fifteen in-game achievements have visible criteria. Album saves and their credits commit atomically. Milestones count distinct creation lineages and deduplicate matching artwork, including later versions. History autosaves, repeated saves, and renames do not inflate counts. Earned badges, biome visits, and completion records remain after creation deletion. Backfill uses only verifiable existing Album records. Share records use of the Share action, and Download records successful file generation and handoff, without claiming delivery or an operating-system save.
+Fifteen in-game achievements have visible criteria. Album saves and their credits commit atomically. Milestones count distinct creation lineages and deduplicate matching artwork, including later versions. History autosaves, repeated saves, and renames do not inflate counts. Earned badges, biome visits, and historical records remain after creation deletion. Backfill uses only verifiable existing Album records. Share records use of the Share action, and Download records successful file generation and handoff, without claiming delivery or an operating-system save.
 
 Guest progress is clearly device-local and is not automatically merged into an account. Authenticated progress uses D1, with an owner-scoped pending-event queue for temporary network failures. External repository and itch.io badges are not exposed without real approved launch links.
 
@@ -44,7 +44,7 @@ Guest progress is clearly device-local and is not automatically merged into an a
 
 Run `npm run build` to copy the client, Worker, hosting manifest, and generated Drizzle migrations into `dist`. Run `npm run db:generate` after schema changes. Applied migrations are immutable. Current additions are 0004 and 0005, with new progress tables only and no production data deletion.
 
-Checks cover SQLite-backed ownership and transaction behavior, duplicate/concurrent saves, lifetime progress, prompt completion, editor gestures, dialog flows, motion gating, GIF decoding, all 36 biomes across 8 palettes, and source accessibility structure. Native asset and assembly renders were visually inspected. The independent source audit verified named dialogs, ARIA references, keyboard selection, 24 px custom scrollbar targets, and stronger dark focus contrast. Additional checks cover short-screen popup geometry, nested focus return, persistent errors, skip links, favorite-heart focus, and forced-color selection cues.
+Checks cover SQLite-backed ownership and transaction behavior, duplicate/concurrent saves, lifetime progress, retired completion requests, editor gestures, dialog flows, motion gating, GIF decoding, all 36 biomes across 8 palettes, and source accessibility structure. Native asset and assembly renders were visually inspected. The independent source audit verified named dialogs, ARIA references, keyboard selection, 24 px custom scrollbar targets, and stronger dark focus contrast. Additional checks cover short-screen popup geometry, nested focus return, persistent errors, skip links, favorite-heart focus, and forced-color selection cues.
 
 There is no tap-only alternative to move, resize, or rotate an item. Canvas gestures and keyboard editing remain available, and full WCAG conformance is not claimed.
 
