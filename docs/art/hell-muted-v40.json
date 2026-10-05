@@ -1,0 +1,11 @@
+{
+  "biome": "hell",
+  "method": "Imagegen reference edit",
+  "previousAsset": "public/assets/bg-hell-v5.webp",
+  "currentAsset": "public/assets/bg-hell-muted-v40.webp",
+  "dimensions": [1254, 1254],
+  "sha256": "1daca2fba02777cd6755ae7edbe7d366a7e65d353a03384e64856a8797c29070",
+  "change": "Smoky burgundy and muted plum replace broad saturated scarlet in the sky and stone. Amber remains localized to lava.",
+  "preserved": ["composition", "architecture", "perspective", "rocks", "open foreground", "ink linework", "biome identifier"],
+  "previousAssetRetained": true
+}
