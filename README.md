@@ -65,3 +65,5 @@ Environmental animation samples the existing, palette-rendered scene artwork ins
 Weather offers Clear, Drizzle, Rain, Flurries, Snow, Mist, Fog, and Strong Wind. The picker selects exactly one effect. Drizzle uses 30 lighter drops, Flurries uses 40 soft flakes, Mist stays low and light, and Strong Wind uses three coordinated sets of trailing gusts. All effects share the live, still, thumbnail, and GIF renderer. New weather identifiers are accepted by both draft and server scene validation, and saved weather observations retain account-scoped achievement behavior.
 
 Hell keeps its existing composition with smoky burgundy and muted plum across its sky and stone, while bright amber stays localized to lava. The prior `bg-hell-v5.webp` remains available. The revised imagegen source and color-edit record are preserved separately.
+
+Fog keeps its three bands, shape, opacity range, and color, with a 30-second live drift cycle instead of three seconds. Its short GIF loop uses a tiny smooth phase excursion no faster than the slower live drift and a closed boundary. Mist and other weather retain their timing.
