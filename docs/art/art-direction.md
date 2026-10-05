@@ -1,4 +1,4 @@
-# Whimsical Grove illustration direction
+# Whimsy Grove illustration direction
 
 Use the existing fox, owl, hedgehog, mouse, penguin, and chipmunk as the reference family. The adjacent reference board contains their current artwork.
 

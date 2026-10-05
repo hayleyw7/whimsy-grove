@@ -1,4 +1,4 @@
-# Whimsical Grove
+# Whimsy Grove
 
 A private Sites art toy with 198 placeable illustrations, 36 biomes, and 10 categories. Built-in ChatGPT sign-in protects each account’s creations, favorites, achievements, and prompt progress. The Site identity and URL are retained across updates.
 

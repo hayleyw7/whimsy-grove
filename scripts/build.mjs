@@ -7,4 +7,4 @@ await cp('worker/index.js', 'dist/server/index.js');
 await cp('.openai/hosting.json', 'dist/.openai/hosting.json');
 await cp('drizzle', 'dist/.openai/drizzle', { recursive: true });
 await writeFile('dist/server/wrangler.json', JSON.stringify({name:'spooky-grove',main:'index.js',compatibility_date:'2026-09-01',assets:{directory:'../client',binding:'ASSETS',run_worker_first:['/api/*']}}));
-console.log('Built Whimsical Grove with authenticated storage and bundled assets.');
+console.log('Built Whimsy Grove with authenticated storage and bundled assets.');
