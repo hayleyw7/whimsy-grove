@@ -1,1 +1,22 @@
-{"name":"spooky-grove","version":"1.0.0","private":true,"type":"module","scripts":{"build":"node scripts/build.mjs","db:generate":"drizzle-kit generate"},"devDependencies":{"drizzle-kit":"0.31.10","drizzle-orm":"0.45.2"},"dependencies":{"gifenc":"1.0.3"}}
+{
+  "name": "spooky-grove",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "db:generate": "drizzle-kit generate",
+    "start": "node scripts/local-server.mjs"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.31.10",
+    "drizzle-orm": "0.45.2"
+  },
+  "dependencies": {
+    "gifenc": "1.0.3",
+    "google-auth-library": "^11.2.0"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}

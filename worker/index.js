@@ -177,6 +177,9 @@ export default {
     const url=new URL(request.url);
     try {
       if(url.pathname.startsWith('/api/'))return await api(request,env,url);
+      // Sites dispatch owns sign-in and supplies the authenticated identity.
+      // Require it before serving the editor or its static assets.
+      if(!user(request))return new Response(null,{status:302,headers:{location:'/signin-with-chatgpt?return_to=%2F','cache-control':'private, no-store'}});
       if(env.ASSETS?.fetch)return env.ASSETS.fetch(request);
       return new Response('The garden is temporarily unavailable.',{status:503,headers:{'content-type':'text/plain','cache-control':'no-store'}});
     }catch(error){console.error('Grove request failed',url.pathname,error?.message);return reply({error:'Your creation was not changed. Account storage is temporarily unavailable. Please try again.'},503);}
