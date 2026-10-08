@@ -16,7 +16,7 @@ No account or backend is required. Drafts, Album, History, favorites, and achiev
 
 ## Editable album backups
 
-In Album, choose **Back up Album** to download a JSON backup. **Import Album** shows a count before merging new groves, skips existing IDs, and preserves the current scene and existing library. Files are limited to 20 MB and 1,000 groves. Backups include Album scenes and thumbnails, not History, preferences, or favorites. Keep backup files somewhere safe before clearing browser data.
+In Album, choose **Export album** to download a JSON backup. **Import album** shows a count before merging new groves, skips existing IDs, and preserves the current scene and existing library. Files are limited to 20 MB and 1,000 groves. Backups include Album scenes and thumbnails, not History, preferences, or favorites. Keep backup files somewhere safe before clearing browser data.
 
 ## Features
 
