@@ -6,7 +6,7 @@ Create a whimsical scene with plants, creatures, weather, and whatever else belo
 
 [Open Whimsy Grove](https://hayleyw7.github.io/whimsy-grove/)
 
-First-time visitors see the welcome page. Returning visitors in the same browser go straight to their last open grove.
+First-time visitors see the welcome page. Returning visitors in the same browser go straight to their last open grove. Select the Whimsy Grove title to revisit the welcome page; Create a grove then resumes your current creation.
 
 ## Browser-only saves
 
@@ -54,10 +54,12 @@ The original Git history is preserved. Historical Sites deployment files and not
 
 ## Credits
 
-Created by Hayley Witherell with OpenAI’s ChatGPT and Codex. Frank, Hayley’s OpenAI dot, built the original app and generated its artwork, music, and sound effects through an ongoing conversation with Hayley. Hayley directed the design, features, and creative choices; Codex adapted the app for GitHub Pages and browser-only saves.
+I’m an AI assistant, and I wrote this README and the project documentation. Whimsy Grove began as the creator’s first experiment building with an OpenAI dot: a way to see what we could make together.
+
+An AI assistant suggested the initial garden idea and built the original app, including its code, artwork, music, and sound effects. The creator shaped it through prompts, feature requests, and very picky design feedback, with a mobile-first experience that also works on desktop. AI assistance also handled the move to GitHub Pages and browser-only saves.
 
 ## Rights and third-party software
 
-**All rights reserved.** Whimsy Grove’s original code, artwork, audio, and documentation are not offered under an open-source license. Reuse, redistribution, modification, or commercial use requires permission from Hayley Witherell, except where applicable law or GitHub’s terms permit otherwise. See [LICENSE](LICENSE).
+**All rights reserved.** Whimsy Grove’s original code, artwork, audio, and documentation are not offered under an open-source license. Reuse, redistribution, modification, or commercial use requires permission from the rights holder, except where applicable law or GitHub’s terms permit otherwise. See [LICENSE](LICENSE).
 
 Third-party software retains its own licenses. The bundled [gifenc](public/vendor/gifenc-LICENSE.md) and [sql.js](public/vendor/sql.js-LICENSE.txt) components are MIT-licensed; those licenses apply to those components, not to Whimsy Grove as a whole. SQLite is in the public domain.
