@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 const source=await readFile('public/audio.js','utf8');
-function harness(saved=null){
+function harness(saved=null,random=0){
  const elements=new Map(),contexts=[],sources=[],storage=new Map(saved?[['spooky-grove-audio-v1',JSON.stringify(saved)]]:[]);
  function element(){return {listeners:{},attrs:{},classList:{toggle(){}},addEventListener(type,fn){this.listeners[type]=fn},setAttribute(k,v){this.attrs[k]=v},closest(){return this.audioAction?this:null}};}
  const document={...element(),hidden:false,getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id)}};
@@ -18,7 +18,7 @@ function harness(saved=null){
   createBufferSource(){const node={connect(){},disconnect(){},start(){this.started=true},stop(){this.stopped=true}};sources.push(node);return node}
  }
  window.AudioContext=AudioContext;
- vm.runInNewContext(source,{window,document,localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},setTimeout,clearTimeout,Float32Array,Math,JSON,Number,Set,Map,Promise});
+ vm.runInNewContext(source,{window,document,localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},setTimeout,clearTimeout,Float32Array,Math:Object.assign(Object.create(Math),{random:()=>random}),JSON,Number,Set,Map,Promise});
  const get=id=>document.getElementById(id),event=target=>({isTrusted:true,target});
  const settle=async()=>{for(let i=0;i<100;i++){await new Promise(r=>setTimeout(r,5));if(!get('audioStatus').textContent?.startsWith('Preparing'))return;}throw Error('Audio did not finish preparing')};
  return {window,document,contexts,sources,get,storage,settle,settings:()=>JSON.parse(storage.get('spooky-grove-audio-v1')),label:()=>get('masterMute').attrs['aria-label'],click:async()=>{get('masterMute').audioAction=true;get('masterMute').listeners.click(event(get('masterMute')));await settle()},gesture:async()=>{document.listeners.click(event(element()));await settle()}};
@@ -35,4 +35,9 @@ const off=harness({music:'off',volume:35,sfx:false,muted:false});await off.gestu
 const zero=harness({music:'cosmic',volume:0,sfx:false,muted:false});await zero.click();assert.equal(zero.settings().music,'cosmic');assert.equal(zero.settings().volume,35);
 const effects=harness({music:'off',volume:0,sfx:true,muted:false});await effects.click();assert.equal(effects.settings().music,'off');effects.window.groveAudio.effect('add');assert(effects.sources.some(s=>s.started));
 for(const h of [first,reload,custom,returnFromWelcome,off,zero,effects])h.window.listeners.pagehide();
-console.log('PASS: first-click enable, audible samples, mute/unmute, saved preferences, reload resume, visibility/navigation, zero volume, and SFX-only audio.');
+const randomA=harness(null,0),randomB=harness({music:'gentle',musicPinned:false,sfx:false,muted:false},.5),randomC=harness(null,.99);
+assert.equal(randomA.get('musicTrack').value,'gentle');assert.equal(randomB.get('musicTrack').value,'haunted');assert.equal(randomC.get('musicTrack').value,'cosmic');assert.equal(randomB.get('soundEffects').checked,false);
+await randomB.window.groveAudio.selectTrack('off',{isTrusted:true});const pinnedOff=harness(randomB.settings(),.99);assert.equal(pinnedOff.get('musicTrack').value,'off');assert.equal(pinnedOff.get('soundEffects').checked,false);await pinnedOff.gesture();assert.equal(pinnedOff.contexts.length,0);
+const chosen=harness({music:'cosmic',musicPinned:true,sfx:false,muted:false},0);assert.equal(chosen.get('musicTrack').value,'cosmic');
+const muted=harness({music:'haunted',musicPinned:true,sfx:true,muted:true},.99);await muted.gesture();assert.equal(muted.contexts.length,0);assert.equal(muted.get('musicTrack').value,'haunted');
+console.log('PASS: random unpinned visits, explicit track/off/mute persistence, legacy preferences; first-click enable, audible samples, mute/unmute, saved preferences, reload resume, visibility/navigation, zero volume, and SFX-only audio.');
