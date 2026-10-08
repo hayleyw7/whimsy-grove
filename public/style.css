@@ -170,3 +170,7 @@ html[data-theme=light] .canvas-wrap,html[data-theme=light] .loading{background:#
 .canvas-tools{box-sizing:border-box;height:61px;min-height:61px;max-height:61px;flex-wrap:nowrap}
 
 .masthead .home-link{color:inherit;text-decoration:none;border-radius:4px}.masthead .home-link:focus-visible{outline:3px solid currentColor;outline-offset:5px}
+
+/* Use one balanced inset: the custom scrollbar lives inside it, not beside it. */
+.gallery-dialog{padding-inline:max(var(--gallery-inset),24px)}
+.achievement-dialog{padding-inline:max(var(--achievement-padding),24px)}
