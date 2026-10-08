@@ -1,10 +1,11 @@
 import {mkdir,rm,cp,readFile,writeFile} from 'node:fs/promises';
 import {build} from 'esbuild';
-import {welcomePage} from './welcome-page.mjs';
+import {welcomePage,sharingMetadata} from './welcome-page.mjs';
 await rm('dist',{recursive:true,force:true});
 await cp('public','dist',{recursive:true});
-await writeFile('dist/editor.html',await readFile('public/index.html'));
-await writeFile('dist/index.html',await welcomePage(false).text());
+const editor=(await readFile('public/index.html','utf8')).replace(/<meta name="description"[^>]*>/g,'').replace('</head>',sharingMetadata+'</head>');
+await writeFile('dist/editor.html',editor);
+await writeFile('dist/index.html',await welcomePage().text());
 const journal=JSON.parse(await readFile('drizzle/meta/_journal.json','utf8'));
 await writeFile('scripts/browser-migrations.json',JSON.stringify(await Promise.all(journal.entries.map(x=>readFile('drizzle/'+x.tag+'.sql','utf8')))));
 await build({entryPoints:['scripts/browser-storage.mjs'],bundle:true,format:'esm',platform:'browser',outfile:'dist/browser-storage.js',external:['fs','path','crypto'],minify:true});
