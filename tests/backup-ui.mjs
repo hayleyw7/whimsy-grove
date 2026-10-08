@@ -10,7 +10,7 @@ const element=id=>{
 let calls=[],summary={total:2,add:1,skip:1,titles:['<script>']},failure=null,events=[];
 const request=async(path,options)=>{calls.push({path,options});if(failure)throw Error(failure);return path.endsWith('/preview')?summary:{imported:1,skip:1};};
 let source=readFileSync('public/backup.js','utf8').replace(/async function request\(path,options\)\{[^\n]+\}/,'');
-vm.runInNewContext(source,{document:{getElementById:element,dispatchEvent:e=>events.push(e.type)},request,Event,Error,JSON,Blob,URL,setTimeout});
+vm.runInNewContext(source,{document:{getElementById:element,createElement:()=>({click(){}}),dispatchEvent:e=>events.push(e.type)},request,Event,Error,JSON,Blob,URL:{createObjectURL:()=> 'blob:test',revokeObjectURL(){}},setTimeout:()=>0});
 const choose=async(size=10)=>{const input=element('albumBackupFile');input.files=[{size,text:async()=>'{"backup":"fixture"}'}];await input.listeners.change({target:input});};
 await choose();
 assert.equal(element('importBackupDialog').open,true);
@@ -25,3 +25,5 @@ summary={total:1,add:0,skip:1,titles:[]};await choose();assert.equal(element('co
 element('cancelImport').click();const count=calls.length;await choose(20*1024*1024+1);assert.equal(calls.length,count);assert.match(element('backupStatus').textContent,/20 MB/);
 summary={total:1,add:1,skip:0,titles:['test']};await choose();failure='Nothing imported: storage full';await element('confirmImport').click();assert.equal(element('importBackupDialog').open,true);assert.equal(element('confirmImport').disabled,false);assert.match(element('importStatus').textContent,/Nothing imported/);
 console.log('Backup UI PASS: preview, cancel, explicit confirmation, duplicate disabling, size limit, safe text, recoverable failure');
+
+failure=null;await element('exportAlbum').click();assert.equal(element('backupStatus').hidden,true);assert.equal(element('backupStatus').textContent,'');failure='Export failed';await element('exportAlbum').click();assert.equal(element('backupStatus').hidden,false);assert.equal(element('backupStatus').textContent,'Export failed');console.log('PASS: export success stays silent, export failures remain visible');
