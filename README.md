@@ -51,3 +51,13 @@ The complete static site is written to `dist/`. Relative URLs support GitHub Pag
 - `docs/` — art records and historical Sites notes
 
 The original Git history is preserved. Historical Sites deployment files and notes are retained for provenance, but are not needed for GitHub Pages. Local data, dependencies, generated migrations, and build output are ignored by Git.
+
+## Credits
+
+Created by Hayley Witherell with OpenAI’s ChatGPT and Codex. Frank, Hayley’s OpenAI dot, built the original app and generated its artwork, music, and sound effects through an ongoing conversation with Hayley. Hayley directed the design, features, and creative choices; Codex adapted the app for GitHub Pages and browser-only saves.
+
+## Rights and third-party software
+
+**All rights reserved.** Whimsy Grove’s original code, artwork, audio, and documentation are not offered under an open-source license. Reuse, redistribution, modification, or commercial use requires permission from Hayley Witherell, except where applicable law or GitHub’s terms permit otherwise. See [LICENSE](LICENSE).
+
+Third-party software retains its own licenses. The bundled [gifenc](public/vendor/gifenc-LICENSE.md) and [sql.js](public/vendor/sql.js-LICENSE.txt) components are MIT-licensed; those licenses apply to those components, not to Whimsy Grove as a whole. SQLite is in the public domain.
