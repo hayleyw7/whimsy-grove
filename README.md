@@ -4,59 +4,50 @@
 
 Create a whimsical scene with plants, creatures, weather, and whatever else belongs there.
 
-## What you can do
+[Open Whimsy Grove](https://hayleyw7.github.io/whimsy-grove/)
 
-- Choose an illustrated landscape and arrange plants, creatures, and objects.
-- Move, resize, rotate, flip, and duplicate items, with undo and redo.
-- Set weather, colors, ambient motion, and optional sound.
-- Save scenes to your album and export PNG images or animated GIFs.
+First-time visitors see the welcome page. Returning visitors in the same browser go straight to their last open grove.
 
-The welcome page is public. Opening the editor and saving creations require Google sign-in in the local edition.
+## Browser-only saves
+
+No account or backend is required. Drafts, Album, History, favorites, and achievements are stored in your browser using IndexedDB. The editor uses SQLite compiled to WebAssembly to keep the existing scene validation and achievement rules.
+
+**Saves do not sync between devices or browsers.** Clearing site data, storage eviction, or ending a private browsing session can delete them. Download PNG or GIF images to keep visual copies; these are not editable scene backups. The old local server's saves and the original hosted app's saves are separate and are not automatically imported.
+
+## Features
+
+- Illustrated landscapes, plants, creatures, and objects
+- Move, resize, rotate, flip, duplicate, undo, and redo
+- Weather, palettes, atmospheric motion, and optional sound
+- Album, History, favorites, and achievements
+- PNG and animated GIF export
 
 ## Run locally
 
-Requires Node.js 22.13 or newer.
+Use Node.js 22.13 or newer:
 
 ```sh
 npm ci
 npm start
 ```
 
-Open **http://localhost:8000**. Choose **Create your grove** to sign in and open the editor.
-Use `localhost`, not `127.0.0.1`, because the OAuth client is registered for that origin.
+Open http://localhost:8000. The preview is a plain static file server. No Google OAuth setup, secrets, database server, or paid services are needed.
 
-The included Google OAuth client is configured for local development and remains in testing. Other developers should create their own Google web client and replace the public client ID in `scripts/local-server.mjs`. No client secret is used by the ID-token sign-in flow.
-
-Scenes are stored in `.local-data/` on the machine running the server, separated by verified Google account ID. Back up this directory to preserve saves. Sessions expire after 12 hours or when the server restarts. Dependencies, local saves, environment files, and build output are excluded from Git.
-
-## Hosting
-
-The local server is a development server bound to loopback. Public deployment requires HTTPS, a registered production Google origin, production session handling, and persistent storage.
-
-**GitHub Pages alone cannot run this full app.** It can serve a static welcome page, but cannot run the Node server, validate login sessions, or store private creations. Do not deploy the editor as a static guest-mode workaround. A backend-capable host is required for the complete signed-in experience.
-
-The original Sites deployment uses a Worker with D1 and R2 and platform-provided ChatGPT identity. That deployment is separate from the local Google sign-in server; its existing saves are not imported into this copy.
-
-## Build
+## Build and deploy
 
 ```sh
 npm run build
 ```
 
-This builds the original Sites/Worker target into `dist/`; it is not a GitHub Pages export and does not deploy anything. Local development serves the source files directly.
+The complete static site is written to `dist/`. Relative URLs support GitHub Pages project paths. The `.github/workflows/pages.yml` workflow builds and deploys `main` using GitHub Actions. In repository **Settings → Pages**, select **GitHub Actions** as the publishing source.
 
-## Project layout
+## Source layout
 
-- `public/` — editor, illustrated assets, audio, and client code
-- `scripts/welcome-page.mjs` — public welcome page
-- `scripts/local-server.mjs` — local Google sign-in, sessions, and protected routing
-- `scripts/local-storage.mjs` — local SQLite and thumbnail storage
-- `worker/index.js` — account-scoped application API
-- `drizzle/` — database migrations
-- `docs/` — art records and original implementation notes
+- `public/` — editor, artwork, audio, and client code
+- `scripts/welcome-page.mjs` — public landing page
+- `scripts/browser-storage.mjs` — browser persistence adapter
+- `worker/index.js` — reused scene validation, collection, and achievement rules, invoked inside the browser; not deployed as a server
+- `drizzle/` — SQLite schema migrations bundled at build time
+- `docs/` — art records and historical Sites notes
 
-See [local setup details](LOCAL_SETUP.md) and [original Sites notes](docs/original-sites-notes.md).
-
-## Source history
-
-The original source and assets were retrieved from the verified Sites repository with its Git history intact. This branch starts from live version 43; later unpublished bunny drafts are retained locally as separate branches and are not part of this release.
+The original Git history is preserved. Historical Sites deployment files and notes are retained for provenance, but are not needed for GitHub Pages. Local data, dependencies, generated migrations, and build output are ignored by Git.

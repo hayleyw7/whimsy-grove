@@ -6,15 +6,18 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "db:generate": "drizzle-kit generate",
-    "start": "node scripts/local-server.mjs"
+    "start": "npm run build && node scripts/local-server.mjs",
+    "test": "npm run build && node tests/browser-storage.mjs"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.10",
-    "drizzle-orm": "0.45.2"
+    "drizzle-orm": "0.45.2",
+    "esbuild": "^0.28.2",
+    "fake-indexeddb": "^6.2.5"
   },
   "dependencies": {
     "gifenc": "1.0.3",
-    "google-auth-library": "^11.2.0"
+    "sql.js": "^1.14.2"
   },
   "engines": {
     "node": ">=22.13.0"
