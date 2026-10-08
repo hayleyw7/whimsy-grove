@@ -13,11 +13,23 @@ const scene={version:2,creationId:crypto.randomUUID(),items:[{id:'fern',uid:cryp
 const call=(path,method,body)=>request(path,{method,body:JSON.stringify(body)});
 await call('/api/draft','PUT',{scope:session.draftScope,editId:crypto.randomUUID(),scene});assert.deepEqual((await request('/api/draft')).draft.scene.items[0].id,'fern');
 await call('/api/favorites','POST',{itemId:'fern',favorite:true});assert.deepEqual((await request('/api/favorites')).items,['fern']);
-const id=crypto.randomUUID();await call('/api/drawings','POST',{id,collection:'album',title:'Cave',scene,thumbnail:'data:image/png;base64,'+Buffer.alloc(30).toString('base64')});
+const id=crypto.randomUUID();await call('/api/drawings','POST',{id,collection:'album',title:'Cave',scene,thumbnail:'data:image/png;base64,'+'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg=='});
 let album=await request('/api/drawings?collection=album');assert.equal(album.items.length,1);assert(album.items[0].thumbnail.startsWith('blob:'));assert.equal((await request('/api/drawings/'+id)).drawing.scene.background,'cave');
 await call('/api/drawings/'+id,'PATCH',{title:'New Cave'});assert.equal((await request('/api/drawings?collection=album')).items[0].title,'New Cave');
 const progress=await call('/api/achievements/sync','POST',{scope:session.draftScope});assert.equal(progress.savedCount,1);assert(progress.earned.some(x=>x.id==='first-sprout'));
 const second=await import('../dist/test/storage.mjs?reload');assert.equal((await second.request('/api/drawings?collection=album')).items[0].title,'New Cave');
 await call('/api/drawings/'+id,'DELETE',{confirmation:'permanently-delete',collection:'album',title:'New Cave'});assert.equal((await request('/api/drawings?collection=album')).items.length,0);
-const historyId=crypto.randomUUID();await call('/api/drawings','POST',{id:historyId,collection:'history',scene,thumbnail:'data:image/png;base64,'+Buffer.alloc(30).toString('base64')});await call('/api/drawings/'+historyId+'/album','POST',{title:'From History'});assert.equal((await request('/api/drawings?collection=album')).items[0].title,'From History');
+const historyId=crypto.randomUUID();await call('/api/drawings','POST',{id:historyId,collection:'history',scene,thumbnail:'data:image/png;base64,'+'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg=='});await call('/api/drawings/'+historyId+'/album','POST',{title:'From History'});assert.equal((await request('/api/drawings?collection=album')).items[0].title,'From History');
 console.log('PASS: draft, favorites, album, thumbnail, rename, achievements, reload, deletion, history promotion.');
+// Editable backup round trips merge atomically and never replace existing IDs.
+const backup=await request('/api/album-backup');assert.equal(backup.format,'whimsy-grove-album');assert.equal(backup.groves.length,1);
+let preview=await call('/api/album-backup/preview','POST',backup);assert.equal(preview.add,0);assert.equal(preview.skip,1);
+const incoming=structuredClone(backup);incoming.groves[0].id=crypto.randomUUID();incoming.groves[0].title='Imported';incoming.groves[0].scene.creationId=crypto.randomUUID();
+preview=await call('/api/album-backup/preview','POST',incoming);assert.equal(preview.add,1);assert.equal((await request('/api/drawings?collection=album')).items.length,1);
+const beforeDraft=await request('/api/draft');await call('/api/album-backup/import','POST',incoming);assert.equal((await request('/api/drawings?collection=album')).items.length,2);assert.deepEqual(await request('/api/draft'),beforeDraft);
+const repeat=await call('/api/album-backup/import','POST',incoming);assert.equal(repeat.imported,0);assert.equal(repeat.skip,1);
+const invalid=structuredClone(incoming);invalid.groves.push({...invalid.groves[0],id:crypto.randomUUID(),scene:{...invalid.groves[0].scene,items:[{...scene.items[0],id:'https://example.com/evil.js'}]}});await assert.rejects(call('/api/album-backup/import','POST',invalid));assert.equal((await request('/api/drawings?collection=album')).items.length,2);
+const badImage=structuredClone(incoming);badImage.groves[0].thumbnail='data:image/svg+xml;base64,PHN2Zz4=';await assert.rejects(call('/api/album-backup/preview','POST',badImage));
+await assert.rejects(call('/api/album-backup/preview','POST',{...incoming,version:999}));await assert.rejects(request('/api/album-backup/preview',{method:'POST',body:' '.repeat(20*1024*1024+1)}));
+const {IDBObjectStore}=await import('fake-indexeddb');const originalPut=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(){throw new DOMException('Full','QuotaExceededError')};const quota=structuredClone(incoming);quota.groves[0].id=crypto.randomUUID();try{await assert.rejects(call('/api/album-backup/import','POST',quota),/Nothing was imported/);}finally{IDBObjectStore.prototype.put=originalPut;}assert.equal((await request('/api/drawings?collection=album')).items.length,2);
+console.log('PASS: album backup round trip, preview without writes, duplicate skip, draft preservation, schema/item/image/size rejection, and atomic quota failure.');

@@ -7,3 +7,5 @@ dist/
 .local-data/
 
 scripts/browser-migrations.json
+
+scripts/browser-catalog.json

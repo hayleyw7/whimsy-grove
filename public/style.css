@@ -174,3 +174,5 @@ html[data-theme=light] .canvas-wrap,html[data-theme=light] .loading{background:#
 /* Use one balanced inset: the custom scrollbar lives inside it, not beside it. */
 .gallery-dialog{padding-inline:max(var(--gallery-inset),24px)}
 .achievement-dialog{padding-inline:max(var(--achievement-padding),24px)}
+
+.album-backup-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;padding-top:14px;border-top:1px solid var(--line)}.album-backup-actions button{min-height:44px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:inherit;font:14px/1.3 Georgia,serif}#backupStatus,#importStatus{font-size:14px;line-height:1.5}#backupTitles{overflow-wrap:anywhere}

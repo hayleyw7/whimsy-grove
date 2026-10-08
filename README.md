@@ -14,6 +14,10 @@ No account or backend is required. Drafts, Album, History, favorites, and achiev
 
 **Saves do not sync between devices or browsers.** Clearing site data, storage eviction, or ending a private browsing session can delete them. Download PNG or GIF images to keep visual copies; these are not editable scene backups. The old local server's saves and the original hosted app's saves are separate and are not automatically imported.
 
+## Editable album backups
+
+In Album, choose **Back up Album** to download a JSON backup. **Import Album** shows a count before merging new groves, skips existing IDs, and preserves the current scene and existing library. Files are limited to 20 MB and 1,000 groves. Backups include Album scenes and thumbnails, not History, preferences, or favorites. Keep backup files somewhere safe before clearing browser data.
+
 ## Features
 
 - Illustrated landscapes, plants, creatures, and objects

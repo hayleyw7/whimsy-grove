@@ -10,7 +10,7 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 function reply(data, status=200) { return Response.json(data, {status, headers:{'cache-control':'private, no-store','x-content-type-options':'nosniff'}}); }
 function user(request) { const id=request.headers.get('oai-authenticated-user-id'); return id && id.length<512 ? id : null; }
 function database(env) { if(!env.DB?.prepare || !env.DB?.batch || !env.BUCKET?.put) throw new Error('Storage unavailable'); return env.DB; }
-function sceneValue(value) {
+export function sceneValue(value) {
   if(!value || value.version!==2 || !Array.isArray(value.items) || value.items.length>100 || !palettes.has(value.palette) || !backgrounds.has(value.background) || !moons.has(value.moon) || !galaxies.has(value.galaxy) || typeof value.shootingStars!=='boolean' || !Array.isArray(value.weather) || value.weather.length>4 || value.weather.some(x=>!weather.has(x))) throw new Error('Invalid scene');
   if((value.promptId!==undefined&&value.promptId!==null&&!promptIds.has(value.promptId))||(value.promptHidden!==undefined&&typeof value.promptHidden!=='boolean'))throw new Error('Invalid inspiration');
   if(value.motionPreference!==undefined&&value.motionPreference!=='auto'&&typeof value.motionPreference!=='boolean')throw new Error('Invalid animation preference');
