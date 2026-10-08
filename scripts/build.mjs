@@ -1,9 +1,9 @@
 import {mkdir,rm,cp,readFile,writeFile} from 'node:fs/promises';
 import {build} from 'esbuild';
-import {welcomePage,sharingMetadata} from './welcome-page.mjs';
+import {welcomePage,sharingMetadata,editorEntryScript} from './welcome-page.mjs';
 await rm('dist',{recursive:true,force:true});
 await cp('public','dist',{recursive:true});
-const editor=(await readFile('public/index.html','utf8')).replace(/<meta name="description"[^>]*>/g,'').replace('</head>',sharingMetadata+'</head>');
+const editor=(await readFile('public/index.html','utf8')).replace(/<meta name="description"[^>]*>/g,'').replace('<head>','<head>'+editorEntryScript).replace('</head>',sharingMetadata+'</head>');
 await writeFile('dist/editor.html',editor);
 await writeFile('dist/index.html',await welcomePage().text());
 const gardenSource=await readFile('public/garden.js','utf8');
