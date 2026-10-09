@@ -9,7 +9,7 @@ function route(html,url,visited=false,blocked=false){
 const base='https://hayleyw7.github.io/whimsy-grove/';
 assert.deepEqual(route(welcome,base),[],'Fresh root shows welcome');
 assert.deepEqual(route(editor,base+'editor.html'),[['navigate','./']],'Fresh direct editor shows welcome');
-assert(welcome.includes('href="editor.html?start=1"'));
+assert(welcome.includes('href="editor.html?start=1" aria-label="Create">Create</a>'));
 assert.deepEqual(route(editor,base+'editor.html?start=1'),[['clean','/whimsy-grove/editor.html']],'CTA enters editor without leaving bypass parameter');
 assert.deepEqual(route(welcome,base,true),[['navigate','editor.html']],'Returning root restores editor');
 assert.deepEqual(route(editor,base+'editor.html',true),[],'Returning editor stays open');

@@ -20,7 +20,14 @@ if(root.classList.contains('welcome-loading')){
   clearTimeout(window.welcomeRevealTimer);
   // A missing script, slow connection, failed image, or reduced-motion change
   // must never leave the decorations permanently hidden.
-  if(root.classList.contains('welcome-loading')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)root.classList.add('welcome-enter');
+  if(root.classList.contains('welcome-loading')&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    root.classList.add('welcome-enter');
+    for(const sprite of document.querySelectorAll('.grove .sprite')){
+      const arrival=getComputedStyle(sprite).getPropertyValue('--arrival');
+      const delay=arrival.endsWith('ms')?parseFloat(arrival):parseFloat(arrival||'0')*1000;
+      setTimeout(()=>sprite.classList.add('is-visible'),Number.isFinite(delay)?delay:0);
+    }
+  }
   root.classList.remove('welcome-loading');
   scheduleEar();
 }
