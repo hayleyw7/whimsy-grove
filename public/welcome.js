@@ -1,7 +1,10 @@
 // Wait for the decorative sheets before a single, deliberate entrance.
 const root=document.documentElement;
 if(root.classList.contains('welcome-loading')){
-  const pause=()=>root.classList.toggle('welcome-paused',document.hidden);
+  const ear=document.getElementById('welcomeEarMotion');
+  let earTimer;
+  const scheduleEar=()=>{clearTimeout(earTimer);if(ear&&root.classList.contains('welcome-enter')&&!document.hidden&&!matchMedia('(prefers-reduced-motion: reduce)').matches)earTimer=setTimeout(()=>{ear.querySelector('animate').beginElement();scheduleEar();},7000+Math.random()*3000);};
+  const pause=()=>{const paused=document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches;root.classList.toggle('welcome-paused',paused);if(ear){if(paused){clearTimeout(earTimer);ear.pauseAnimations();}else{ear.unpauseAnimations();scheduleEar();}}};
   document.addEventListener('visibilitychange',pause);
   pause();
   const sheets=new Set([...document.querySelectorAll('.grove .sprite')].map(sprite=>getComputedStyle(sprite).backgroundImage.match(/^url\(["']?(.*?)["']?\)$/)?.[1]).filter(Boolean));
@@ -19,4 +22,5 @@ if(root.classList.contains('welcome-loading')){
   // must never leave the decorations permanently hidden.
   if(root.classList.contains('welcome-loading')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)root.classList.add('welcome-enter');
   root.classList.remove('welcome-loading');
+  scheduleEar();
 }
