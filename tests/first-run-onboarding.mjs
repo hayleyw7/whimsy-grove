@@ -3,6 +3,7 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
 const source=readFileSync('public/garden.js','utf8');
+const busyFunction=source.slice(source.indexOf('function setBusy('),source.indexOf('\nfunction rand('));
 const accountCheck=source.slice(source.indexOf('async function checkAccount'),source.indexOf("\n$('#openHelp')"));
 const restore=source.slice(source.indexOf('async function restoreCurrentDraft'),source.indexOf('function queueDraft'));
 const startup=source.slice(source.indexOf('Promise.all(Object.entries(sources)'));
@@ -19,6 +20,22 @@ assert(source.includes('if(first)markOnboardingComplete();'));
 assert(source.includes('ideas.slice(0,2)'));
 assert(source.includes('area.append(freeCreateChoice)'));
 assert(source.includes("$('#biomeStep').hidden=false"));
+
+{
+  const freeCreate={disabled:false,hasAttribute:()=>false,closest:selector=>selector==='#startDialog'?{}:null};
+  const editorControl={disabled:false,hasAttribute:()=>false,closest:()=>null};
+  const elements=new Map([
+    ['#loading',{classList:{add(){}}}],['#busyOverlay',{hidden:false}],
+    ['.canvas-wrap',{classList:{toggle(){}}}],['#busyText',{textContent:''}],
+    ['main',{removeAttribute(){}}],
+  ]);
+  const context={document:{querySelectorAll:()=>[freeCreate,editorControl]},
+    $:selector=>elements.get(selector),canvas:{setAttribute(){}},syncFeedback(){},
+    busy:false,ready:false};
+  vm.runInNewContext(busyFunction+';setBusy(true,\'Loading grove\')',context);
+  assert.equal(freeCreate.disabled,false,'first-run controls stay enabled while the editor loads');
+  assert.equal(editorControl.disabled,true,'editor controls remain unavailable until the editor is ready');
+}
 
 const makeScene=({items=[],promptId=null,background='forest'}={})=>({
   version:2,creationId:'creation-id',items,promptId,promptHidden:false,
@@ -151,4 +168,4 @@ for(const width of [390,1280]){
   vm.runInNewContext(immediatePrompt+';earlyGroveChoice',completedContext);
   assert.equal(opened,0,'completed onboarding skips the early chooser');
 }
-console.log('PASS: immediate mobile/desktop first-run prompt, reload before completing onboarding, storage failure fallback, empty legacy drafts, History, saved groves, and returning sessions');
+console.log('PASS: immediate mobile/desktop first-run prompt, enabled onboarding controls during loading, editor loading safety, reload before completing onboarding, storage failure fallback, empty legacy drafts, History, saved groves, and returning sessions');
