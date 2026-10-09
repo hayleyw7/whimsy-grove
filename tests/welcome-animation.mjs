@@ -26,3 +26,5 @@ assert(html.includes('aria-hidden="true"'));
 console.log('PASS: welcome entrance preferences, decode, repeated fresh entrances, asset failure and bounded timeout fallback');
 
 assert(html.includes('.ghost{--arrival:600ms}.lantern{--arrival:500ms}'));assert(html.includes('ghost-float 8s'));assert(html.includes('lantern-glow 10s'));assert(html.includes('.welcome-paused .ghost,.welcome-paused .lantern::after{animation-play-state:paused}'));console.log('PASS: ghost last, independent entrance/float transforms, soft lantern glow, hidden-tab pause');
+
+assert(html.includes('width:min(84vw,19rem)'));assert(!html.includes('48svh'));assert(!html.includes('35svh'));console.log('PASS: welcome artwork uses zoom-scalable size without viewport-height compensation');
