@@ -300,7 +300,7 @@ function chooseIdea(id){selectedIdea=id;selectedBiome=ideaById[id]?.biome||'haze
 function chooseGroveStart(){return new Promise(resolve=>{const dialog=$('#startDialog');selectedIdea=null;selectedBiome='haze';$('#ideaStep').hidden=false;$('#biomeStep').hidden=true;$('#startTitle').textContent='A Little Inspiration';$('#startIntro').textContent='Choose an idea, or create freely.';fillIdeas();dialog.returnValue='cancel';dialog.addEventListener('close',()=>{closeDropdown('newBiome');resolve(dialog.returnValue==='start'?{background:selectedBiome,promptId:selectedIdea}:null);},{once:true});showDialog(dialog,canvas);$('#ideaChoices').querySelector?.('button')?.focus({preventScroll:true});});}
 $('#startDialog').addEventListener('cancel',event=>event.preventDefault());
 $('#freeCreate').addEventListener('click',()=>chooseIdea(null));$('#shuffleIdeas').addEventListener('click',fillIdeas);$('#newBiome').addEventListener('change',event=>{selectedBiome=event.target.value;syncNewBiome();});$('#backIdeas').addEventListener('click',()=>{$('#biomeStep').hidden=true;$('#ideaStep').hidden=false;$('#startTitle').textContent='A Little Inspiration';$('#startIntro').textContent='Choose an idea, or create freely.';$('#freeCreate').focus({preventScroll:true});});$('#startGrove').addEventListener('click',()=>{$('#startDialog').returnValue='start';$('#startDialog').close();scrollNewGroveToTop();});
-async function startNewGrove(first=false){if(busy||!ready||$('#startDialog').open)return;if(!first&&!requireAccount('keep your current creation before starting a new grove'))return;const previous=snapshot();if(!first){if(!await confirmation('clear'))return;setBusy(true,'Starting grove');try{await persistScene('history',previous,'Before starting a new grove');}catch(error){notify(error.message+' Your creation is unchanged.','error');setBusy(false);return;}setBusy(false);}const choice=await chooseGroveStart();if(!choice)return;if(JSON.stringify(state)!==JSON.stringify(previous)){notify('Your creation changed while choosing. Start New again to keep it safely.');return;}const next={...blankScene(),...choice,motion:previous.motion!==false,motionPreference:sceneMotionChoice(previous)};setBusy(true,'Loading grove');try{const prepared=await prepareScene(next);remember();state=next;selected=null;activeUid=null;render(prepared);scrollNewGroveToTop();}catch(error){notify(error.message+' Your creation is unchanged.','error');}finally{setBusy(false);}}
+async function startNewGrove(first=false){if(busy||!ready||$('#startDialog').open)return;if(!first&&!requireAccount('keep your current creation before starting a new grove'))return;const previous=snapshot();if(!first){if(!await confirmation('clear'))return;setBusy(true,'Starting grove');try{await persistScene('history',previous,'Before starting a new grove');}catch(error){notify(error.message+' Your creation is unchanged.','error');setBusy(false);return;}setBusy(false);}const choice=await chooseGroveStart();if(!choice)return;if(JSON.stringify(state)!==JSON.stringify(previous)){notify('Your creation changed while choosing. Start New again to keep it safely.');return;}const next={...blankScene(),...choice,motion:previous.motion!==false,motionPreference:sceneMotionChoice(previous)};setBusy(true,'Loading grove');try{const prepared=await prepareScene(next);remember();state=next;selected=null;activeUid=null;render(prepared);if(first)markOnboardingComplete();scrollNewGroveToTop();}catch(error){notify(error.message+' Your creation is unchanged.','error');}finally{setBusy(false);}}
 
 const badgeDefinitions=window.GroveBadges||[],badgeById=Object.fromEntries(badgeDefinitions.map(b=>[b.id,b]));
 let progressKey=null,progressGeneration=0,progressTask=null,progressAgain=false,progressState={earned:[],savedCount:0,biomeCount:0},progressError='';const progressQueues=new Map();
@@ -359,7 +359,65 @@ function localDraft(){const key=currentDraftKey();if(!key)return null;try{const 
 function keepLocalDraft(value){const key=currentDraftKey();if(!key)return false;try{localStorage.setItem(key,JSON.stringify(value));return true;}catch{return false;}}
 function draftNotice(text){$('#draftStatus').textContent=text;$('#draftStatus').hidden=!text;}
 function freshScene(){const scene=blankScene(),worlds=backgroundNames.filter(x=>x!=='none');scene.background=worlds[Math.floor(Math.random()*worlds.length)];return scene;}
-async function restoreCurrentDraft(fromSignIn=false){if(!accountChecked||signedIn===null)throw Error('Browser storage could not be opened. Refresh to restore your creation.');const local=localDraft();let remote=null;draftCloudReady=false;if(signedIn){try{const result=await request('/api/draft');if(result.scope!==draftScope)throw Error('Browser storage changed. Refresh to restore your creation.');if(result.draft&&!validDraftScene(result.draft.scene))throw Error('Your saved creation could not be read.');remote=result.draft;draftCloudReady=true;}catch(error){if(!local&&!fromSignIn)throw error;draftNotice('Your creation is kept on this device. Browser saving is unavailable.');}}const pendingLocal=local?.pending;const chosen=fromSignIn?{scene:snapshot(),editId:uid(),updatedAt:Date.now(),pending:true}:pendingLocal?local:remote||local;const fresh=!chosen,migrated=!!chosen&&!chosen.scene.creationId;if(chosen){await loadBackground(chosen.scene.background);state=clone(chosen.scene);if(!state.creationId)state.creationId=chosen.editId||uid();}else{state=freshScene();await loadBackground(state.background);}selected=null;activeUid=null;undoStack=[];redoStack=[];draftSignature=JSON.stringify(state);draftPending=chosen?.pending||migrated?{...chosen,editId:migrated?uid():chosen.editId,updatedAt:migrated?Date.now():chosen.updatedAt,scene:snapshot(),pending:true,scope:draftScope}:fresh?{scene:snapshot(),editId:uid(),updatedAt:Date.now(),pending:true,scope:draftScope}:null;keepLocalDraft(draftPending||{scene:snapshot(),editId:chosen.editId,updatedAt:chosen.updatedAt,pending:false});if(fresh&&signedIn&&draftCloudReady){const saved=await saveDraftRecord(draftPending,true);if(saved){await loadBackground(saved.scene.background);state=clone(saved.scene);draftSignature=JSON.stringify(state);}}draftEnabled=true;if(draftPending)queueDraft(true);return fresh;}
+function onboardingKey(){return'whimsy-grove-onboarding-complete:'+new URL('.',location.href).pathname;}
+function onboardingComplete(){try{return localStorage.getItem(onboardingKey())==='1';}catch{return false;}}
+function markOnboardingComplete(){try{localStorage.setItem(onboardingKey(),'1');}catch{}}
+function sceneNeedsOnboarding(scene){return !scene||scene.items.length===0&&!scene.promptId;}
+
+async function restoreCurrentDraft(fromSignIn=false){
+  if(!accountChecked||signedIn===null)throw Error('Browser storage could not be opened. Refresh to restore your creation.');
+  const local=localDraft();
+  let remote=null;
+  draftCloudReady=false;
+  if(signedIn){
+    try{
+      const result=await request('/api/draft');
+      if(result.scope!==draftScope)throw Error('Browser storage changed. Refresh to restore your creation.');
+      if(result.draft&&!validDraftScene(result.draft.scene))throw Error('Your saved creation could not be read.');
+      remote=result.draft;
+      draftCloudReady=true;
+    }catch(error){
+      if(!local&&!fromSignIn)throw error;
+      draftNotice('Your creation is kept on this device. Browser saving is unavailable.');
+    }
+  }
+  const pendingLocal=local?.pending;
+  const chosen=fromSignIn?{scene:snapshot(),editId:uid(),updatedAt:Date.now(),pending:true}:pendingLocal?local:remote||local;
+  const fresh=!chosen,migrated=!!chosen&&!chosen.scene.creationId;
+  let firstGrove=!fromSignIn&&!onboardingComplete()&&sceneNeedsOnboarding(chosen?.scene);
+  if(firstGrove){
+    try{
+      const history=await request('/api/drawings?collection=history&sort=newest&offset=0');
+      firstGrove=!history.items?.length;
+    }catch{
+      firstGrove=!chosen;
+    }
+  }
+  if(chosen){
+    await loadBackground(chosen.scene.background);
+    state=clone(chosen.scene);
+    if(!state.creationId)state.creationId=chosen.editId||uid();
+  }else{
+    state=freshScene();
+    await loadBackground(state.background);
+  }
+  selected=null;activeUid=null;undoStack=[];redoStack=[];
+  draftSignature=JSON.stringify(state);
+  draftPending=firstGrove?null:chosen?.pending||migrated?
+    {...chosen,editId:migrated?uid():chosen.editId,updatedAt:migrated?Date.now():chosen.updatedAt,scene:snapshot(),pending:true,scope:draftScope}:
+    fresh?{scene:snapshot(),editId:uid(),updatedAt:Date.now(),pending:true,scope:draftScope}:null;
+  if(!firstGrove){
+    keepLocalDraft(draftPending||{scene:snapshot(),editId:chosen.editId,updatedAt:chosen.updatedAt,pending:false});
+    if(fresh&&signedIn&&draftCloudReady){
+      const saved=await saveDraftRecord(draftPending,true);
+      if(saved){await loadBackground(saved.scene.background);state=clone(saved.scene);draftSignature=JSON.stringify(state);}
+    }
+  }
+  draftEnabled=true;
+  if(draftPending)queueDraft(true);
+  if(!firstGrove&&!onboardingComplete())markOnboardingComplete();
+  return firstGrove;
+}
 function queueDraft(force=false){if(!draftEnabled||!ready)return;const signature=JSON.stringify(state);if(signature!==draftSignature){draftSignature=signature;draftPending={scene:snapshot(),editId:uid(),updatedAt:Date.now(),pending:true,scope:draftScope};const kept=keepLocalDraft(draftPending);if(!kept)draftNotice(signedIn?'Browser saving is pending. Keep this page open until it finishes.':'This browser could not keep your creation. Download it before leaving.');}if(!draftPending&&!force)return;if(draftTimer)clearTimeout(draftTimer);if(signedIn&&draftCloudReady)draftTimer=setTimeout(()=>flushDraft(),450);}
 async function saveDraftRecord(record,initialize=false,keepalive=false){if(!record||!signedIn||!draftCloudReady||record.scope!==draftScope)return null;try{const result=await request('/api/draft',{method:'PUT',keepalive,body:JSON.stringify({scope:record.scope,editId:record.editId,scene:record.scene,initialize})});if(!result.saved||result.scope!==record.scope||!validDraftScene(result.draft?.scene))throw Error('The current creation save was not confirmed.');if(draftPending?.editId===record.editId){draftPending=null;if(!keepLocalDraft({...result.draft,pending:false})){try{localStorage.removeItem(currentDraftKey());}catch{}}draftNotice('');}return result.draft;}catch(error){console.error('Draft save failed',error);draftNotice(localDraft()?.editId===record.editId?'Your latest creation is kept on this device. Browser saving could not finish.':'Browser saving could not finish. Keep this page open, or download your creation.');return null;}}
 async function flushDraft(keepalive=false){if(draftTimer)clearTimeout(draftTimer);draftTimer=null;if(draftInFlight||!draftEnabled||!draftPending||!signedIn||!draftCloudReady)return;const record=draftPending;draftInFlight=true;try{await saveDraftRecord(record,false,keepalive);}finally{draftInFlight=false;if(draftPending&&draftPending.editId!==record.editId)draftTimer=setTimeout(()=>flushDraft(),250);}}
@@ -477,5 +535,5 @@ document.addEventListener('pointerdown',event=>{if(!$('#toast').contains(event.t
 for(const dialog of document.querySelectorAll('dialog')){let backdropStart=false;const outside=e=>{const b=dialog.getBoundingClientRect();return e.target===dialog&&(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom);};dialog.addEventListener('pointerdown',e=>{backdropStart=outside(e);});dialog.addEventListener('click',e=>{if(!backdropStart||!outside(e)){backdropStart=false;return;}backdropStart=false;e.preventDefault();e.stopPropagation();if(dialog.id==='startDialog'||dialog.id==='importBackupDialog')return;dialog.returnValue='cancel';dialog.close();});dialog.addEventListener('close',()=>{const target=dialogReturnFocus.get(dialog),index=dialogStack.indexOf(dialog);if(index>=0)dialogStack.splice(index,1);queueMicrotask(()=>focusSafely(target));});}
 function registerTools(){const context=document.modelContext;if(!context?.registerTool)return;const lifecycle=new AbortController();const register=tool=>{try{Promise.resolve(context.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}};register({name:'read_grove',description:'Read the current creation and available item catalogue. It does not read saved Album or History entries.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>({scene:snapshot(),catalogue:catalog.filter(x=>!x.hidden).map(({id,name,group})=>({id,name,group})),selected,mode})});register({name:'place_grove_items',description:'Place the explicitly named items in this creation. Coordinates are between zero and one.',inputSchema:{type:'object',properties:{items:{type:'array',minItems:1,maxItems:20,items:{type:'object',properties:{id:{type:'string',enum:catalog.filter(x=>!x.hidden).map(x=>x.id)},x:{type:'number',minimum:0,maximum:1},y:{type:'number',minimum:0,maximum:1}},required:['id','x','y'],additionalProperties:false}}},required:['items'],additionalProperties:false},annotations:{readOnlyHint:false},execute:input=>{if(busy||!ready)throw Error('Editor is busy');if(!input||!Array.isArray(input.items)||!input.items.length||input.items.length>20||input.items.some(v=>!byId[v.id]||!Number.isFinite(v.x)||!Number.isFinite(v.y)||v.x<0||v.x>1||v.y<0||v.y>1)||state.items.length+input.items.length>100)throw Error('Invalid items');remember();for(const item of input.items)state.items.push(makeItem(item.id,item.x*W,item.y*H));render();noteProgress('first_item');return{itemCount:state.items.length};}});window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});}
 setBusy(true,'Loading grove');
-Promise.all(Object.entries(sources).filter(([key])=>catalog.some(item=>item.sheet===key)).map(([key,value])=>loadSheet(key,value))).then(async()=>{await checkAccount();const fromSignIn=await restoreSignInDraft();const firstGrove=await restoreCurrentDraft(!!fromSignIn);ready=true;try{localStorage.setItem('whimsy-grove-visited:'+new URL('.',location.href).pathname,'1');}catch{}$('#loading').classList.add('gone');renderSprites();render();setBusy(false);registerTools();if(draftPending)queueDraft(true);}).catch(error=>{busy=false;$('main').removeAttribute?.('aria-busy');canvas.setAttribute?.('aria-busy','false');$('#loading').setAttribute('role','alert');$('#loading').setAttribute('aria-live','assertive');$('#loading').classList.remove('gone');$('#loading').textContent=error.message||'Your creation could not load. Refresh to try again.';$('#busyOverlay').hidden=true;});
+Promise.all(Object.entries(sources).filter(([key])=>catalog.some(item=>item.sheet===key)).map(([key,value])=>loadSheet(key,value))).then(async()=>{await checkAccount();const fromSignIn=await restoreSignInDraft();const firstGrove=await restoreCurrentDraft(!!fromSignIn);ready=true;try{localStorage.setItem('whimsy-grove-visited:'+new URL('.',location.href).pathname,'1');}catch{}$('#loading').classList.add('gone');renderSprites();render();setBusy(false);registerTools();if(firstGrove)await startNewGrove(true);else if(draftPending)queueDraft(true);}).catch(error=>{busy=false;$('main').removeAttribute?.('aria-busy');canvas.setAttribute?.('aria-busy','false');$('#loading').setAttribute('role','alert');$('#loading').setAttribute('aria-live','assertive');$('#loading').classList.remove('gone');$('#loading').textContent=error.message||'Your creation could not load. Refresh to try again.';$('#busyOverlay').hidden=true;});
 })();
