@@ -25,7 +25,7 @@ assert(html.includes('animation:grove-arrival 1ms step-end both'));
 assert(html.includes('aria-hidden="true"'));
 console.log('PASS: welcome entrance preferences, decode, repeated fresh entrances, asset failure and bounded timeout fallback');
 
-assert(html.includes('.ghost{--arrival:980ms}.lantern{--arrival:840ms}'));assert(html.includes('ghost-float 8s'));assert(html.includes('lantern-glow 5s'));assert(html.includes('.welcome-paused .ghost,.welcome-paused .lantern::after{animation-play-state:paused}'));console.log('PASS: ghost last, independent entrance/float transforms, soft lantern glow, hidden-tab pause');
+assert(html.includes('.lantern{--arrival:3000ms}.ghost{--arrival:3500ms}'));assert(html.includes('ghost-float 8s'));assert(html.includes('lantern-glow 5s'));assert(html.includes('.welcome-paused .ghost,.welcome-paused .lantern::after{animation-play-state:paused}'));console.log('PASS: ghost last, independent entrance/float transforms, soft lantern glow, hidden-tab pause');
 
 assert(html.includes('width:min(84vw,19rem)'));assert(!html.includes('48svh'));assert(!html.includes('35svh'));console.log('PASS: welcome artwork uses zoom-scalable size without viewport-height compensation');
 {
@@ -39,3 +39,5 @@ assert(html.includes('width:min(84vw,19rem)'));assert(!html.includes('48svh'));a
  assert(html.includes('begin="indefinite" values="0;3;0;1;0"'));
  console.log('PASS: ear-only draft uses seven-to-ten-second scheduling and pauses when hidden');
 }
+
+assert(html.includes(".mushroom{--arrival:500ms}.bone{--arrival:1000ms}.cat{--arrival:1500ms}"));assert(html.includes(".bunny{--arrival:2000ms}.alien{--arrival:2500ms}.lantern{--arrival:3000ms}.ghost{--arrival:3500ms}"));assert(html.includes("grove-arrival 1ms step-end 3500ms both,ghost-float 8s ease-in-out 3501ms infinite"));console.log("PASS: deliberate half-second spacing with the ghost last");
