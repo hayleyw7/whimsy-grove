@@ -7,7 +7,7 @@
     "build": "node scripts/build.mjs",
     "db:generate": "drizzle-kit generate",
     "start": "npm run build && node scripts/local-server.mjs",
-    "test": "npm run build && node tests/browser-storage.mjs && node tests/audio-controls.mjs && node tests/motion-preferences.mjs && node tests/backup-ui.mjs && node tests/welcome-routing.mjs && node tests/welcome-animation.mjs"
+    "test": "npm run build && node tests/browser-storage.mjs && node tests/audio-controls.mjs && node tests/motion-preferences.mjs && node tests/backup-ui.mjs && node tests/welcome-routing.mjs && node tests/welcome-animation.mjs && node tests/picker-drag.mjs"
   },
   "devDependencies": {
     "drizzle-kit": "0.31.10",
