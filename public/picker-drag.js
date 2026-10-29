@@ -34,7 +34,7 @@ export function installPickerDrag({picker,canvas,canStart,preview,place,doc=docu
  },{passive:false});
  doc.addEventListener('pointerup',e=>end(e));
  doc.addEventListener('pointercancel',e=>end(e,true));
- picker.addEventListener('lostpointercapture',e=>end(e,true));
+ picker.addEventListener('lostpointercapture',e=>{if(gesture&&e.target===gesture.button&&e.pointerId===gesture.pointerId)end(e,true);});
  picker.addEventListener('dragstart',e=>{if(target(e))e.preventDefault();});
  const suppressClick=e=>!!(suppressed&&Date.now()<suppressed.until&&e.detail!==0);
  doc.addEventListener('pointerdown',()=>{suppressed=null;},true);

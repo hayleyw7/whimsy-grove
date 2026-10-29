@@ -57,6 +57,12 @@ down(event(card,500,400,'touch'));fireTimers();doc.emit('pointermove',event(card
 assert.deepEqual(placements.at(-1),['bunny',.5,.5],'a long-press then drag from anywhere on a card places it');
 assert.equal(placements.length,3,'one long-press drop produces one placement');
 
+down(event(card,500,400,'touch'));fireTimers();picker.emit('lostpointercapture',{});doc.emit('pointermove',event(card,400,370,'touch'));doc.emit('pointerup',event(card,400,370,'touch'));
+assert.equal(placements.length,4,'a pointer-capture loss without an id cannot cancel the next touch drag');
+
+down(event(card,500,400,'touch'));fireTimers();picker.emit('lostpointercapture',{target:button,pointerId:1});doc.emit('pointermove',event(card,400,370,'touch'));doc.emit('pointerup',event(card,400,370,'touch'));
+assert.equal(placements.length,5,'a delayed loss from a previous button cannot cancel a reused pointer id');
+
 const count=placements.length;down(event(heart,400,400,'touch'));doc.emit('pointermove',event(heart,170,175,'touch'));doc.emit('pointerup',event(heart,170,175,'touch'));
 assert.equal(placements.length,count,'the favorite control keeps its own click behavior instead of starting an item drag');
 
