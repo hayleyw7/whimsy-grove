@@ -4,7 +4,7 @@
 
 Create a whimsical scene with plants, creatures, weather, and whatever else belongs there.
 
-[Open Whimsy Grove](https://hayleyw7.github.io/whimsy-grove/)
+[Open Whimsy Grove](https://bunhouse.itch.io/whimsy-grove/)
 
 First-time visitors see the welcome page. Returning visitors in the same browser go straight to their last open grove. Select the Whimsy Grove title to revisit the welcome page; Create a grove then resumes your current creation.
 
