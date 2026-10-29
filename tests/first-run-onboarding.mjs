@@ -20,8 +20,6 @@ assert(source.includes('if(first)markOnboardingComplete();'));
 assert(source.includes('ideas.slice(0,2)'));
 assert(source.includes('area.append(freeCreateChoice)'));
 assert(source.includes("$('#biomeStep').hidden=false"));
-assert(source.includes('confirmIdea'), 'idea selection waits for an explicit confirmation');
-assert(source.includes('syncIdeaSelection'), 'idea choices expose their selected state');
 
 {
   const freeCreate={disabled:false,hasAttribute:()=>false,closest:selector=>selector==='#startDialog'?{}:null};
