@@ -17,3 +17,14 @@ assert.deepEqual(route(welcome,base+'?welcome=1',true),[],'Explicit welcome rema
 assert.deepEqual(route(editor,base+'editor.html?start=1',false,true),[['clean','/whimsy-grove/editor.html']],'Unavailable storage does not loop from CTA');
 assert.deepEqual(route(editor,base+'editor.html',false,true),[],'Blocked storage fails open rather than looping');
 console.log('PASS: fresh root/direct editor, CTA, returning routes, explicit welcome, and unavailable storage');
+
+const garden=readFileSync("dist/garden.js","utf8"),styles=readFileSync("dist/style.css","utf8");
+for(const removedId of ["openAbout","aboutDialog","aboutTitle","closeAbout"]){
+ assert(!editor.includes(removedId),`${removedId} is removed from the editor`);
+ assert(!garden.includes(removedId),`${removedId} has no dangling event handlers`);
+}
+assert(!styles.includes(".about-dialog"),"Removed dialog has no orphaned styles");
+for(const retainedId of ["openHelp","helpDialog","userMenuButton","openAlbum","openHistory","openAchievements"]){
+ assert(editor.includes(`id="${retainedId}"`),`${retainedId} remains available`);
+}
+console.log("PASS: About UI, handlers, and styles removed; other menu features retained");
