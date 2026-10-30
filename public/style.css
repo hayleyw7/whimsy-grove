@@ -254,6 +254,35 @@ html[data-theme=dark] #favoriteFilter:hover{filter:none;background:#37263f;box-s
   .scene-controls .dropdown-trigger{min-height:48px;}
 }
 
+/* The picker remains labelled by its existing h2 for assistive technology,
+   but the visible heading is unnecessary beside the surrounding controls. */
+.picker-section>.section-heading{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+/* Keep the picker and its actions visually continuous while retaining the
+   semantic category label for assistive technology. */
+.picker-section .category-control>span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+.toolbox>.actions{border-top:0;margin-top:0!important;padding-top:0;transform:none!important;}
+
+/* Local image-only Oddities preview: names remain in the button's accessible
+   label and tooltip; artwork and favorite/drag controls stay discoverable. */
+.stamp-card .stamp{background:transparent;border-color:transparent;font-size:0;}
+.stamp-card .stamp:hover{background:transparent;border-color:transparent;filter:brightness(1.04);}
+html[data-theme=dark] .stamp-card .stamp{background:transparent!important;border-color:transparent!important;font-size:0;}
+html[data-theme=dark] .stamp-card .stamp:hover{background:transparent!important;border-color:transparent!important;filter:brightness(1.04);}
+html[data-theme=light] .stamp-card .stamp{background:transparent;border-color:transparent;}
+html[data-theme=light] .stamp-card .stamp:hover{background:transparent;border-color:transparent;filter:brightness(1.04);}
+
+/* Local compact-controls preview: preserve 44px targets while removing
+   decorative button boxes and the scene-to-canvas divider. */
+.actions .creation-actions{grid-template-columns:repeat(3,46px)!important;justify-content:start;}
+.actions .creation-actions>button{width:46px!important;min-width:46px!important;height:46px!important;min-height:46px!important;padding:10px!important;}
+.actions .restart-actions #clear{width:46px;min-width:46px;}
+.actions .creation-actions #saveAlbum{position:relative;}
+.actions .creation-actions #saveAlbum:after{content:'+';position:absolute;right:5px;top:3px;font:700 13px/1 Arial,sans-serif;color:currentColor;}
+.canvas-tools .undo-redo .icon-button,.canvas-tools #fullScreen{background:transparent!important;border-color:transparent!important;box-shadow:none!important;}
+.scene-controls{border-bottom:0!important;}
+
+
 /* Keep the desktop favorite target generous while making its heart feel
    tucked into the card corner. Mobile keeps its existing larger visual. */
 @media (min-width:651px){
