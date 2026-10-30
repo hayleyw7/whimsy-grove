@@ -20,6 +20,10 @@ for (const id of ['spellbook', 'fireflies']) {
   assert.match(catalogSource, new RegExp(`id:'${id}'[^}]*sheet:'${id}'`), `${id} should use its own source`);
 }
 
+const firefliesAlias = source.match(/Object\.assign\(itemAliases,\{fireflies:'([^']+)'\}/)?.[1] ?? '';
+assert.match(firefliesAlias, /\blightning bug\b/);
+assert.match(firefliesAlias, /\blightning bugs\b/);
+
 assert.equal(ids.length, 201, 'raw catalog should contain 201 entries');
 assert.equal(visibleCount, 200, 'visible catalog should contain 200 entries');
 
