@@ -263,6 +263,16 @@ html[data-theme=dark] #favoriteFilter:hover{filter:none;background:#37263f;box-s
 .picker-section .category-control>span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 .toolbox>.actions{border-top:0;margin-top:0!important;padding-top:0;transform:none!important;}
 
+/* Keep category, search, and favorites together when the desktop toolbox has
+   enough room; narrower layouts retain the readable stacked arrangement. */
+@media (min-width:900px){
+  body:not(.grove-view) .picker-section .section-content{display:grid!important;grid-template-columns:minmax(112px,.72fr) minmax(190px,1.28fr);align-items:center;column-gap:10px;row-gap:8px;}
+  body:not(.grove-view) .picker-section .category-control{grid-column:1;min-width:0;}
+  body:not(.grove-view) .picker-section .catalog-search{grid-column:2;min-width:0;margin-top:0;}
+  body:not(.grove-view) .picker-section .catalog-meta,
+  body:not(.grove-view) .picker-section .stamps-scroll-shell{grid-column:1/-1;min-width:0;}
+}
+
 /* Local image-only Oddities preview: names remain in the button's accessible
    label and tooltip; artwork and favorite/drag controls stay discoverable. */
 .stamp-card .stamp{background:transparent;border-color:transparent;font-size:0;}
