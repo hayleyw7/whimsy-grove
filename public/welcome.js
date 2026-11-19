@@ -3,18 +3,19 @@ const root=document.documentElement;
 const motionMedia=window.matchMedia?.('(prefers-reduced-motion: reduce)')||{matches:false};
 const motionPreferenceKey='spooky-grove-motion-v1';
 function animationsEnabled(){
+  if(motionMedia.matches)return false;
   try{
     const saved=JSON.parse(localStorage.getItem(motionPreferenceKey)||'null');
     if(typeof saved==='boolean')return saved;
   }catch{}
   return !motionMedia.matches;
 }
-if(root.classList.contains('welcome-loading')){
+if(root.classList.contains('welcome-waiting')){
   const ear=document.getElementById('welcomeEarMotion');
   let earTimer,earTwitchCount=0;
   const scheduleEar=()=>{
     clearTimeout(earTimer);
-    if(!ear||!root.classList.contains('welcome-enter')||document.hidden||!animationsEnabled())return;
+    if(!ear||!root.classList.contains('welcome-ambient')||document.hidden||!animationsEnabled())return;
     const delay=earTwitchCount===0?2500:6000+Math.random()*3000;
     earTimer=setTimeout(()=>{
       ear.querySelector('animate')?.beginElement();
@@ -51,14 +52,10 @@ if(root.classList.contains('welcome-loading')){
   await Promise.race([Promise.allSettled(loads),new Promise(resolve=>{timeout=setTimeout(resolve,2500);})]);
   clearTimeout(timeout);
   clearTimeout(window.welcomeRevealTimer);
-  if(root.classList.contains('welcome-loading')&&animationsEnabled()){
-    root.classList.add('welcome-enter');
-    for(const sprite of document.querySelectorAll('.grove .sprite')){
-      const arrival=getComputedStyle(sprite).getPropertyValue('--arrival');
-      const delay=arrival.endsWith('ms')?parseFloat(arrival):parseFloat(arrival||'0')*1000;
-      setTimeout(()=>sprite.classList.add('is-visible'),Number.isFinite(delay)?delay:0);
-    }
-  }
-  root.classList.remove('welcome-loading');
-  scheduleEar();
+  root.classList.remove('welcome-waiting');
+  const ambient=()=>{root.classList.remove('welcome-stagger');root.classList.add('welcome-ambient');pause();};
+  if(animationsEnabled()){
+    root.classList.add('welcome-stagger');
+    setTimeout(ambient,1150);
+  }else ambient();
 }

@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const welcome=readFileSync('dist/index.html','utf8'),editor=readFileSync('dist/editor.html','utf8');
 const script=html=>html.match(/<script>([\s\S]*?)<\/script>/)[1];
 function route(html,url,visited=false,blocked=false){
- const actions=[];vm.runInNewContext(script(html),{URL,location:{href:url,replace:value=>actions.push(['navigate',value])},history:{replaceState:(_state,_title,value)=>actions.push(['clean',value])},localStorage:{getItem:key=>{assert.equal(key,'whimsy-grove-visited:/whimsy-grove/');if(blocked)throw Error('Storage denied');return visited?'1':null;}}});return actions;
+ const actions=[];vm.runInNewContext(script(html),{URL,document:{documentElement:{classList:{add(){},remove(){}}}},addEventListener(){},location:{href:url,replace:value=>actions.push(['navigate',value])},history:{replaceState:(_state,_title,value)=>actions.push(['clean',value])},localStorage:{getItem:key=>{assert.equal(key,'whimsy-grove-visited:/whimsy-grove/');if(blocked)throw Error('Storage denied');return visited?'1':null;}}});return actions;
 }
 const base='https://hayleyw7.github.io/whimsy-grove/';
 assert.deepEqual(route(welcome,base),[],'Fresh root shows welcome');
@@ -28,3 +28,17 @@ for(const retainedId of ["openHelp","helpDialog","userMenuButton","openAlbum","o
  assert(editor.includes(`id="${retainedId}"`),`${retainedId} remains available`);
 }
 console.log("PASS: About UI, handlers, and styles removed; other menu features retained");
+
+{
+ const listeners={},classes=new Set(),context={URL,document:{documentElement:{classList:{add:x=>classes.add(x),remove:x=>classes.delete(x)}}},addEventListener:(type,fn)=>listeners[type]=fn,location:{href:base},localStorage:{getItem:()=>null}};
+ vm.runInNewContext(script(welcome),context);
+ const entry={button:0,target:{closest:()=>true}};
+ listeners.click({...entry,ctrlKey:true});assert(!classes.has('welcome-handoff'));
+ listeners.click(entry);assert(classes.has('welcome-handoff'),'primary Create click shows the local handoff before navigation');
+ listeners.pageshow({persisted:true});assert(!classes.has('welcome-handoff'),'browser Back restores the welcome screen');
+ const inlineArt=/<img src="data:image\/svg\+xml,([^"]+)" alt="" width="64" height="64">/;
+ for(const html of [welcome,editor]){
+  assert.match(html,inlineArt);assert(html.includes('Waking the grove...'));
+  assert.equal(decodeURIComponent(html.match(inlineArt)[1]),readFileSync('public/assets/loading-mushroom.svg','utf8').trim());
+ }
+}

@@ -1,7 +1,7 @@
 const mobile=matchMedia('(max-width:650px)'),picker=document.getElementById('oddityPicker'),home=picker.parentElement,plus=document.getElementById('toggleOddities'),dialog=document.getElementById('mobileOdditiesDialog'),close=document.getElementById('closeMobileOddities');
 function closePicker(){if(dialog.open)dialog.close();}
 function syncPicker(){closePicker();if(mobile.matches){dialog.append(picker);plus.setAttribute('aria-haspopup','dialog');plus.setAttribute('aria-expanded','false');}else{home.append(picker);plus.removeAttribute('aria-haspopup');plus.removeAttribute('aria-expanded');}}
-function openPicker(event){if(!mobile.matches)return;event.preventDefault();event.stopImmediatePropagation();dialog.showModal();plus.setAttribute('aria-expanded','true');close.focus({preventScroll:true});}
+function openPicker(event){if(!mobile.matches)return;event.preventDefault();event.stopImmediatePropagation();dialog.showModal();plus.setAttribute('aria-expanded','true');close.focus({preventScroll:true});document.dispatchEvent(new Event('grove-oddities-open'));}
 plus.addEventListener('click',openPicker,true);
 document.querySelector('.skip-links a[href="#oddityPicker"]').addEventListener('click',openPicker,true);
 close.addEventListener('click',closePicker);
