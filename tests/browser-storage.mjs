@@ -33,3 +33,90 @@ const badImage=structuredClone(incoming);badImage.groves[0].thumbnail='data:imag
 await assert.rejects(call('/api/album-backup/preview','POST',{...incoming,version:999}));await assert.rejects(request('/api/album-backup/preview',{method:'POST',body:' '.repeat(20*1024*1024+1)}));
 const {IDBObjectStore}=await import('fake-indexeddb');const originalPut=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(){throw new DOMException('Full','QuotaExceededError')};const quota=structuredClone(incoming);quota.groves[0].id=crypto.randomUUID();try{await assert.rejects(call('/api/album-backup/import','POST',quota),/Nothing was imported/);}finally{IDBObjectStore.prototype.put=originalPut;}assert.equal((await request('/api/drawings?collection=album')).items.length,2);
 console.log('PASS: album backup round trip, preview without writes, duplicate skip, draft preservation, schema/item/image/size rejection, and atomic quota failure.');
+
+// Wire actual backup UI handlers to real browser storage using isolated DOM doubles.
+const {readFile}=await import('node:fs/promises');
+const {runInNewContext}=await import('node:vm');
+const nodes=new Map(),uiEvents=[];
+const ui=id=>{
+  if(!nodes.has(id))nodes.set(id,{
+    listeners:{},disabled:false,hidden:false,textContent:'',files:[],value:'',
+    addEventListener(type,handler){this.listeners[type]=handler;},
+    click(){this.clicked=true;return this.listeners.click?.();},
+    showModal(){this.open=true;},close(){this.open=false;this.listeners.close?.();},
+    focus(){this.focused=true;},
+  });
+  return nodes.get(id);
+};
+let downloaded;
+const anchor={click(){this.clicked=true;}};
+const backupUi=(await readFile('public/backup.js','utf8')).replace(/async function request\(path,options\)\{[^\n]+\}/,'');
+runInNewContext(backupUi,{
+  document:{getElementById:ui,createElement:tag=>{assert.equal(tag,'a');return anchor;},dispatchEvent:event=>uiEvents.push(event.type)},
+  request,Blob,Event,
+  URL:{createObjectURL(blob){downloaded=blob;return 'blob:editable-backup';},revokeObjectURL(){}},
+  setTimeout:()=>0,
+});
+const originalDraft=await request('/api/draft');
+const exported=await request('/api/album-backup');
+await ui('exportAlbum').click();
+assert.equal(anchor.clicked,true);
+assert.equal(anchor.href,'blob:editable-backup');
+assert.match(anchor.download,/^whimsy-grove-album-\d{4}-\d{2}-\d{2}\.json$/);
+assert.equal(downloaded.type,'application/json');
+const exportedJson=JSON.parse(await downloaded.text());
+assert.deepEqual(exportedJson.groves,exported.groves);
+const missing=exportedJson.groves.find(g=>g.title==='Imported');
+assert.ok(missing);
+await call('/api/drawings/'+missing.id,'DELETE',{confirmation:'permanently-delete',collection:'album',title:missing.title});
+const beforeImport=await request('/api/album-backup');
+assert.equal(beforeImport.groves.length,1);
+async function pickDownloadedBackup(){
+  ui('albumBackupFile').clicked=false;
+  ui('importAlbum').click();
+  assert.equal(ui('albumBackupFile').clicked,true);
+  const fileInput=ui('albumBackupFile');
+  fileInput.files=[downloaded];fileInput.value=anchor.download;
+  await fileInput.listeners.change({target:fileInput});
+  assert.equal(fileInput.value,'');
+  assert.equal(ui('importBackupDialog').open,true);
+}
+await pickDownloadedBackup();
+assert.match(ui('backupSummary').textContent,/2 groves.*1 will be added; 1 already present/);
+assert.match(ui('backupTitles').textContent,/Imported/);
+assert.deepEqual((await request('/api/album-backup')).groves,beforeImport.groves,'Preview must not write');
+ui('cancelImport').click();
+assert.equal(ui('importBackupDialog').open,false);
+assert.equal(ui('albumOptions').focused,true);
+assert.deepEqual((await request('/api/album-backup')).groves,beforeImport.groves,'Cancel must not write');
+await pickDownloadedBackup();
+await ui('confirmImport').click();
+assert.equal(ui('importBackupDialog').open,false);
+assert.match(ui('backupStatus').textContent,/Imported 1 grove\. 1 already present skipped\./);
+assert.deepEqual(uiEvents,['grove-album-options-close','grove-album-options-close','grove-album-options-close','grove-album-imported']);
+const restored=(await request('/api/album-backup')).groves;
+assert.equal(restored.length,exportedJson.groves.length);
+for(const grove of exportedJson.groves)assert.deepEqual(restored.find(candidate=>candidate.id===grove.id),grove);
+assert.deepEqual(await request('/api/draft'),originalDraft);
+await pickDownloadedBackup();
+assert.equal(ui('confirmImport').disabled,true);
+assert.match(ui('backupSummary').textContent,/0 will be added; 2 already present/);
+console.log('PASS: actual backup UI handlers download JSON, reopen the downloaded file, preview, cancel, confirm, announce, and skip reimports without scene or Album data loss (isolated storage and DOM doubles).');
+
+// Existing Wind/Snow and new Breeze/Gusts/Blizzard survive draft, Album and editable backup round trips.
+for(const effect of ['breeze','wind','gusts','snow','blizzard','mist','mist-wisps','smoke','smog']){
+  const windScene={...scene,creationId:crypto.randomUUID(),weather:[effect]};
+  await call('/api/draft','PUT',{scope:session.draftScope,editId:crypto.randomUUID(),scene:windScene});
+  assert.deepEqual((await request('/api/draft')).draft.scene.weather,[effect]);
+  const groveId=crypto.randomUUID();
+  await call('/api/drawings','POST',{id:groveId,collection:'album',title:effect,scene:windScene,thumbnail:exportedJson.groves[0].thumbnail});
+  const weatherBackup=await request('/api/album-backup');
+  const grove=weatherBackup.groves.find(g=>g.id===groveId);
+  assert.deepEqual(grove.scene.weather,[effect]);
+  await call('/api/drawings/'+groveId,'DELETE',{confirmation:'permanently-delete',collection:'album',title:effect});
+  const single={...weatherBackup,groves:[grove]};
+  assert.equal((await call('/api/album-backup/preview','POST',single)).add,1);
+  assert.equal((await call('/api/album-backup/import','POST',single)).imported,1);
+  assert.deepEqual((await request('/api/drawings/'+groveId)).drawing.scene.weather,[effect]);
+}
+console.log('PASS: Breeze, existing Wind, Gusts, existing Snow, Blizzard, Haze, Mist, Smoke, and Smog persist in drafts, Album, and editable backup restore.');

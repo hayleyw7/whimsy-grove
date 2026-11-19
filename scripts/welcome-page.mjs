@@ -2,7 +2,7 @@
 const siteUrl='https://hayleyw7.github.io/whimsy-grove/';
 const description='Feeling whimsical? Create your own grove art!';
 export const pageTitle='Whimsy Grove | Create Your Own Cozy Scene Art';
-export const sharingMetadata=`<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23291D32'/%3E%3Cpath d='M27 34h10l4 21H23z' fill='%23D9C6E2'/%3E%3Cpath d='M8 34C8 6 56 6 56 34Z' fill='%238B577D' stroke='%23D9C6E2' stroke-width='3'/%3E%3Ccircle cx='24' cy='23' r='4' fill='%23F2EAF6'/%3E%3Ccircle cx='40' cy='26' r='3' fill='%23F2EAF6'/%3E%3C/svg%3E">
+export const sharingMetadata=`<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <meta name="description" content="${description}">
 <link rel="canonical" href="${siteUrl}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Whimsy Grove"><meta property="og:title" content="${pageTitle}"><meta property="og:description" content="${description}"><meta property="og:url" content="${siteUrl}">

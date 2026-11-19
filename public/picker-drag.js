@@ -3,7 +3,7 @@ export function installPickerDrag({picker,canvas,canStart,preview,place,doc=docu
  let gesture=null,suppressed=null,frame=0;
  const target=e=>{
   if(e.target.closest?.('.favorite-heart'))return null;
-  return e.target.closest?.('.stamp, .stamp-drag-handle, .stamp-card');
+  return e.target.closest?.('.oddity-tile, .oddity-drag-handle, .oddity-card');
  };
  const point=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height,inside:r.width>0&&r.height>0&&e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom};};
  function paint(){if(!gesture?.active)return;const g=gesture,p=point(g),art=preview(g.id);g.image.style.left=g.clientX+'px';g.image.style.top=g.clientY+'px';g.image.style.width=art.width+'px';g.image.style.height=art.height+'px';g.image.style.opacity=p.inside?'.8':'.4';g.image.classList.toggle('outside-canvas',!p.inside);}
@@ -13,7 +13,7 @@ export function installPickerDrag({picker,canvas,canStart,preview,place,doc=docu
   const button=target(e);
   if(gesture){end(null,true);return;}
   if(!button||button.disabled||!picker.contains(button)||e.button!==0||!e.isPrimary||!canStart())return;
-  const holdToDrag=e.pointerType==='touch'&&!button.classList.contains('stamp-drag-handle');
+  const holdToDrag=e.pointerType==='touch'&&!button.classList.contains('oddity-drag-handle');
   const current={id:button.dataset.id,button,pointerId:e.pointerId,pointerType:e.pointerType,startX:e.clientX,startY:e.clientY,clientX:e.clientX,clientY:e.clientY,active:false,holdToDrag,touchReady:!holdToDrag};
   gesture=current;
   button.setPointerCapture(e.pointerId);

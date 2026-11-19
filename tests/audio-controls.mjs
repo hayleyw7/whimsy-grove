@@ -4,7 +4,7 @@ import vm from 'node:vm';
 const source=await readFile('public/audio.js','utf8');
 function harness(saved=null,random=0){
  const elements=new Map(),contexts=[],sources=[],storage=new Map(saved?[['spooky-grove-audio-v1',JSON.stringify(saved)]]:[]);
- function element(){return {listeners:{},attrs:{},classList:{toggle(){}},addEventListener(type,fn){this.listeners[type]=fn},setAttribute(k,v){this.attrs[k]=v},closest(){return this.audioAction?this:null}};}
+ function element(){return {listeners:{},attrs:{},classList:{values:{},toggle(name,value){this.values[name]=value}},addEventListener(type,fn){this.listeners[type]=fn},setAttribute(k,v){this.attrs[k]=v},closest(){return this.audioAction?this:null}};}
  const document={...element(),hidden:false,getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id)}};
  const window={...element()};
  class AudioContext{
@@ -25,7 +25,7 @@ function harness(saved=null,random=0){
 }
 const first=harness();assert.equal(first.label(),'Resume Audio');assert.equal(first.contexts.length,0);
 await first.click();assert.equal(first.settings().music,'gentle');assert.equal(first.settings().sfx,true);assert.equal(first.label(),'Mute All Audio');assert.equal(first.contexts[0].state,'running');assert(first.sources.some(s=>s.started&&s.buffer.data.some(v=>v!==0)));
-await first.click();assert.equal(first.label(),'Unmute Audio');assert(first.sources.every(s=>s.stopped));
+await first.click();assert.equal(first.label(),'Unmute Audio');assert(first.sources.every(s=>s.stopped));assert.equal(first.get('audioStatus').classList.values['sr-only'],true);assert.equal(first.get('audioStatus').textContent,'Audio is muted.');assert.equal(first.get('audioStatus').hidden,false);
 await first.click();assert.equal(first.label(),'Mute All Audio');assert.equal(first.settings().music,'gentle');
 const reload=harness(first.settings());assert.equal(reload.label(),'Resume Audio');assert.equal(reload.contexts.length,0);await reload.click();assert.equal(reload.label(),'Mute All Audio');
 const custom=harness({music:'haunted',volume:22,sfx:true,muted:true});await custom.click();assert.equal(custom.settings().music,'haunted');assert.equal(custom.settings().volume,22);assert.equal(custom.settings().sfx,true);
@@ -41,3 +41,12 @@ await randomB.window.groveAudio.selectTrack('off',{isTrusted:true});const pinned
 const chosen=harness({music:'cosmic',musicPinned:true,sfx:false,muted:false},0);assert.equal(chosen.get('musicTrack').value,'cosmic');
 const muted=harness({music:'haunted',musicPinned:true,sfx:true,muted:true},.99);await muted.gesture();assert.equal(muted.contexts.length,0);assert.equal(muted.get('musicTrack').value,'haunted');
 console.log('PASS: random unpinned visits, explicit track/off/mute persistence, legacy preferences; first-click enable, audible samples, mute/unmute, saved preferences, reload resume, visibility/navigation, zero volume, and SFX-only audio.');
+
+assert.match(await (await import("node:fs/promises")).readFile("public/index.html","utf8"),/for="musicVolume">Music <output/,"slider visible label is Music");
+
+assert(source.includes("classList.toggle('sr-only',$('audioStatus').textContent==='Audio is muted.')"),"only muted notice is visually hidden, other status and errors remain visible");
+
+const muteHoverCss=await import('node:fs/promises').then(fs=>fs.readFile('public/style.css','utf8'));
+assert(muteHoverCss.includes('body.editor-ui #masterMute:hover:not(:disabled):not([aria-disabled=true]) .ui-icon{transform:scale(1.12);}'));
+assert(muteHoverCss.includes('body.editor-ui #masterMute:hover .ui-icon{transform:none!important;}'));
+console.log('PASS: Mute shares canvas glyph hover in both audio states, with reduced-motion scaling disabled.');

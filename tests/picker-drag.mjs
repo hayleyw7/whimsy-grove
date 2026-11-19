@@ -15,8 +15,8 @@ class Target{
 }
 
 const picker=new Target(),doc=new Target(),win=new Target();
-const button=new Target(['stamp'],'bunny'),handle=new Target(['stamp-drag-handle'],'bunny');
-const card=new Target(['stamp-card'],'bunny'),heart=new Target(['favorite-heart'],'bunny');
+const button=new Target(['oddity-tile'],'bunny'),handle=new Target(['oddity-drag-handle'],'bunny');
+const card=new Target(['oddity-card'],'bunny'),heart=new Target(['favorite-heart'],'bunny');
 doc.body=new Target();doc.createElement=()=>new Target();win.innerHeight=800;win.requestAnimationFrame=()=>1;win.cancelAnimationFrame=()=>{};win.scrollBy=()=>{};
 const timers=new Map();let nextTimer=0;
 win.setTimeout=fn=>{const id=++nextTimer;timers.set(id,fn);return id;};

@@ -3,19 +3,17 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 
 const source=readFileSync('public/garden.js','utf8');
+new vm.Script(source,{filename:'public/garden.js'}); // Parse the WHOLE browser script before testing extracted functions.
+
 const busyFunction=source.slice(source.indexOf('function setBusy('),source.indexOf('\nfunction rand('));
 const accountCheck=source.slice(source.indexOf('async function checkAccount'),source.indexOf("\n$('#openHelp')"));
 const restore=source.slice(source.indexOf('async function restoreCurrentDraft'),source.indexOf('function queueDraft'));
-const startup=source.slice(source.indexOf('Promise.all(Object.entries(sources)'));
-const immediatePrompt=source.slice(source.indexOf('const earlyGroveChoice='),source.indexOf(';\nPromise.all(Object.entries(sources)'));
+const startup=source.slice(source.indexOf('// Load catalog sheets in parallel'));
 const welcome=readFileSync('dist/index.html','utf8');
 
 assert(welcome.includes('href="editor.html?start=1" aria-label="Create">Create</a>'));
 assert(startup.includes('if(firstGrove){'));
-assert(startup.includes('const choice=earlyGroveChoice?await earlyGroveChoice:null'));
-assert(source.indexOf('const earlyGroveChoice=')<source.indexOf('Promise.all(Object.entries(sources)'), 'open the fresh visitor prompt before waiting for sprite sheets');
-assert(immediatePrompt.includes('chooseGroveStart()'));
-assert(startup.includes('close(\'cancel\')'), 'dismiss a speculative early prompt if a saved History entry proves this is a returning session');
+assert(startup.includes('if(firstGrove){await startNewGrove(true);'), 'onboarding opens only after the editor is usable');
 assert(source.includes('if(first)markOnboardingComplete();'));
 assert(source.includes('ideas.slice(0,2)'));
 assert(source.includes('area.append(freeCreateChoice)'));
@@ -24,17 +22,23 @@ assert(source.includes("$('#biomeStep').hidden=false"));
 {
   const freeCreate={disabled:false,hasAttribute:()=>false,closest:selector=>selector==='#startDialog'?{}:null};
   const editorControl={disabled:false,hasAttribute:()=>false,closest:()=>null};
+  const bootPicker=()=>({disabled:true,hasAttribute:k=>k==='data-boot-picker',closest:()=>null});
+  const openPicker=bootPicker(),closePicker=bootPicker();
   const elements=new Map([
     ['#loading',{classList:{add(){}}}],['#busyOverlay',{hidden:false}],
     ['.canvas-wrap',{classList:{toggle(){}}}],['#busyText',{textContent:''}],
     ['main',{removeAttribute(){}}],
   ]);
-  const context={document:{querySelectorAll:()=>[freeCreate,editorControl]},
+  const context={document:{querySelectorAll:()=>[freeCreate,editorControl,openPicker,closePicker]},
     $:selector=>elements.get(selector),canvas:{setAttribute(){}},syncFeedback(){},
     busy:false,ready:false};
   vm.runInNewContext(busyFunction+';setBusy(true,\'Loading grove\')',context);
   assert.equal(freeCreate.disabled,false,'first-run controls stay enabled while the editor loads');
   assert.equal(editorControl.disabled,true,'editor controls remain unavailable until the editor is ready');
+  assert.equal(openPicker.disabled,false,'mobile Oddities can open before catalog readiness');
+  assert.equal(closePicker.disabled,false,'mobile Oddities can close while loading');
+  context.ready=true;vm.runInNewContext("setBusy(true,'Saving')",context);
+  assert.equal(openPicker.disabled,true,'ordinary busy rules return after boot');
 }
 
 const makeScene=({items=[],promptId=null,background='forest'}={})=>({
@@ -115,7 +119,7 @@ async function restoreState({local=null,history=[],complete=false,historyUnavail
   const context={
     signedIn:null,draftScope:'stale-scope',draftEnabled:false,accountChecked:false,accountReady:false,
     favorites:new Set(),request:async path=>{assert.equal(path,'/api/session');throw Error('Browser storage blocked');},
-    showActivity(){},hideActivity(){},refreshAccountGates(){},syncAchievements(){},renderSprites(){},loadFavorites:async()=>{},
+    showActivity(){},hideActivity(){},refreshAccountGates(){},syncAchievements(){},renderOddities(){},loadFavorites:async()=>{},
     $:selector=>selector==='#accountStatus'?status:{hidden:false},
   };
   await vm.runInNewContext(accountCheck+'\ncheckAccount()',context);
@@ -130,42 +134,86 @@ async function restoreState({local=null,history=[],complete=false,historyUnavail
   const legacyBlank=await restoreState({local:{scene:makeScene(),editId:'legacy-empty',updatedAt:1,pending:true},historyUnavailable:true});
   assert.equal(legacyBlank.firstGrove,true,'a blank saved placeholder does not suppress onboarding when History storage is unavailable');
 }
-for(const width of [390,1280]){
-  let opened=0;
-  const immediateContext={
-    localStorage:{getItem:()=>null},URL,location:{href:'https://hayleyw7.github.io/whimsy-grove/editor.html'},
-    onboardingComplete:()=>false,validDraftScene:scene=>!!scene&&Array.isArray(scene.items),sceneNeedsOnboarding:scene=>!scene||scene.items.length===0&&!scene.promptId,
-    chooseGroveStart:()=>{opened++;return Promise.resolve({background:'haze',promptId:null});},window:{innerWidth:width},
-  };
-  vm.runInNewContext(immediatePrompt+';earlyGroveChoice',immediateContext);
-  assert.equal(opened,1,`fresh prompt opens immediately at ${width}px before network or sprite work`);
-}
+assert.equal((readFileSync('public/index.html','utf8').match(/>Waking the grove\.\.\.<\/span>/g) ?? []).length, 3);
+assert.match(source,/^setBusy\(true,'Waking the grove\.\.\.'\);$/m);
+
 {
-  let opened=0;
-  const saved=makeScene({items:[{id:'cat',uid:'cat-1',x:200,y:250,size:200,flip:false}]});
-  const returningContext={
-    localStorage:{getItem:key=>key==='spooky-grove-current-guest'?JSON.stringify({scene:saved,editId:'saved'}):null},URL,
-    location:{href:'https://hayleyw7.github.io/whimsy-grove/editor.html'},onboardingComplete:()=>false,
-    validDraftScene:scene=>!!scene&&Array.isArray(scene.items),sceneNeedsOnboarding:scene=>!scene||scene.items.length===0&&!scene.promptId,
-    chooseGroveStart:()=>{opened++;return Promise.resolve(null);},window:{innerWidth:390},
-  };
-  vm.runInNewContext(immediatePrompt+';earlyGroveChoice',returningContext);
-  assert.equal(opened,0,'a returning local grove skips the immediate chooser even without a visit marker');
+  const html=readFileSync('public/index.html','utf8');
+  const css=readFileSync('public/style.css','utf8');
+  assert.match(html,/<body class="editor-ui editor-loading">/, 'search is hidden before JS starts');
+  assert.match(css,/body\.editor-ui\.editor-loading \.catalog-search\{visibility:hidden;pointer-events:none;\}/, 'boot hides search without removing its layout row at any width');
+  assert.match(source,/ready=true;document\.body\.classList\.remove\('editor-loading'\)/, 'existing ready transition restores search without a new delay');
+  assert.match(html,/id="odditySearch"[^>]*placeholder="Search the collection\.\.\."/, 'desktop ready placeholder remains unchanged');
+  assert.doesNotMatch(readFileSync('public/mobile-picker.js','utf8'),/\.placeholder=/, 'mobile picker keeps the shared placeholder');
+  console.log('PASS: search hidden from pre-JS boot until existing ready transition, layout and placeholders preserved');
 }
+
 {
-  let opened=0;
-  const interruptedContext={localStorage:{getItem:()=>null},URL,location:{href:'https://hayleyw7.github.io/whimsy-grove/editor.html'},
-    onboardingComplete:()=>false,validDraftScene:scene=>!!scene&&Array.isArray(scene.items),sceneNeedsOnboarding:scene=>!scene||scene.items.length===0&&!scene.promptId,
-    chooseGroveStart:()=>{opened++;return Promise.resolve(null);},window:{innerWidth:390}};
-  vm.runInNewContext(immediatePrompt+';earlyGroveChoice',interruptedContext);
-  assert.equal(opened,1,'a visit marker written before first choice does not delay onboarding after reload');
+  const html=readFileSync('public/index.html','utf8');
+  const css=readFileSync('public/style.css','utf8');
+  assert.match(html,/id="oddity-grid"[^>]*><p id="odditiesLoading" class="oddities-boot-status" role="status" aria-live="polite"><span class="boot-mushroom" aria-hidden="true"><img src="assets\/loading-mushroom\.svg" alt="" width="40" height="40">(?:<i><\/i>){3}<\/span><span>Loading Oddities\.\.\.<\/span><\/p>/);
+  const renderer=source.slice(source.indexOf('function renderOddities()'),source.indexOf('function drawSprite('));
+  assert(renderer.includes('el.replaceChildren();'),'first card or empty-state render removes startup status');
+  assert(source.includes('function renderOddities(){if(!catalogReady)return;'),'pending catalog retains loading status even when storage refreshes');
+  assert.match(css,/#oddity-grid:has\(\.oddities-boot-status\)\{display:flex!important;align-items:center;justify-content:center;/);
+  assert.match(css,/body:not\(\.grove-view\) \.toolbox\{display:none!important;\}/,'closed mobile picker stays hidden from initial paint');
+  assert(startup.includes("status.textContent='Oddities could not load. Refresh to try again.'"),'failed catalog load does not claim it is still loading');
+  console.log('PASS: pre-JS centered Oddities status is replaced by first render, hidden with mobile picker, and reports startup failure');
 }
+
+assert.match(readFileSync('public/index.html','utf8'),/class="dialog-symbol" aria-hidden="true"><img id="confirmNewMushroom" src="assets\/loading-mushroom\.svg" alt="" width="40" height="40"><span id="confirmOtherSymbol" hidden>☾<\/span>/);
+assert.match(source,/newGrove=kind!=='restore'&&kind!=='randomize';\$\('#confirmNewMushroom'\)\.hidden=!newGrove;\$\('#confirmOtherSymbol'\)\.hidden=newGrove;/);
+
+assert(source.includes("$('#confirmCancel').textContent=newGrove?'Cancel':'Keep Creating'"));
+assert(source.includes("'Let this grove become a memory?'"));
+assert.match(readFileSync('public/index.html','utf8'),/<button value="cancel" id="confirmCancel">Cancel<\/button>/);
+
+assert(source.includes(":'Start Over';dialog.returnValue"));
+assert.match(readFileSync('public/index.html','utf8'),/id="confirmAction">Start Over<\/button>/);
+
+const confirmationCss=readFileSync('public/style.css','utf8');
+assert(confirmationCss.includes('#confirmDialog:has(#confirmNewMushroom:not([hidden])){width:min(640px,calc(100vw - 28px));}'));
+assert(confirmationCss.includes('#confirmDialog:has(#confirmNewMushroom:not([hidden])) #confirmTitle{white-space:normal;overflow-wrap:break-word;}'));
+
+// Exercise the actual boot function with deferred scene readiness, independently of catalog.
+for(const width of [320,390,1280]){
+ for(const fail of [false,true]){
+  let finishScene;const sceneReady=new Promise((resolve,reject)=>{finishScene=()=>fail?reject(Error('Scene failed. Refresh to try again.')):resolve({});});
+  const events=[],nodes=new Map();
+  for(const key of ['main','#startupLoading','#startupLoadingText','#loading','#busyOverlay'])nodes.set(key,{hidden:false,textContent:'',classList:{add:name=>events.push(key+':'+name)},setAttribute:(name,value)=>events.push(key+':'+name+'='+value),removeAttribute:name=>events.push(key+':remove:'+name)});
+  const context={ready:false,busy:true,state:{items:[]},draftPending:null,document:{body:{classList:{remove:name=>events.push('remove:'+name)}}},canvas:{setAttribute(){}},$:key=>nodes.get(key),checkAccount:async()=>{},restoreSignInDraft:async()=>false,restoreCurrentDraft:async()=>true,prepareScene:()=>sceneReady,renderOddities:()=>events.push('catalog-render-guard'),render:()=>events.push('render'),setBusy:value=>events.push('busy:'+value),registerTools(){},startNewGrove:async()=>{assert.equal(nodes.get('#startupLoading').hidden,true);events.push('onboarding');},queueDraft(){},localStorage:{setItem(){}},URL,location:{href:'https://example.test/editor.html'},window:{innerWidth:width}};
+  const fn=source.slice(source.indexOf('async function bootEditor(){'),source.lastIndexOf('bootEditor();'));
+  const pending=vm.runInNewContext(fn+'bootEditor()',context);
+  await Promise.resolve();await Promise.resolve();await Promise.resolve();
+  assert.equal(nodes.get('#startupLoading').hidden,false,'screen remains covered before scene readiness');
+  assert.equal(events.includes('onboarding'),false);
+  finishScene();await pending;
+  assert.equal(nodes.get('#startupLoading').hidden,!fail);
+  if(fail){assert.match(nodes.get('#startupLoadingText').textContent,/Refresh/);assert.equal(events.includes('onboarding'),false);}
+  else{assert.equal(context.ready,true);assert(events.includes('main:remove:inert'));assert(events.includes('onboarding'));}
+ }
+}
+const bootHtml=readFileSync('public/index.html','utf8'),bootCss=readFileSync('public/style.css','utf8');
+assert.match(bootHtml,/<main inert>/);
+assert(bootHtml.indexOf('body.editor-loading>main')<bootHtml.indexOf('<link rel="stylesheet"'),'pre-JS inline rules prevent editor flash');
+assert.match(bootCss,/#startupLoading \.boot-mushroom\{position:relative;display:block/);
+assert.match(bootCss,/prefers-reduced-motion:reduce/);
+assert.match(source,/const catalogLoaded=Promise.all\(sheetLoads.values\(\)\).then\(\(\)=>\{catalogReady=true;renderOddities\(\);/);
+assert.match(source,/async function prepareScene\(scene\)\{await Promise.all/);
+console.log('PASS: whole-page prepaint loader, deferred canvas readiness, independent catalog status, safe onboarding reveal and startup error at 320/390/1280 fixture widths.');
+
 {
-  let opened=0;
-  const completedContext={localStorage:{getItem:()=>null},URL,location:{href:'https://hayleyw7.github.io/whimsy-grove/editor.html'},
-    onboardingComplete:()=>true,validDraftScene:scene=>!!scene&&Array.isArray(scene.items),sceneNeedsOnboarding:scene=>!scene||scene.items.length===0&&!scene.promptId,
-    chooseGroveStart:()=>{opened++;return Promise.resolve(null);},window:{innerWidth:390}};
-  vm.runInNewContext(immediatePrompt+';earlyGroveChoice',completedContext);
-  assert.equal(opened,0,'completed onboarding skips the early chooser');
+  let finishRequired;const required=new Promise(resolve=>finishRequired=resolve);
+  const unrelated=new Promise(()=>{}),sprites=new Map();let backgroundLoaded=false;
+  const context={Promise,Set,Error,byId:{cat:{sheet:'animals'}},sheetLoads:new Map([['animals',required],['plants',unrelated]]),sprites,loadBackground:async()=>{backgroundLoaded=true;},makePicture:scene=>({scene})};
+  const prepare=source.slice(source.indexOf('async function prepareScene('),source.indexOf('\nasync function chooseBiome('));
+  vm.runInNewContext(prepare,context);
+  let complete=false;const scene={background:'forest',items:[{id:'cat'}]};
+  const pending=context.prepareScene(scene).then(result=>{complete=true;return result;});
+  await Promise.resolve();assert.equal(complete,false);assert.equal(backgroundLoaded,false);
+  sprites.set('cat',{});finishRequired();const result=await pending;
+  assert.equal(result.scene,scene);assert.equal(backgroundLoaded,true,'required scene loads without unrelated catalog sheet');
+  const blank=await context.prepareScene({background:'forest',items:[]});assert.equal(blank.scene.items.length,0);
+  await assert.rejects(context.prepareScene({background:'forest',items:[{id:'unknown'}]}),/newer illustrations/);
+  console.log('PASS: restored scene waits for its own sheet, blank scene never waits for unrelated catalog, unknown illustrations remain a recoverable error.');
 }
-console.log('PASS: immediate mobile/desktop first-run prompt, enabled onboarding controls during loading, editor loading safety, reload before completing onboarding, storage failure fallback, empty legacy drafts, History, saved groves, and returning sessions');

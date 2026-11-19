@@ -1,4 +1,4 @@
-const button=document.getElementById('albumOptions'),menu=document.getElementById('albumOptionsMenu'),wrap=document.getElementById('albumOptionsWrap'),dialog=document.getElementById('galleryDialog');
+const button=document.getElementById('albumOptions'),menu=document.getElementById('albumOptionsMenu'),wrap=document.getElementById('albumOptionsWrap'),dialog=document.getElementById('albumHistoryDialog');
 const items=()=>[...menu.querySelectorAll('[role="menuitem"]')].filter(item=>!item.disabled);
 function close(restore=false){const wasOpen=!menu.hidden;menu.hidden=true;button.setAttribute('aria-expanded','false');if(restore&&wasOpen&&!wrap.hidden)button.focus();}
 function open(last=false){if(wrap.hidden)return;menu.hidden=false;button.setAttribute('aria-expanded','true');const list=items();(last?list.at(-1):list[0])?.focus();}
