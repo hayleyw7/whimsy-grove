@@ -51,16 +51,11 @@ if(root.classList.contains('welcome-waiting')){
   }));
   let timeout;
   clearTimeout(window.welcomeRevealTimer);
-  const remaining=Math.max(0,(window.welcomeRevealDeadline||Date.now()+(motionMedia.matches?1700:2500))-Date.now());
+  const remaining=Math.max(0,(window.welcomeRevealDeadline||Date.now()+1700)-Date.now());
   await Promise.race([Promise.allSettled(loads),new Promise(resolve=>{timeout=setTimeout(resolve,remaining);})]);
   clearTimeout(timeout);
-  if(root.classList.contains('welcome-static')){
-    for(const [sprite,src] of spriteSheets)if(src&&!decoded.has(src))sprite.classList.add('welcome-sheet-missing');
-  }
+  for(const [sprite,src] of spriteSheets)if(src&&!decoded.has(src))sprite.classList.add('welcome-sheet-missing');
   root.classList.remove('welcome-waiting');
-  const ambient=()=>{root.classList.remove('welcome-stagger');root.classList.add('welcome-ambient');pause();};
-  if(animationsEnabled()){
-    root.classList.add('welcome-stagger');
-    setTimeout(ambient,1150);
-  }else ambient();
+  root.classList.add('welcome-ambient');
+  pause();
 }
