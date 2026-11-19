@@ -58,7 +58,7 @@ assert.match(source,/oddityCategoryLabels=\{all:'All'/);
 assert.match(source,/option\.setAttribute\('aria-selected'/);
 assert.match(source,/if\(e\.key==='Escape'\)\{e\.preventDefault\(\);e\.stopPropagation\?\.\(\);closeDropdown\(key,true\)/);
 assert.match(source,/menu\.hidden=true;\$\(data\.button\)\.setAttribute\('aria-expanded','false'\)/);
-for(const [id,label] of [['oddityCategoryLabel','Category'],['weatherLabel','Weather'],['biomeLabel','Biome'],['newBiomeLabel','Biome'],['albumSortLabel','Sort']]){
+for(const [id,label] of [['oddityCategoryLabel','Category'],['weatherLabel','Weather'],['biomeLabel','Biome'],['albumSortLabel','Sort']]){
   assert.match(editorMarkup,new RegExp('id="'+id+'" class="dropdown-value">[^<]+</span><span class="dropdown-open-label" aria-hidden="true">'+label+'</span>'));
 }
 console.log('PASS: attached dropdown geometry, full list above/below when it fits, true short-screen overflow, retained selection, and Escape restoration wiring.');
@@ -91,21 +91,11 @@ console.log('PASS: attached dropdown geometry, full list above/below when it fit
 console.log('PASS: real Category handlers open, focus selected Animals, Escape restores trigger, and selecting All dispatches change.');
 assert.match(source,/dropdownPlacement\(box,\['weather','biome'\]\.includes\(key\)\?Math\.min\(320,desiredHeight\):desiredHeight,vh\)/);
 
-{
- const position=source.slice(source.indexOf('function positionDropdown('),source.indexOf('function closeDropdown('));
- const menu={hidden:false,dataset:{}},button={dataset:{}};
- const place=vm.runInNewContext(position+';positionDropdown',{dropdowns:{newBiome:{menu:'m',button:'b'}},$:id=>id==='m'?menu:button});
- place('newBiome');
- assert.equal(menu.dataset.dropdownSide,'below');
- assert.equal(button.dataset.dropdownSide,'below');
- assert.match(fs.readFileSync('public/style.css','utf8'),/#startDialog #newBiomeMenu\{\s*position:relative;inset:auto;width:100%;max-height:clamp\(44px,min\(38dvh,85dvh - 300px\),320px\);margin-top:-1px;/);
-}
-
 const scrollbarSource=fs.readFileSync('public/scrollbars.js','utf8');
 const geometryCode=scrollbarSource.slice(scrollbarSource.indexOf('function geometry('),scrollbarSource.indexOf('function scrollTo('));
 const scrollGeometry=vm.runInNewContext(geometryCode+';geometry',{innerWidth:1000,innerHeight:800});
 const railFixture=(id,side)=>({id,dataset:{dropdownSide:side},getAttribute:name=>name==='role'&&side?'listbox':null,classList:{contains:()=>false},getBoundingClientRect:()=>({top:153,bottom:473,left:56,right:356}),clientHeight:318,scrollHeight:600,scrollTop:0});
-for(const id of ['weatherMenu','biomeMenu','oddityCategoryMenu','newBiomeMenu','musicMenu','albumSortMenu'])for(const [side,top,bottom] of [['below',154,472],['above',154,472]]){
+for(const id of ['weatherMenu','biomeMenu','oddityCategoryMenu','musicMenu','albumSortMenu'])for(const [side,top,bottom] of [['below',154,472],['above',154,472]]){
  const geometry=scrollGeometry(railFixture(id,side),'y',{borderRightWidth:'0.625px',borderTopRightRadius:'12px',borderBottomRightRadius:'12px'});
  assert.equal(geometry.rightInset,.625);
  assert.equal(geometry.topRadius,side==='above'?11.375:0);
@@ -248,8 +238,22 @@ snapOpening(scrolled);assert.equal(scrolled.scrollTop,264,'opening a long menu d
 scrolled.scrollTop=300;snapOpening(scrolled);assert.equal(scrolled.scrollTop,300,'preserve a remembered position at the end');
 
 assert.doesNotMatch(editorMarkup,/Choose an idea, or create freely\./);
-assert.match(editorMarkup,/<div id="biomeStep" hidden><p id="startIntro">Choose a biome, then start adding\.<\/p>/);
 
-assert.match(editorCss,/#startDialog\[open\]>#ideaStep\[hidden\]\{display:block!important;visibility:hidden;pointer-events:none;\}/);
-assert.match(editorCss,/#startDialog>#biomeStep:not\(\[hidden\]\)\{\s*display:flex;flex-direction:column;contain:size;min-height:0;overflow:auto;/);
 assert.match(editorCss,/#startDialog::backdrop\{background:var\(--paper\);backdrop-filter:none;\}/);
+
+{
+ const announceCode=source.slice(source.indexOf('function announceOddityAdded('),source.indexOf('function addOddity('));
+ const node={textContent:'old'},frames=[],toasts=[];
+ let mobile=true;
+ const announce=vm.runInNewContext(announceCode+';announceOddityAdded',{byId:{column:{name:'Broken Column'}},$:(id)=>{assert.equal(id,'#oddityAddedStatus');return node;},isMobilePicker:()=>mobile,notify:(...args)=>toasts.push(args),requestAnimationFrame:fn=>frames.push(fn)});
+ announce('column');assert.equal(node.textContent,'');assert.equal(toasts.length,0);
+ frames.shift()();assert.equal(node.textContent,'Broken Column Added');
+ mobile=false;announce('column');frames.shift()();assert.equal(node.textContent,'Broken Column Added');assert.equal(toasts.length,0);
+ assert.match(editorMarkup,/id="oddityAddedStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"/);
+}
+
+const viewSource=fs.readFileSync('public/view.js','utf8');
+assert.match(viewSource,/if\(!fullscreen\|\|window\.matchMedia\?\.\('\(max-width:650px\), \(pointer:coarse\)'\)\?\.matches\)return;/);
+assert.match(editorCss,/body\.editor-ui\.grove-view :is\(\.garden-panel,\.canvas-wrap,#garden\)\{touch-action:auto;\}/);
+assert.match(source,/function pointerDown\(e\)\{if\(document\.body\.classList\.contains\('grove-view'\)\)return;/);
+assert.doesNotMatch(editorMarkup,/<meta name="viewport"[^>]*(?:user-scalable\s*=\s*no|maximum-scale)/);

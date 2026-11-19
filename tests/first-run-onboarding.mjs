@@ -17,9 +17,9 @@ assert(startup.includes('if(firstGrove){await startNewGrove(true);'), 'onboardin
 assert(source.includes('if(first)markOnboardingComplete();'));
 assert(source.includes('ideas.slice(0,2)'));
 assert(source.includes('area.append(freeCreateChoice)'));
-assert(source.includes("$('#biomeStep').hidden=false"));
+assert(!source.includes('biomeStep'));
 {
- const freeCreate=source.slice(source.indexOf('function chooseFreeCreate('),source.indexOf('function syncNewBiome('));
+ const freeCreate=source.slice(source.indexOf('function chooseFreeCreate('),source.indexOf('function scrollNewGroveToTop('));
  const finish=source.slice(source.indexOf('function finishGroveSetup('),source.indexOf('async function startNewGrove('));
  const dialog={open:true,returnValue:'cancel',close(){this.open=false;this.closeCount=(this.closeCount||0)+1;}};
  const context={dialog,$:id=>{assert.equal(id,'#startDialog');return dialog;},displayedIdeas:[{biome:'forest'},{biome:'bridge'}],biomeNames:['none','forest','bridge','cave'],selectedIdea:'old',selectedBiome:'old',scrollNewGroveToTop(){}};
@@ -29,6 +29,12 @@ assert(source.includes("$('#biomeStep').hidden=false"));
  dialog.open=true;context.biomeNames=['none','forest','bridge'];
  vm.runInNewContext('chooseFreeCreate();',context);
  assert.equal(context.selectedBiome,'haze','Haze is the fallback with no eligible random biome');
+ const named=source.slice(source.indexOf('function chooseIdea('),source.indexOf('function chooseGroveStart('));
+ dialog.open=true;context.ideaById={cosmic:{biome:'space'}};
+ vm.runInNewContext(named+";chooseIdea('invalid');chooseIdea('cosmic');chooseIdea('cosmic');",context);
+ assert.equal(context.selectedBiome,'space');assert.equal(context.selectedIdea,'cosmic');
+ assert.equal(dialog.closeCount,3,'named prompt commits exactly once using the same finish path');
+
 }
 
 

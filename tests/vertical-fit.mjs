@@ -17,9 +17,9 @@ const dropdownCss=await import('node:fs').then(({readFileSync})=>readFileSync('p
 const dropdownMarkup=await import('node:fs').then(({readFileSync})=>readFileSync('public/index.html','utf8'));
 assert.match(dropdownCss,/body\.editor-ui :is\(#musicButton,\.dropdown-trigger\)\[aria-haspopup=listbox\]\{[^}]*height:46px;min-height:46px;max-height:46px;[^}]*padding:0 11px;gap:6px;font-size:14px;/);
 assert.match(dropdownCss,/body\.editor-ui :is\(#musicButton,\.dropdown-trigger\)\[aria-haspopup=listbox\] \.dropdown-chevron\{width:7px;height:7px;flex:0 0 7px;margin:0 1px;/);
-for(const id of ['musicButton','biomeButton','weatherButton','oddityCategoryButton','albumSortButton','newBiomeButton'])assert.match(dropdownMarkup,new RegExp('<button[^>]+id="'+id+'"[^>]+aria-haspopup="listbox"'));
+for(const id of ['musicButton','biomeButton','weatherButton','oddityCategoryButton','albumSortButton'])assert.match(dropdownMarkup,new RegExp('<button[^>]+id="'+id+'"[^>]+aria-haspopup="listbox"'));
 assert.match(dropdownMarkup,/<button id="colorButton"[^>]+aria-haspopup="dialog"/);
-console.log('PASS: six editor text dropdowns share dimensions and chevron insets; palette remains exempt.');
+console.log('PASS: five editor text dropdowns share dimensions and chevron insets; palette remains exempt.');
 assert.match(dropdownCss,/body\.editor-ui:not\(\.grove-view\) \.garden-panel\{box-shadow:none;\}/);
 assert.match(dropdownCss,/body\.editor-ui \.scene-controls\{background:var\(--ui-scene-strip-fill\);\}/);
 console.log('PASS: scene strip uses the shared action-strip theme role and editor frame has no protruding shadow.');
@@ -35,7 +35,7 @@ assert.match(dropdownCss,/:is\(#musicButton,\.dropdown-trigger\):is\(\[aria-hasp
 
 assert.match(dropdownCss,/\[role=listbox\]\[data-dropdown-side=below\]\{padding-top:0;border-top-left-radius:0;border-top-right-radius:0;/);
 assert.match(dropdownCss,/\[role=listbox\]\[data-dropdown-side=above\]\{padding-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0;/);
-for(const id of ['musicMenu','biomeMenu','weatherMenu','oddityCategoryMenu','albumSortMenu','newBiomeMenu'])assert.match(dropdownMarkup,new RegExp('<div[^>]+id="'+id+'"[^>]+role="listbox"'));
+for(const id of ['musicMenu','biomeMenu','weatherMenu','oddityCategoryMenu','albumSortMenu'])assert.match(dropdownMarkup,new RegExp('<div[^>]+id="'+id+'"[^>]+role="listbox"'));
 
 assert.match(dropdownCss,/\.album-options-menu\{[^}]*background:var\(--ui-main-panel-fill\);box-shadow:var\(--ui-popup-shadow\)/);
 assert.match(dropdownCss,/\.album-options-menu button\{[^}]*min-height:44px;[^}]*border:0;border-radius:0;box-shadow:none;background:transparent;/);
