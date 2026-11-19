@@ -1458,22 +1458,17 @@ body.editor-ui.grove-view :is(.garden-panel,.canvas-wrap,#garden){touch-action:a
  .garden-panel>.canvas-tools #toggleOddities.first-oddity-wiggle .ui-icon{animation:none;}
 }
 
-/* Reading or choosing an idea never starts the scene. Selection does not resize a card. */
-body.editor-ui #ideaChoices>.idea-choice[aria-pressed=true]{
- background:var(--ui-dropdown-option-selected-background);color:var(--ui-dropdown-option-selected-color);
- box-shadow:inset 0 0 0 2px var(--ui-focus-ring);
-}
-body.editor-ui #startDialog #ideaChoices>button.idea-choice[aria-pressed=true]:hover{
- background:var(--ui-dropdown-option-selected-background);color:var(--ui-dropdown-option-selected-color);
-}
-#startDialog .start-dialog-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px;}
-#startDialog .start-dialog-actions :is(#shuffleIdeas,#chooseAnotherIdea,#startGrove){min-width:0;min-height:44px;margin:0;padding:8px;}
+/* Keep the second review view in the same shell at the chooser's exact size. */
+body.editor-ui #startDialog[open]{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;}
+#startDialog>#startTitle{grid-area:1/1;}
+#startDialog>:is(#ideaStep,#ideaReviewStep){grid-area:2/1;min-width:0;}
+#startDialog[open]>#ideaStep[hidden]{display:block!important;visibility:hidden;pointer-events:none;}
+#ideaReviewStep:not([hidden]){display:flex;flex-direction:column;contain:size;min-height:0;overflow:auto;}
+#ideaReviewStep .idea-review-card{flex:none;}
+#startDialog .start-dialog-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:auto;padding-top:8px;}
+#startDialog .start-dialog-actions :is(#chooseAnotherIdea,#startGrove){min-width:0;min-height:44px;margin:0;padding:8px;}
 body.editor-ui #startDialog #startGrove{background:var(--ui-primary-fill);color:var(--ui-primary-ink);border-color:var(--ui-primary-fill);}
 body.editor-ui #startDialog #startGrove:hover:not(:disabled){filter:brightness(1.1);}
-
-#startDialog :is(#shuffleIdeas,#chooseAnotherIdea){grid-column:1;grid-row:1;}
-#startDialog #startGrove{grid-column:2;grid-row:1;}
-#startDialog :is(#shuffleIdeas,#chooseAnotherIdea)[hidden]{display:none;}
 body.editor-ui #startDialog #chooseAnotherIdea{
  background:color-mix(in srgb,var(--ui-main-panel-fill) 65%,var(--ui-surface-muted));
  color:var(--ink);border:1px solid var(--ui-surface-border);border-radius:8px;

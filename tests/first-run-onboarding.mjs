@@ -23,13 +23,13 @@ assert(!source.includes('biomeStep'));
  const finish=source.slice(source.indexOf('function clearGroveIdeaSelection('),source.indexOf('async function startNewGrove('));
  const dialog={open:true,returnValue:'cancel',close(){this.open=false;this.closeCount=(this.closeCount||0)+1;}};
  const buttons=['cosmic','free'].map(id=>({dataset:{ideaId:id},setAttribute(k,v){this[k]=v;},focus(){this.focused=true;}}));
- const nodes={'#startDialog':dialog,'#ideaChoices':{querySelectorAll:()=>buttons},'#startGrove':{},'#shuffleIdeas':{},'#chooseAnotherIdea':{}};
- const context={dialog,$:id=>nodes[id],displayedIdeas:[{id:'cosmic',biome:'space'},{id:'bridge',biome:'bridge'}],biomeNames:['none','space','bridge','cave'],ideaById:{cosmic:{id:'cosmic',biome:'space'}},pendingIdea:null,selectedGroveChoice:null,scrollNewGroveToTop(){}};
+ const nodes={'#startDialog':dialog,'#ideaChoices':{querySelectorAll:()=>buttons},'#startGrove':{},'#ideaStep':{},'#ideaReviewStep':{},'#startTitle':{focus(){this.focused=true;}},'#reviewIdeaTitle':{},'#reviewIdeaDescription':{}};
+ const context={dialog,$:id=>nodes[id],displayedIdeas:[{id:'cosmic',biome:'space'},{id:'bridge',biome:'bridge'}],biomeNames:['none','space','bridge','cave'],ideaById:{cosmic:{id:'cosmic',biome:'space',title:'Cosmic Visitors',text:'A quiet corner.'}},freeCreateChoice:{querySelector:selector=>({textContent:selector==='strong'?'Free Create':'Start with a random biome.'})},pendingIdea:null,selectedGroveChoice:null,scrollNewGroveToTop(){}};
  vm.runInNewContext(helpers+finish+';syncGroveIdeaSelection();finishGroveSetup();selectGroveIdea("cosmic");',context);
  assert.equal(dialog.open,true);assert.equal(dialog.returnValue,'cancel');assert.equal(context.selectedGroveChoice,null);
- assert.equal(nodes['#startGrove'].disabled,false);assert.equal(buttons[0]['aria-pressed'],'true');
+ assert.equal(nodes['#startGrove'].disabled,false);assert.equal(nodes['#ideaStep'].inert,true);assert.equal(nodes['#ideaReviewStep'].hidden,false);assert.equal(nodes['#reviewIdeaTitle'].textContent,'Cosmic Visitors');assert.equal(nodes['#reviewIdeaDescription'].textContent,'A quiet corner.');assert(nodes['#startTitle'].focused);
  vm.runInNewContext('clearGroveIdeaSelection();',context);
- assert.equal(nodes['#startGrove'].disabled,true);assert.equal(buttons[0].focused,true);
+ assert.equal(nodes['#startGrove'].disabled,true);assert.equal(nodes['#ideaStep'].inert,false);assert.equal(nodes['#ideaReviewStep'].hidden,true);assert.equal(buttons[0].focused,true);
  vm.runInNewContext('selectGroveIdea("cosmic");finishGroveSetup();finishGroveSetup();',context);
  assert.equal(context.selectedGroveChoice.background,'space');assert.equal(context.selectedGroveChoice.promptId,'cosmic');
  assert.equal(dialog.closeCount,1);
@@ -273,3 +273,10 @@ assert.match(bootCss,/\.busy-overlay\.is-waking-grove \.busy-message>\.status-sp
  assert.match(readFileSync('public/index.html','utf8'),/<button id="startGrove"[^>]*disabled>Start Creating<\/button>/);
 }
 assert(source.includes("Error('Illustrations could not load. Try refreshing the page.')"));
+
+{
+ const html=readFileSync('public/index.html','utf8');
+ const chooser=html.split('id="ideaStep"')[1].split('id="ideaReviewStep"')[0];
+ assert(chooser.includes('More Ideas'));assert.doesNotMatch(chooser,/Start Creating|Choose Another|aria-pressed/);
+ assert.match(html,/id="ideaReviewStep" hidden>[\s\S]*?Choose Another[\s\S]*?Start Creating/);
+}
