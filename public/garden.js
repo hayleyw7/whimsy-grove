@@ -236,7 +236,7 @@ function showDialog(dialog,focusTarget=document.activeElement){if(typeof savedMe
 function notify(text,kind='info',compact=false){if(busy||activityStates.size){pendingToast={text,kind,compact};return;}const toast=$('#toast'),host=activeDialog()||$('main');if(toast.parentElement!==host)host.append(toast);toast.dataset.kind=kind;toast.classList.toggle('compact',compact);toast.textContent=text;toast.hidden=false;toast.setAttribute('role',kind==='error'?'alert':'status');toast.setAttribute('aria-live',kind==='error'?'assertive':'polite');if(kind==='error'){toastReturnFocus=document.activeElement;const dismiss=document.createElement('button');dismiss.type='button';dismiss.className='toast-dismiss';dismiss.textContent='Dismiss';dismiss.addEventListener('click',dismissToast);toast.append(dismiss);}toast.classList.add('show');clearTimeout(toastTimer);toastTimer=kind==='error'?null:setTimeout(dismissToast,2100);}
 
 function syncFeedback(){const active=busy||activityStates.size;$('#activityStatus').hidden=busy||!activityStates.size;$('#activityText').textContent=[...activityStates.values()].at(-1)||'';if(active){clearTimeout(toastTimer);$('#toast').classList.remove('show');$('#toast').hidden=true;}else if(pendingToast){const message=pendingToast;pendingToast=null;notify(message.text,message.kind,message.compact);}}
-function setBusy(value,text='Saving your memory…'){busy=value;if(value&&typeof floatingPanels!=='undefined')for(const key of Object.keys(floatingPanels))closeFloating(key);if(value&&typeof dropdowns!=='undefined')for(const key of Object.keys(dropdowns))closeDropdown(key);if(value)$('#loading').classList.add('gone');$('#busyOverlay').hidden=!value;$('.canvas-wrap').classList.toggle('is-busy',value);$('#busyText').textContent=text;document.querySelectorAll('button,input,select').forEach(x=>{if(!x.hasAttribute?.('data-audio-control')&&!x.hasAttribute?.('data-busy-allowed')&&!x.closest?.('#startDialog'))x.disabled=(value||!ready)&&!(!ready&&x.hasAttribute?.('data-boot-picker'));});$('main').removeAttribute?.('aria-busy');canvas.setAttribute?.('aria-busy',String(value));syncFeedback();if(!value)updateControls();}
+function setBusy(value,text='Saving your memory…'){busy=value;if(value&&typeof floatingPanels!=='undefined')for(const key of Object.keys(floatingPanels))closeFloating(key);if(value&&typeof dropdowns!=='undefined')for(const key of Object.keys(dropdowns))closeDropdown(key);if(value)$('#loading').classList.add('gone');$('#busyOverlay').hidden=!value;$('#busyOverlay').classList?.toggle('is-waking-grove',value&&text==='Waking the grove...');$('.canvas-wrap').classList.toggle('is-busy',value);$('#busyText').textContent=text;document.querySelectorAll('button,input,select').forEach(x=>{if(!x.hasAttribute?.('data-audio-control')&&!x.hasAttribute?.('data-busy-allowed')&&!x.closest?.('#startDialog'))x.disabled=(value||!ready)&&!(!ready&&x.hasAttribute?.('data-boot-picker'));});$('main').removeAttribute?.('aria-busy');canvas.setAttribute?.('aria-busy',String(value));syncFeedback();if(!value)updateControls();}
 function rand(seed){let n=seed>>>0;return()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};}
 function dimensions(item){const s=sprites.get(item.id);if(!s)return{w:0,h:0};const m=Math.max(s.width,s.height),size=Math.min(MAX_SIZE,item.size*(byId[item.id]?.renderScale||1));return{w:s.width/m*size,h:s.height/m*size};}
 function makeOddity(id,x,y,size){const c=byId[id];if(!c)throw Error('Unknown item');const item={uid:uid(),order:state.items.reduce((max,item,i)=>Math.max(max,item.order??i),-1)+1,id,x,y,size:Math.min(MAX_SIZE,Math.max(40,size||c.size)),flip:false,flipY:false,rotation:0};return item;}
@@ -299,7 +299,7 @@ function syncMotionControl(){$('#motionToggle').checked=motionEnabled();$('#moti
 $('#motionToggle').addEventListener('change',event=>{if(busy)return;remember();savedMotionPreference=event.target.checked;try{localStorage.setItem(motionPreferenceKey,JSON.stringify(savedMotionPreference));}catch{}state.motion=event.target.checked;state.motionPreference=event.target.checked;render();});
 document.addEventListener('grove-view-change',()=>{if(ready)paintFrame(animationTime);});
 const ideaById=Object.fromEntries((window.GroveIdeas||[]).map(idea=>[idea.id,idea]));
-const freeCreateChoice=$('#freeCreate');let selectedIdea=null,selectedBiome='haze',displayedIdeas=[];
+const freeCreateChoice=$('#freeCreate');let pendingIdea=null,selectedGroveChoice=null,displayedIdeas=[];
 function syncPromptReminder(){const idea=ideaById[state.promptId];$('#promptReminder').hidden=!idea||!!state.promptHidden;$('#promptTitle').textContent=idea?.title||'';$('#promptText').textContent=idea?.text||'';}
 $('#dismissPrompt').addEventListener('click',()=>{state.promptHidden=true;syncPromptReminder();queueDraft();});
 function ideaCard(tag,idea){
@@ -309,34 +309,75 @@ function ideaCard(tag,idea){
 function fillIdeas(){
  const allIdeas=window.GroveIdeas||[],ideas=[...allIdeas];
  for(let i=ideas.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ideas[i],ideas[j]]=[ideas[j],ideas[i]];}
- displayedIdeas=ideas.slice(0,2);const area=$('#ideaChoices');area.replaceChildren();
+ displayedIdeas=ideas.slice(0,2);
+ if(pendingIdea&&pendingIdea!=='free'&&!displayedIdeas.some(idea=>idea.id===pendingIdea))pendingIdea=null;
+ const area=$('#ideaChoices');area.replaceChildren();
  for(const [index,idea] of displayedIdeas.entries()){
-  const button=ideaCard('button',idea);button.type='button';button.style.gridRow=String(index+1);
-  button.addEventListener('click',()=>chooseIdea(idea.id));area.append(button);
+  const button=ideaCard('button',idea);button.type='button';button.dataset.ideaId=idea.id;button.style.gridRow=String(index+1);
+  button.addEventListener('click',()=>selectGroveIdea(idea.id));area.append(button);
  }
  area.append(freeCreateChoice);
  const sizing=document.createElement('div');sizing.className='idea-size-rack';sizing.setAttribute('aria-hidden','true');
  for(const idea of allIdeas)sizing.append(ideaCard('div',idea));
- area.append(sizing);
+ area.append(sizing);syncGroveIdeaSelection();
 }
-function chooseFreeCreate(){
- const dialog=$('#startDialog');if(!dialog.open)return;
- const excluded=new Set(displayedIdeas.map(idea=>idea.biome));
- const choices=biomeNames.filter(name=>name!=='none'&&!excluded.has(name));
- selectedIdea=null;selectedBiome=choices[Math.floor(Math.random()*choices.length)]||'haze';
- finishGroveSetup();
+function syncGroveIdeaSelection(){
+ for(const choice of $('#ideaChoices').querySelectorAll('button[data-idea-id]'))choice.setAttribute('aria-pressed',String(choice.dataset.ideaId===pendingIdea));
+ $('#startGrove').disabled=!pendingIdea;
+ $('#shuffleIdeas').hidden=!!pendingIdea;$('#chooseAnotherIdea').hidden=!pendingIdea;
+}
+function selectGroveIdea(id){
+ if(!$('#startDialog').open||id!=='free'&&!displayedIdeas.some(idea=>idea.id===id))return;
+ pendingIdea=id;syncGroveIdeaSelection();
 }
 function scrollNewGroveToTop(){window.scrollTo?.({top:0,left:0,behavior:'instant'});}
-function chooseIdea(id){
- if(!$('#startDialog').open||!ideaById[id])return;
- selectedIdea=id;selectedBiome=ideaById[id].biome||'haze';
- finishGroveSetup();
+function chooseGroveStart(){
+ return new Promise(resolve=>{
+  const dialog=$('#startDialog');pendingIdea=null;selectedGroveChoice=null;fillIdeas();dialog.returnValue='cancel';
+  dialog.addEventListener('close',()=>resolve(dialog.returnValue==='start'?selectedGroveChoice:null),{once:true});
+  showDialog(dialog,canvas);$('#ideaChoices').querySelector?.('button')?.focus({preventScroll:true});
+ });
 }
-function chooseGroveStart(){return new Promise(resolve=>{const dialog=$('#startDialog');selectedIdea=null;selectedBiome='haze';fillIdeas();dialog.returnValue='cancel';dialog.addEventListener('close',()=>{resolve(dialog.returnValue==='start'?{background:selectedBiome,promptId:selectedIdea}:null);},{once:true});showDialog(dialog,canvas);$('#ideaChoices').querySelector?.('button')?.focus({preventScroll:true});});}
 $('#startDialog').addEventListener('cancel',event=>event.preventDefault());
-$('#freeCreate').addEventListener('click',chooseFreeCreate);$('#shuffleIdeas').addEventListener('click',fillIdeas);
-function finishGroveSetup(){const dialog=$('#startDialog');if(!dialog.open)return;dialog.returnValue='start';dialog.close();scrollNewGroveToTop();}
-async function startNewGrove(first=false,initialChoice=null){if(busy||!ready||$('#startDialog').open)return;if(!first&&!requireAccount('keep your current creation before starting a new grove'))return;const previous=snapshot();if(!first){if(!await confirmation('clear'))return;setBusy(true,'Starting grove');try{await persistScene('history',previous,'Before starting a new grove');}catch(error){notify(error.message+' Your creation is unchanged.','error');setBusy(false);return;}setBusy(false);}const choice=initialChoice||await chooseGroveStart();if(!choice)return;if(JSON.stringify(state)!==JSON.stringify(previous)){notify('Your creation changed while choosing. Start New again to keep it safely.');return;}const next={...blankScene(),...choice,motion:previous.motion!==false,motionPreference:sceneMotionChoice(previous)};setBusy(true,'Waking the grove...');try{const prepared=await prepareScene(next);remember();state=next;selected=null;activeUid=null;render(prepared);if(first)markOnboardingComplete();scrollNewGroveToTop();}catch(error){notify(error.message+' Your creation is unchanged.','error');}finally{setBusy(false);}}
+$('#freeCreate').addEventListener('click',()=>selectGroveIdea('free'));$('#shuffleIdeas').addEventListener('click',fillIdeas);
+$('#chooseAnotherIdea').addEventListener('click',clearGroveIdeaSelection);
+$('#startGrove').addEventListener('click',finishGroveSetup);
+function clearGroveIdeaSelection(){
+ const choice=[...$('#ideaChoices').querySelectorAll('button[data-idea-id]')].find(button=>button.dataset.ideaId===pendingIdea);
+ pendingIdea=null;syncGroveIdeaSelection();choice?.focus({preventScroll:true});
+}
+function finishGroveSetup(){
+ const dialog=$('#startDialog');if(!dialog.open||!pendingIdea||selectedGroveChoice)return;
+ if(pendingIdea==='free'){
+  const excluded=new Set(displayedIdeas.map(idea=>idea.biome));
+  const choices=biomeNames.filter(name=>name!=='none'&&!excluded.has(name));
+  selectedGroveChoice={background:choices[Math.floor(Math.random()*choices.length)]||'haze',promptId:null};
+ }else{
+  const idea=ideaById[pendingIdea];if(!idea)return;
+  selectedGroveChoice={background:idea.biome||'haze',promptId:idea.id};
+ }
+ dialog.returnValue='start';dialog.close();scrollNewGroveToTop();
+}
+async function startNewGrove(first=false,initialChoice=null){
+ if(busy||!ready||$('#startDialog').open)return;
+ if(!first&&!requireAccount('keep your current creation before starting a new grove'))return;
+ const previous=snapshot();
+ if(!first&&!await confirmation('clear'))return;
+ const choice=initialChoice||await chooseGroveStart();if(!choice)return;
+ if(JSON.stringify(state)!==JSON.stringify(previous)){
+  window.groveAudio?.cancelGroveTrack?.();notify('Your creation changed while choosing. Start New again to keep it safely.');return;
+ }
+ const next={...blankScene(),...choice,motion:previous.motion!==false,motionPreference:sceneMotionChoice(previous)};
+ setBusy(true,'Waking the grove...');
+ try{
+  const prepared=await prepareScene(next);
+  if(!first)await persistScene('history',previous,'Before starting a new grove');
+  remember();state=next;selected=null;activeUid=null;if(first)armFirstOddityGuide();
+  window.groveAudio?.chooseGroveTrack?.(choice.promptId);render(prepared);
+  if(first)markOnboardingComplete();scrollNewGroveToTop();
+ }catch(error){window.groveAudio?.cancelGroveTrack?.();notify(error.message+' Your creation is unchanged.','error');}
+ finally{setBusy(false);}
+}
 
 const badgeDefinitions=window.GroveBadges||[],badgeById=Object.fromEntries(badgeDefinitions.map(b=>[b.id,b]));
 let progressKey=null,progressGeneration=0,progressTask=null,progressAgain=false,progressState={earned:[],savedCount:0,biomeCount:0},progressError='';const progressQueues=new Map();
@@ -351,7 +392,7 @@ function noteProgress(type){const badge={first_item:'first-item',share:'share-a-
 $('#openAchievements').addEventListener('click',()=>{closeFloating('user');resetProgressContext();showDialog($('#achievementDialog'),$('#userMenuButton'));syncAchievements();$('#closeAchievements').focus({preventScroll:true});});$('#closeAchievements').addEventListener('click',()=>$('#achievementDialog').close());$('#retryAchievements').addEventListener('click',syncAchievements);$('#achievementSignIn').addEventListener('click',()=>requireAccount('keep achievements with your account'));window.addEventListener('focus',()=>{if(currentProgressKey())syncAchievements();});
 
 function selectionName(item){if(!item)return '';const name=byId[item.id].name,peers=state.items.map((value,index)=>({value,index})).filter(x=>byId[x.value.id]?.name===name).sort((a,b)=>(a.value.order??a.index)-(b.value.order??b.index)||a.index-b.index);return name+(peers.length>1?' '+(peers.findIndex(x=>x.value.uid===item.uid)+1):'');}
-function updateControls(){if(!ready)return;document.querySelectorAll('.favorite-heart').forEach(button=>{const blocked=busy||favoritePending.has(button.closest('.oddity-card').dataset.id);button.disabled=blocked;button.setAttribute('aria-disabled',String(blocked));});syncMotionControl();$('#undo').disabled=busy||!undoStack.length;$('#redo').disabled=busy||!redoStack.length;$('#undo').title='Undo ('+undoStack.length+' steps available)';$('#redo').title='Redo ('+redoStack.length+' steps available)';$('#saveAlbum').disabled=busy;$('#openAlbum').disabled=busy;$('#openHistory').disabled=busy;$('#transformTools').hidden=!activeOddity();$('#outputTools').hidden=!!activeOddity();$('#flipHorizontal').setAttribute('aria-pressed',String(!!activeOddity()?.flip));$('#flipVertical').setAttribute('aria-pressed',String(!!activeOddity()?.flipY));syncDragSurface();syncHandles();$('#selectionHint').textContent=selectionName(activeOddity());$('#selectionHint').title=selectionName(activeOddity());const item=activeOddity(),d=item?dimensions(item):null,status=item?selectionName(item)+'. '+Math.round(Math.max(d.w,d.h)/W*100)+' percent size, '+Math.round(item.rotation||0)+' degrees. '+Math.round(item.x/W*100)+' percent across, '+Math.round((item.y-d.h/2)/H*100)+' percent down.':'No item selected.';if($('#canvasSelectionStatus').textContent!==status)$('#canvasSelectionStatus').textContent=status;$('#toggleOddities').hidden=!!activeOddity();}
+function updateControls(){if(!ready)return;syncFirstOddityGuide();document.querySelectorAll('.favorite-heart').forEach(button=>{const blocked=busy||favoritePending.has(button.closest('.oddity-card').dataset.id);button.disabled=blocked;button.setAttribute('aria-disabled',String(blocked));});syncMotionControl();$('#undo').disabled=busy||!undoStack.length;$('#redo').disabled=busy||!redoStack.length;$('#undo').title='Undo ('+undoStack.length+' steps available)';$('#redo').title='Redo ('+redoStack.length+' steps available)';$('#saveAlbum').disabled=busy;$('#openAlbum').disabled=busy;$('#openHistory').disabled=busy;$('#transformTools').hidden=!activeOddity();$('#outputTools').hidden=!!activeOddity();$('#flipHorizontal').setAttribute('aria-pressed',String(!!activeOddity()?.flip));$('#flipVertical').setAttribute('aria-pressed',String(!!activeOddity()?.flipY));syncDragSurface();syncHandles();$('#selectionHint').textContent=selectionName(activeOddity());$('#selectionHint').title=selectionName(activeOddity());const item=activeOddity(),d=item?dimensions(item):null,status=item?selectionName(item)+'. '+Math.round(Math.max(d.w,d.h)/W*100)+' percent size, '+Math.round(item.rotation||0)+' degrees. '+Math.round(item.x/W*100)+' percent across, '+Math.round((item.y-d.h/2)/H*100)+' percent down.':'No item selected.';if($('#canvasSelectionStatus').textContent!==status)$('#canvasSelectionStatus').textContent=status;$('#toggleOddities').hidden=!!activeOddity();}
 
 function render(prepared=null){if(!ready)return;manageAnimation();$('#biomeChoice').value=state.background;syncBiomePicker();$('.garden-panel').classList.toggle('void-grove',state.background==='void');document.querySelectorAll('[data-palette]').forEach(b=>{b.classList.toggle('active',b.dataset.palette===state.palette);b.setAttribute('aria-pressed',String(b.dataset.palette===state.palette));});syncSceneChoices();syncPromptReminder();syncMotionControl();updateControls();queueDraft();}
 function syncSceneChoices(){const weather=state.weather.length?state.weather.map(weatherLabel).join(' + '):'Clear',palette=colorOptions[state.palette].name,currentWeather=!state.weather.length?'clear':state.weather.length===1&&weatherChoices.some(option=>option.value===state.weather[0])?state.weather[0]:'legacy',entries=currentWeather==='legacy'?[...weatherChoices,{value:'legacy',label:weather}]:weatherChoices;$('#weatherChoice').value=currentWeather;syncDropdown('weather',entries,currentWeather,'Clear');$('#weatherButton').setAttribute('aria-label','Weather: '+weather);$('#weatherButton').title='Weather: '+weather;$('#colorButton').setAttribute('aria-label','Color: '+palette);$('#colorButton').title='Color: '+palette;$('#biomeButton').title='Biome: '+biomeLabels[state.background];}
@@ -395,6 +436,32 @@ function freshScene(){const scene=blankScene(),worlds=biomeNames.filter(x=>x!=='
 function onboardingKey(){return'whimsy-grove-onboarding-complete:'+new URL('.',location.href).pathname;}
 function onboardingComplete(){try{return localStorage.getItem(onboardingKey())==='1';}catch{return false;}}
 function markOnboardingComplete(){try{localStorage.setItem(onboardingKey(),'1');}catch{}}
+function firstOddityGuideKey(){return'whimsy-grove-first-oddity-guide:'+new URL('.',location.href).pathname;}
+let firstOddityGuide=null;
+try{firstOddityGuide=JSON.parse(localStorage.getItem(firstOddityGuideKey())||'null');}catch{}
+function rememberFirstOddityGuide(){try{localStorage.setItem(firstOddityGuideKey(),JSON.stringify(firstOddityGuide));}catch{}}
+function armFirstOddityGuide(){
+ if(firstOddityGuide)return;
+ firstOddityGuide={creationId:state.creationId,wiggled:false,dismissed:false};rememberFirstOddityGuide();
+}
+function syncFirstOddityGuide(){
+ const hint=$('#firstOddityGuide'),plus=$('#toggleOddities'),guide=firstOddityGuide;
+ const show=!!guide&&!guide.dismissed&&guide.creationId===state.creationId&&!state.items.length&&ready&&!busy&&isMobilePicker();
+ hint.hidden=!show;
+ if(show)plus.setAttribute('aria-describedby','firstOddityGuide');
+ else plus.removeAttribute('aria-describedby');
+ if(!show||!motionEnabled()||reducedMotion)plus.classList.remove('first-oddity-wiggle');
+ if(!show)return;
+ if(!guide.wiggled){
+  guide.wiggled=true;rememberFirstOddityGuide();
+  if(motionEnabled()&&!reducedMotion)plus.classList.add('first-oddity-wiggle');
+ }
+}
+function dismissFirstOddityGuide(){
+ if(!firstOddityGuide||firstOddityGuide.dismissed||firstOddityGuide.creationId!==state.creationId)return;
+ firstOddityGuide.dismissed=true;rememberFirstOddityGuide();syncFirstOddityGuide();
+}
+document.addEventListener('grove-oddities-open',dismissFirstOddityGuide);
 function sceneNeedsOnboarding(scene){return !scene||scene.items.length===0&&!scene.promptId;}
 
 async function restoreCurrentDraft(fromSignIn=false){
@@ -616,9 +683,10 @@ function deleteSelectedOddityShortcut(event){
 document.addEventListener('keydown',deleteSelectedOddityShortcut);
 $('#undo').addEventListener('click',undo);$('#redo').addEventListener('click',redo);document.addEventListener('keydown',e=>{const tag=document.activeElement?.tagName;if(['INPUT','TEXTAREA','SELECT'].includes(tag)||busy||document.body.classList.contains('grove-view')||[...document.querySelectorAll('dialog')].some(dialog=>dialog.open))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo();}});$('#clear').addEventListener('click',()=>{closeFloating('user');return startNewGrove();});$('#saveAlbum').addEventListener('click',saveToAlbum);$('#save').addEventListener('click',savePicture);$('#share').addEventListener('click',sharePicture);$('#openAlbum').addEventListener('click',()=>{closeFloating('user');return openAlbumHistory('album');});$('#openHistory').addEventListener('click',()=>{closeFloating('user');return openAlbumHistory('history');});$('#closeGallery').addEventListener('click',()=>$('#albumHistoryDialog').close());document.querySelectorAll('[data-gallery]').forEach(b=>b.addEventListener('click',()=>openAlbumHistory(b.dataset.gallery)));$('#loadMore').addEventListener('click',()=>openAlbumHistory(collection,true));document.addEventListener('grove-album-imported',()=>openAlbumHistory('album'));document.addEventListener('visibilitychange',()=>{if(ready)manageAnimation();});
 function hitOutline(sprite){const w=sprite.width,h=sprite.height,pixels=sprite.getContext('2d').getImageData(0,0,w,h).data,left=[],right=[],step=Math.max(1,Math.ceil(h/36));for(let y=0;y<h;y+=step){let min=w,max=-1;for(let yy=y;yy<Math.min(h,y+step);yy++)for(let x=0;x<w;x++)if(pixels[(yy*w+x)*4+3]>35){min=Math.min(min,x);max=Math.max(max,x);}if(max>=min){left.push([min/w*100,y/h*100],[min/w*100,Math.min(h,y+step)/h*100]);right.push([(max+1)/w*100,y/h*100],[(max+1)/w*100,Math.min(h,y+step)/h*100]);}}return [...left,...right.reverse()];}
-function loadSheet(key,[src,cols,rows]){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{try{const cw=Math.floor(im.width/cols),ch=Math.floor(im.height/rows);for(let cell=0;cell<cols*rows;cell++){const entry=oddityCatalog.find(v=>v.sheet===key&&v.cell===cell);if(!entry)continue;const [sx,sy,sw,sh]=customRects[key]?.[cell]||[(cell%cols)*cw,Math.floor(cell/cols)*ch,cw,ch],tile=document.createElement('canvas');tile.width=sw;tile.height=sh;const tc=tile.getContext('2d',{willReadFrequently:true});tc.drawImage(im,sx,sy,sw,sh,0,0,sw,sh);for(const rect of sheetExclusions[key]?.[cell]||[])tc.clearRect(...rect);const pixels=tc.getImageData(0,0,sw,sh).data;let minX=sw,minY=sh,maxX=0,maxY=0;for(let y=0;y<sh;y++)for(let x=0;x<sw;x++)if(pixels[(y*sw+x)*4+3]>25){minX=Math.min(x,minX);maxX=Math.max(x,maxX);minY=Math.min(y,minY);maxY=Math.max(y,maxY);}if(maxX<minX||maxY<minY)throw Error('Empty illustration');const cut=document.createElement('canvas');cut.width=maxX-minX+1;cut.height=maxY-minY+1;cut.getContext('2d').drawImage(tile,minX,minY,cut.width,cut.height,0,0,cut.width,cut.height);const id=entry.id;if(id){sprites.set(id,cut);hitShapes.set(id,hitOutline(cut));const thumb=document.createElement('canvas'),scale=112/Math.max(cut.width,cut.height);thumb.width=Math.max(1,Math.round(cut.width*scale));thumb.height=Math.max(1,Math.round(cut.height*scale));thumb.getContext('2d').drawImage(cut,0,0,thumb.width,thumb.height);thumbs.set(id,thumb.toDataURL('image/webp',.86));}}resolve();}catch(e){reject(e);}};im.onerror=()=>reject(Error('Illustrations could not load'));im.src=src;});}
+function loadSheet(key,[src,cols,rows]){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{try{const cw=Math.floor(im.width/cols),ch=Math.floor(im.height/rows);for(let cell=0;cell<cols*rows;cell++){const entry=oddityCatalog.find(v=>v.sheet===key&&v.cell===cell);if(!entry)continue;const [sx,sy,sw,sh]=customRects[key]?.[cell]||[(cell%cols)*cw,Math.floor(cell/cols)*ch,cw,ch],tile=document.createElement('canvas');tile.width=sw;tile.height=sh;const tc=tile.getContext('2d',{willReadFrequently:true});tc.drawImage(im,sx,sy,sw,sh,0,0,sw,sh);for(const rect of sheetExclusions[key]?.[cell]||[])tc.clearRect(...rect);const pixels=tc.getImageData(0,0,sw,sh).data;let minX=sw,minY=sh,maxX=0,maxY=0;for(let y=0;y<sh;y++)for(let x=0;x<sw;x++)if(pixels[(y*sw+x)*4+3]>25){minX=Math.min(x,minX);maxX=Math.max(x,maxX);minY=Math.min(y,minY);maxY=Math.max(y,maxY);}if(maxX<minX||maxY<minY)throw Error('Empty illustration');const cut=document.createElement('canvas');cut.width=maxX-minX+1;cut.height=maxY-minY+1;cut.getContext('2d').drawImage(tile,minX,minY,cut.width,cut.height,0,0,cut.width,cut.height);const id=entry.id;if(id){sprites.set(id,cut);hitShapes.set(id,hitOutline(cut));const thumb=document.createElement('canvas'),scale=112/Math.max(cut.width,cut.height);thumb.width=Math.max(1,Math.round(cut.width*scale));thumb.height=Math.max(1,Math.round(cut.height*scale));thumb.getContext('2d').drawImage(cut,0,0,thumb.width,thumb.height);thumbs.set(id,thumb.toDataURL('image/webp',.86));}}resolve();}catch(e){reject(e);}};im.onerror=()=>reject(Error('Illustrations could not load. Try refreshing the page.'));im.src=src;});}
 const mobilePickerMedia=window.matchMedia?.('(max-width: 650px)');
 const isMobilePicker=()=>mobilePickerMedia?mobilePickerMedia.matches:(window.innerWidth||1024)<=650;
+mobilePickerMedia?.addEventListener('change',syncFirstOddityGuide);
 let pickerHighlightTimer=null;
 function scrollToOddities(keyboardFocus=false){for(const key of Object.keys(dropdowns))closeDropdown(key);requestAnimationFrame(()=>{if(keyboardFocus)$('#oddityCategoryButton').focus({preventScroll:true});const picker=$('#oddityPicker');picker.scrollIntoView({behavior:reducedMotion?'auto':'smooth',block:'start'});picker.classList.add('picker-highlight');clearTimeout(pickerHighlightTimer);pickerHighlightTimer=setTimeout(()=>picker.classList.remove('picker-highlight'),1300);});}
 function returnToCanvas(){requestAnimationFrame(()=>{canvas.focus?.({preventScroll:true});$('.garden-panel').scrollIntoView({behavior:reducedMotion?'auto':'smooth',block:'start'});});}

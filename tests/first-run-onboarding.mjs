@@ -19,22 +19,26 @@ assert(source.includes('ideas.slice(0,2)'));
 assert(source.includes('area.append(freeCreateChoice)'));
 assert(!source.includes('biomeStep'));
 {
- const freeCreate=source.slice(source.indexOf('function chooseFreeCreate('),source.indexOf('function scrollNewGroveToTop('));
- const finish=source.slice(source.indexOf('function finishGroveSetup('),source.indexOf('async function startNewGrove('));
+ const helpers=source.slice(source.indexOf('function syncGroveIdeaSelection('),source.indexOf('function scrollNewGroveToTop('));
+ const finish=source.slice(source.indexOf('function clearGroveIdeaSelection('),source.indexOf('async function startNewGrove('));
  const dialog={open:true,returnValue:'cancel',close(){this.open=false;this.closeCount=(this.closeCount||0)+1;}};
- const context={dialog,$:id=>{assert.equal(id,'#startDialog');return dialog;},displayedIdeas:[{biome:'forest'},{biome:'bridge'}],biomeNames:['none','forest','bridge','cave'],selectedIdea:'old',selectedBiome:'old',scrollNewGroveToTop(){}};
- vm.runInNewContext(freeCreate+finish+';chooseFreeCreate();chooseFreeCreate();',context);
- assert.equal(context.selectedBiome,'cave');assert.equal(context.selectedIdea,null);
- assert.equal(dialog.returnValue,'start');assert.equal(dialog.closeCount,1);
- dialog.open=true;context.biomeNames=['none','forest','bridge'];
- vm.runInNewContext('chooseFreeCreate();',context);
- assert.equal(context.selectedBiome,'haze','Haze is the fallback with no eligible random biome');
- const named=source.slice(source.indexOf('function chooseIdea('),source.indexOf('function chooseGroveStart('));
- dialog.open=true;context.ideaById={cosmic:{biome:'space'}};
- vm.runInNewContext(named+";chooseIdea('invalid');chooseIdea('cosmic');chooseIdea('cosmic');",context);
- assert.equal(context.selectedBiome,'space');assert.equal(context.selectedIdea,'cosmic');
- assert.equal(dialog.closeCount,3,'named prompt commits exactly once using the same finish path');
-
+ const buttons=['cosmic','free'].map(id=>({dataset:{ideaId:id},setAttribute(k,v){this[k]=v;},focus(){this.focused=true;}}));
+ const nodes={'#startDialog':dialog,'#ideaChoices':{querySelectorAll:()=>buttons},'#startGrove':{},'#shuffleIdeas':{},'#chooseAnotherIdea':{}};
+ const context={dialog,$:id=>nodes[id],displayedIdeas:[{id:'cosmic',biome:'space'},{id:'bridge',biome:'bridge'}],biomeNames:['none','space','bridge','cave'],ideaById:{cosmic:{id:'cosmic',biome:'space'}},pendingIdea:null,selectedGroveChoice:null,scrollNewGroveToTop(){}};
+ vm.runInNewContext(helpers+finish+';syncGroveIdeaSelection();finishGroveSetup();selectGroveIdea("cosmic");',context);
+ assert.equal(dialog.open,true);assert.equal(dialog.returnValue,'cancel');assert.equal(context.selectedGroveChoice,null);
+ assert.equal(nodes['#startGrove'].disabled,false);assert.equal(buttons[0]['aria-pressed'],'true');
+ vm.runInNewContext('clearGroveIdeaSelection();',context);
+ assert.equal(nodes['#startGrove'].disabled,true);assert.equal(buttons[0].focused,true);
+ vm.runInNewContext('selectGroveIdea("cosmic");finishGroveSetup();finishGroveSetup();',context);
+ assert.equal(context.selectedGroveChoice.background,'space');assert.equal(context.selectedGroveChoice.promptId,'cosmic');
+ assert.equal(dialog.closeCount,1);
+ dialog.open=true;context.selectedGroveChoice=null;
+ vm.runInNewContext('selectGroveIdea("free");finishGroveSetup();',context);
+ assert.equal(context.selectedGroveChoice.background,'cave');assert.equal(context.selectedGroveChoice.promptId,null);
+ dialog.open=true;context.selectedGroveChoice=null;context.biomeNames=['none','space','bridge'];
+ vm.runInNewContext('selectGroveIdea("free");finishGroveSetup();',context);
+ assert.equal(context.selectedGroveChoice.background,'haze','Haze is the fallback without another eligible biome');
 }
 
 
@@ -170,7 +174,7 @@ assert.match(source,/^setBusy\(true,'Waking the grove\.\.\.'\);$/m);
 {
   const html=readFileSync('public/index.html','utf8');
   const css=readFileSync('public/style.css','utf8');
-  assert.match(html,/id="oddity-grid"[^>]*><p id="odditiesLoading" class="oddities-boot-status" role="status" aria-live="polite"><span class="boot-mushroom" aria-hidden="true"><img src="assets\/loading-mushroom\.svg" alt="" width="40" height="40">(?:<i><\/i>){3}<\/span><span>Loading Oddities\.\.\.<\/span><\/p>/);
+  assert.match(html,/id="oddity-grid"[^>]*><p id="odditiesLoading" class="oddities-boot-status" role="status" aria-live="polite"><span class="boot-mushroom" aria-hidden="true"><img src="assets\/loading-mushroom\.svg" alt="" width="40" height="40"><\/span><span>Loading Oddities\.\.\.<\/span><\/p>/);
   const renderer=source.slice(source.indexOf('function renderOddities()'),source.indexOf('function drawSprite('));
   assert(renderer.includes('el.replaceChildren();'),'first card or empty-state render removes startup status');
   assert(source.includes('function renderOddities(){if(!catalogReady)return;'),'pending catalog retains loading status even when storage refreshes');
@@ -239,3 +243,33 @@ console.log('PASS: whole-page prepaint loader, deferred canvas readiness, indepe
 
 assert(readFileSync('public/index.html','utf8').includes('Start with a random biome. Follow your own imagination.'));
 assert.match(readFileSync('public/index.html','utf8'),/id="shuffleIdeas"[\s\S]*?<span>More Ideas<\/span><\/button>/);
+
+assert.doesNotMatch(readFileSync('public/index.html','utf8'),/class="boot-mushroom"[^>]*><img[^>]*><i>/);
+assert.doesNotMatch(bootCss,/boot-spore-drift/);
+
+assert.match(source,/\.toggle\('is-waking-grove',value&&text==='Waking the grove\.\.\.'\)/);
+assert.match(bootCss,/\.busy-overlay\.is-waking-grove \.busy-message \.boot-mushroom\{position:relative;display:block/);
+assert.match(bootCss,/\.busy-overlay\.is-waking-grove \.busy-message>\.status-spinner\{display:none;\}/);
+{
+ const guideCode=source.slice(source.indexOf('function firstOddityGuideKey('),source.indexOf('function sceneNeedsOnboarding('));
+ const hint={hidden:true},classes=new Set(),attributes=new Map(),stored=new Map(),events={};
+ const plus={classList:{add:c=>classes.add(c),remove:c=>classes.delete(c)},setAttribute:(k,v)=>attributes.set(k,v),removeAttribute:k=>attributes.delete(k)};
+ const state={creationId:'first',items:[]};
+ const sandbox={URL,location:{href:'https://example.test/editor.html'},localStorage:{getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v)},document:{addEventListener:(k,fn)=>events[k]=fn},$:id=>id==='#firstOddityGuide'?hint:plus,state,ready:true,busy:false,isMobilePicker:()=>true,motionEnabled:()=>true,reducedMotion:false};
+ const guide=vm.runInNewContext(guideCode+';({armFirstOddityGuide,syncFirstOddityGuide})',sandbox);
+ guide.armFirstOddityGuide();guide.syncFirstOddityGuide();
+ assert.equal(hint.hidden,false);assert(classes.has('first-oddity-wiggle'));assert.equal(attributes.get('aria-describedby'),'firstOddityGuide');
+ classes.clear();guide.syncFirstOddityGuide();assert.equal(classes.size,0,'wiggle plays at most once');
+ events['grove-oddities-open']();assert.equal(hint.hidden,true);assert.equal(attributes.has('aria-describedby'),false);
+ const restored=vm.runInNewContext(guideCode+';syncFirstOddityGuide',{...sandbox});restored();assert.equal(hint.hidden,true,'successful picker open is recorded across reload');
+ stored.clear();const quiet=vm.runInNewContext(guideCode+';({armFirstOddityGuide,syncFirstOddityGuide})',{...sandbox,motionEnabled:()=>false});
+ quiet.armFirstOddityGuide();quiet.syncFirstOddityGuide();assert.equal(hint.hidden,false);assert.equal(classes.size,0,'animations off preserves text but skips first wiggle');
+}
+
+{
+ const createFlow=source.slice(source.indexOf('async function startNewGrove('),source.indexOf('const badgeDefinitions'));
+ assert(createFlow.indexOf('await chooseGroveStart()')<createFlow.indexOf("await persistScene('history'"),'history is only written after the user presses Start');
+ assert(createFlow.indexOf('await prepareScene(next)')<createFlow.indexOf("await persistScene('history'"),'failed scene prep does not write history');
+ assert.match(readFileSync('public/index.html','utf8'),/<button id="startGrove"[^>]*disabled>Start Creating<\/button>/);
+}
+assert(source.includes("Error('Illustrations could not load. Try refreshing the page.')"));

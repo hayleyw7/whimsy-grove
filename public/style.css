@@ -819,16 +819,11 @@ body.editor-ui .picker-section .section-content:has(#oddity-grid.empty-favorites
 
 /* Boot artwork uses the same mushroom as the site favicon. */
 .boot-mushroom{display:none;}
-.editor-loading .loading .boot-mushroom,.editor-loading .busy-message .boot-mushroom{position:relative;display:block;width:64px;height:64px;flex:none;pointer-events:none;}
-.editor-loading .busy-overlay .busy-message{flex-direction:column;gap:8px;background:transparent;border-color:transparent;box-shadow:none;}
-.editor-loading .busy-message>.status-spinner{display:none;}
-.boot-mushroom img{display:block;transform-origin:50% 83%;animation:boot-mushroom-sway 2.2s ease-in-out infinite;}
-.boot-mushroom i{position:absolute;top:16px;left:11px;width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.58;animation:boot-spore-drift 2.1s ease-out -.65s infinite;}
-.boot-mushroom i:nth-of-type(2){top:9px;left:48px;animation-delay:-1.2s;}
-.boot-mushroom i:nth-of-type(3){top:20px;left:53px;width:3px;height:3px;animation-delay:-1.7s;}
+.editor-loading .loading .boot-mushroom,.busy-overlay.is-waking-grove .busy-message .boot-mushroom{position:relative;display:block;width:64px;height:64px;flex:none;pointer-events:none;}
+.busy-overlay.is-waking-grove .busy-message{flex-direction:column;gap:8px;background:transparent;border-color:transparent;box-shadow:none;}
+.busy-overlay.is-waking-grove .busy-message>.status-spinner{display:none;}
 @keyframes boot-mushroom-sway{0%,100%{transform:translateY(1px) rotate(0deg);}25%{transform:translateY(-1.5px) rotate(-7deg);}50%{transform:translateY(-4px) rotate(0deg);}75%{transform:translateY(-1.5px) rotate(7deg);}}
-@keyframes boot-spore-drift{0%{transform:translate(0,3px);opacity:0;}25%{opacity:.65;}100%{transform:translate(5px,-15px);opacity:0;}}
-@media(prefers-reduced-motion:reduce){.boot-mushroom img,.boot-mushroom i{animation:none;}}
+@media(prefers-reduced-motion:reduce){.boot-mushroom img{animation:none;}}
 /* Remove the dark painted sliver at each container-facing scrollbar edge. */
 body.editor-ui .grove-scroll-track[data-axis=y] .grove-scroll-thumb{border-right:0;border-top-right-radius:0;border-bottom-right-radius:0;}
 body.editor-ui .grove-scroll-track[data-axis=y]:before{border-top-right-radius:0;border-bottom-right-radius:0;}
@@ -862,9 +857,6 @@ body.editor-ui :is(#musicMenu,#albumSortMenu,.dropdown-menu)[role=listbox][data-
 /* Match the canvas boot artwork in the narrower Oddities loading status. */
 #oddity-grid .oddities-boot-status:has(.boot-mushroom){display:flex;flex-direction:column;align-items:center;gap:5px;}
 #oddity-grid .oddities-boot-status .boot-mushroom{position:relative;display:block;width:40px;height:40px;flex:none;pointer-events:none;}
-#oddity-grid .oddities-boot-status .boot-mushroom i{top:11px;left:6px;width:3px;height:3px;}
-#oddity-grid .oddities-boot-status .boot-mushroom i:nth-of-type(2){top:6px;left:29px;}
-#oddity-grid .oddities-boot-status .boot-mushroom i:nth-of-type(3){top:13px;left:33px;width:2px;height:2px;}
 
 /* The Color swatch panel needs equal side insets, not the generic rail gutter. */
 #colorPanel.grove-scrollbar-ready{padding-right:13px;}
@@ -1443,3 +1435,47 @@ body.editor-ui #startDialog #shuffleIdeas:not(:hover){
 
 /* The in-page mobile fullscreen view allows browser-level pinch magnification. */
 body.editor-ui.grove-view :is(.garden-panel,.canvas-wrap,#garden){touch-action:auto;}
+
+#firstOddityGuide[hidden]{display:none;}
+@media(max-width:650px){
+ .garden-panel>.canvas-tools #firstOddityGuide:not([hidden]){
+  grid-row:1;grid-column:3;align-self:center;justify-self:end;min-width:0;max-width:100%;
+  color:var(--ink);font-size:12px;line-height:1.12;text-align:right;overflow-wrap:anywhere;
+ }
+ .garden-panel>.canvas-tools:has(#firstOddityGuide:not([hidden])) #toggleOddities .ui-icon{
+  filter:drop-shadow(0 0 5px var(--accent));
+ }
+ .garden-panel>.canvas-tools #toggleOddities.first-oddity-wiggle .ui-icon{
+  animation:first-oddity-wiggle .44s ease-in-out 1;
+ }
+}
+@keyframes first-oddity-wiggle{
+ 0%,100%{rotate:0deg;}
+ 28%{rotate:-13deg;}
+ 62%{rotate:11deg;}
+}
+@media(prefers-reduced-motion:reduce){
+ .garden-panel>.canvas-tools #toggleOddities.first-oddity-wiggle .ui-icon{animation:none;}
+}
+
+/* Reading or choosing an idea never starts the scene. Selection does not resize a card. */
+body.editor-ui #ideaChoices>.idea-choice[aria-pressed=true]{
+ background:var(--ui-dropdown-option-selected-background);color:var(--ui-dropdown-option-selected-color);
+ box-shadow:inset 0 0 0 2px var(--ui-focus-ring);
+}
+body.editor-ui #startDialog #ideaChoices>button.idea-choice[aria-pressed=true]:hover{
+ background:var(--ui-dropdown-option-selected-background);color:var(--ui-dropdown-option-selected-color);
+}
+#startDialog .start-dialog-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px;}
+#startDialog .start-dialog-actions :is(#shuffleIdeas,#chooseAnotherIdea,#startGrove){min-width:0;min-height:44px;margin:0;padding:8px;}
+body.editor-ui #startDialog #startGrove{background:var(--ui-primary-fill);color:var(--ui-primary-ink);border-color:var(--ui-primary-fill);}
+body.editor-ui #startDialog #startGrove:hover:not(:disabled){filter:brightness(1.1);}
+
+#startDialog :is(#shuffleIdeas,#chooseAnotherIdea){grid-column:1;grid-row:1;}
+#startDialog #startGrove{grid-column:2;grid-row:1;}
+#startDialog :is(#shuffleIdeas,#chooseAnotherIdea)[hidden]{display:none;}
+body.editor-ui #startDialog #chooseAnotherIdea{
+ background:color-mix(in srgb,var(--ui-main-panel-fill) 65%,var(--ui-surface-muted));
+ color:var(--ink);border:1px solid var(--ui-surface-border);border-radius:8px;
+}
+body.editor-ui #startDialog #chooseAnotherIdea:hover{background:var(--ui-action-hover-fill);color:var(--ui-action-hover-ink);}
