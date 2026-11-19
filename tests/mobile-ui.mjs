@@ -91,6 +91,16 @@ console.log('PASS: attached dropdown geometry, full list above/below when it fit
 console.log('PASS: real Category handlers open, focus selected Animals, Escape restores trigger, and selecting All dispatches change.');
 assert.match(source,/dropdownPlacement\(box,\['weather','biome'\]\.includes\(key\)\?Math\.min\(320,desiredHeight\):desiredHeight,vh\)/);
 
+{
+ const position=source.slice(source.indexOf('function positionDropdown('),source.indexOf('function closeDropdown('));
+ const menu={hidden:false,dataset:{}},button={dataset:{}};
+ const place=vm.runInNewContext(position+';positionDropdown',{dropdowns:{newBiome:{menu:'m',button:'b'}},$:id=>id==='m'?menu:button});
+ place('newBiome');
+ assert.equal(menu.dataset.dropdownSide,'below');
+ assert.equal(button.dataset.dropdownSide,'below');
+ assert.match(fs.readFileSync('public/style.css','utf8'),/#startDialog #newBiomeMenu\{\s*position:relative;inset:auto;width:100%;max-height:clamp\(44px,min\(38dvh,85dvh - 300px\),320px\);margin-top:-1px;/);
+}
+
 const scrollbarSource=fs.readFileSync('public/scrollbars.js','utf8');
 const geometryCode=scrollbarSource.slice(scrollbarSource.indexOf('function geometry('),scrollbarSource.indexOf('function scrollTo('));
 const scrollGeometry=vm.runInNewContext(geometryCode+';geometry',{innerWidth:1000,innerHeight:800});
@@ -236,3 +246,10 @@ const snapOpening=vm.runInNewContext(source.match(/^function alignDropdownOpenSc
 const scrolled={scrollHeight:620,clientHeight:320,scrollTop:261,children:Array.from({length:14},(_,i)=>({offsetTop:i*44}))};
 snapOpening(scrolled);assert.equal(scrolled.scrollTop,264,'opening a long menu does not leave a partial blank row at its seam');
 scrolled.scrollTop=300;snapOpening(scrolled);assert.equal(scrolled.scrollTop,300,'preserve a remembered position at the end');
+
+assert.doesNotMatch(editorMarkup,/Choose an idea, or create freely\./);
+assert.match(editorMarkup,/<div id="biomeStep" hidden><p id="startIntro">Choose a biome, then start adding\.<\/p>/);
+
+assert.match(editorCss,/#startDialog\[open\]>#ideaStep\[hidden\]\{display:block!important;visibility:hidden;pointer-events:none;\}/);
+assert.match(editorCss,/#startDialog>#biomeStep:not\(\[hidden\]\)\{\s*display:flex;flex-direction:column;contain:size;min-height:0;overflow:auto;/);
+assert.match(editorCss,/#startDialog::backdrop\{background:var\(--paper\);backdrop-filter:none;\}/);
