@@ -3,6 +3,7 @@ const root=document.documentElement;
 const motionMedia=window.matchMedia?.('(prefers-reduced-motion: reduce)')||{matches:false};
 const motionPreferenceKey='spooky-grove-motion-v1';
 function animationsEnabled(){
+  if(motionMedia.matches)return false;
   try{
     const saved=JSON.parse(localStorage.getItem(motionPreferenceKey)||'null');
     if(typeof saved==='boolean')return saved;
@@ -52,6 +53,9 @@ if(root.classList.contains('welcome-waiting')){
   clearTimeout(timeout);
   clearTimeout(window.welcomeRevealTimer);
   root.classList.remove('welcome-waiting');
-  root.classList.add('welcome-ambient');
-  pause();
+  const ambient=()=>{root.classList.remove('welcome-stagger');root.classList.add('welcome-ambient');pause();};
+  if(animationsEnabled()){
+    root.classList.add('welcome-stagger');
+    setTimeout(ambient,1150);
+  }else ambient();
 }
