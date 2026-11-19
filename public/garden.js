@@ -322,13 +322,17 @@ function fillIdeas(){
  area.append(sizing);syncGroveIdeaSelection();
 }
 function syncGroveIdeaSelection(){
- for(const choice of $('#ideaChoices').querySelectorAll('button[data-idea-id]'))choice.setAttribute('aria-pressed',String(choice.dataset.ideaId===pendingIdea));
- $('#startGrove').disabled=!pendingIdea;
- $('#shuffleIdeas').hidden=!!pendingIdea;$('#chooseAnotherIdea').hidden=!pendingIdea;
+ const chooser=$('#ideaStep'),review=$('#ideaReviewStep'),title=$('#startTitle'),idea=ideaById[pendingIdea],isFree=pendingIdea==='free';
+ const selected=isFree||!!idea;
+ chooser.hidden=selected;chooser.inert=selected;review.hidden=!selected;
+ title.textContent=selected?'Start this grove?':'Choose an idea';
+ $('#reviewIdeaTitle').textContent=isFree?freeCreateChoice.querySelector('strong').textContent:idea?.title||'';
+ $('#reviewIdeaDescription').textContent=isFree?freeCreateChoice.querySelector('span').textContent:idea?.text||'';
+ $('#startGrove').disabled=!selected;
 }
 function selectGroveIdea(id){
  if(!$('#startDialog').open||id!=='free'&&!displayedIdeas.some(idea=>idea.id===id))return;
- pendingIdea=id;syncGroveIdeaSelection();
+ pendingIdea=id;syncGroveIdeaSelection();$('#startTitle').focus({preventScroll:true});
 }
 function scrollNewGroveToTop(){window.scrollTo?.({top:0,left:0,behavior:'instant'});}
 function chooseGroveStart(){
