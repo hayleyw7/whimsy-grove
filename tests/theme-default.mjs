@@ -115,3 +115,6 @@ for(const [panel,hover,selected] of [['#fcf8ef','#e4d6df','#65435f'],['#271a30',
 
 const audioSettingsMarkup=fs.readFileSync('public/index.html','utf8').match(/<fieldset class="audio-settings">([\s\S]*?)<\/fieldset>/)[1];
 assert.match(audioSettingsMarkup,/class="volume-label" for="musicVolume">Music [\s\S]*?id="musicVolumeValue"[\s\S]*?type="range" id="musicVolume" aria-label="Music volume"[\s\S]*?id="musicButton"[\s\S]*?id="soundEffects"/);
+
+assert.match(themeCss,/#startDialog #ideaStep :is\(button\.idea-choice,#shuffleIdeas\):hover:not\(:disabled\)\{\s*background:var\(--ui-action-hover-fill\);color:var\(--ui-action-hover-ink\);filter:none;/);
+assert.match(themeCss,/#startDialog #shuffleIdeas:not\(:hover\)\{\s*background:color-mix\(in srgb,var\(--ui-main-panel-fill\) 65%,var\(--ui-surface-muted\)\);/);

@@ -1422,3 +1422,40 @@ body.editor-ui #confirmDialog:has(#confirmNewMushroom:not([hidden])) #confirmCan
 }
 
 body.editor-ui #albumOptionsMenu .album-transfer-icon{width:16px;height:16px;flex:0 0 16px;opacity:.72;pointer-events:none;}
+
+/* New Grove Biome expands inside the dialog rather than covering its heading
+   or footer. On short screens the list itself scrolls. */
+body.editor-ui #startDialog #newBiomeMenu{
+ position:relative;inset:auto;width:100%;max-height:clamp(44px,min(38dvh,85dvh - 300px),320px);margin-top:-1px;
+}
+
+/* Both prompt slots follow the tallest actual prompt at the current width.
+   The sizing copies are neither visible nor focusable. */
+#ideaChoices{grid-template-columns:minmax(0,1fr);grid-template-rows:1fr 1fr auto;}
+#ideaChoices>.idea-choice{grid-column:1;}
+#ideaChoices>#freeCreate{grid-row:3;}
+#ideaChoices>.idea-size-rack{display:grid;grid-area:1/1;visibility:hidden;pointer-events:none;min-width:0;}
+#ideaChoices>.idea-size-rack>.idea-choice{grid-area:1/1;}
+
+/* Idea choices and shuffle share fill-only feedback without moving their boxes. */
+body.editor-ui #startDialog #ideaStep :is(button.idea-choice,#shuffleIdeas):hover:not(:disabled){
+ background:var(--ui-action-hover-fill);color:var(--ui-action-hover-ink);filter:none;
+}
+
+/* Both setup steps occupy the first step's responsive footprint. */
+body.editor-ui #startDialog[open]{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;}
+#startDialog>#startTitle{grid-area:1/1;}
+#startDialog>:is(#ideaStep,#biomeStep){grid-area:2/1;min-width:0;}
+#startDialog[open]>#ideaStep[hidden]{display:block!important;visibility:hidden;pointer-events:none;}
+#startDialog>#biomeStep:not([hidden]){
+ display:flex;flex-direction:column;contain:size;min-height:0;overflow:auto;
+}
+#startDialog #biomeStep>:not(.custom-dropdown){flex:none;}
+#startDialog #biomeStep>.custom-dropdown{display:flex;flex-direction:column;min-height:0;}
+#startDialog #biomeStep #newBiomeButton{flex:none;}
+#startDialog #biomeStep #newBiomeMenu{min-height:44px;}
+#startDialog #biomeStep>.dialog-actions{margin-top:auto;padding-top:16px;}
+body.editor-ui #startDialog::backdrop{background:var(--paper);backdrop-filter:none;}
+body.editor-ui #startDialog #shuffleIdeas:not(:hover){
+ background:color-mix(in srgb,var(--ui-main-panel-fill) 65%,var(--ui-surface-muted));
+}

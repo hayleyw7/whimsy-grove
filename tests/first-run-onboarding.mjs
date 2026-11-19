@@ -18,6 +18,19 @@ assert(source.includes('if(first)markOnboardingComplete();'));
 assert(source.includes('ideas.slice(0,2)'));
 assert(source.includes('area.append(freeCreateChoice)'));
 assert(source.includes("$('#biomeStep').hidden=false"));
+{
+ const freeCreate=source.slice(source.indexOf('function chooseFreeCreate('),source.indexOf('function syncNewBiome('));
+ const finish=source.slice(source.indexOf('function finishGroveSetup('),source.indexOf('async function startNewGrove('));
+ const dialog={open:true,returnValue:'cancel',close(){this.open=false;this.closeCount=(this.closeCount||0)+1;}};
+ const context={dialog,$:id=>{assert.equal(id,'#startDialog');return dialog;},displayedIdeas:[{biome:'forest'},{biome:'bridge'}],biomeNames:['none','forest','bridge','cave'],selectedIdea:'old',selectedBiome:'old',scrollNewGroveToTop(){}};
+ vm.runInNewContext(freeCreate+finish+';chooseFreeCreate();chooseFreeCreate();',context);
+ assert.equal(context.selectedBiome,'cave');assert.equal(context.selectedIdea,null);
+ assert.equal(dialog.returnValue,'start');assert.equal(dialog.closeCount,1);
+ dialog.open=true;context.biomeNames=['none','forest','bridge'];
+ vm.runInNewContext('chooseFreeCreate();',context);
+ assert.equal(context.selectedBiome,'haze','Haze is the fallback with no eligible random biome');
+}
+
 
 {
   const freeCreate={disabled:false,hasAttribute:()=>false,closest:selector=>selector==='#startDialog'?{}:null};
@@ -217,3 +230,6 @@ console.log('PASS: whole-page prepaint loader, deferred canvas readiness, indepe
   await assert.rejects(context.prepareScene({background:'forest',items:[{id:'unknown'}]}),/newer illustrations/);
   console.log('PASS: restored scene waits for its own sheet, blank scene never waits for unrelated catalog, unknown illustrations remain a recoverable error.');
 }
+
+assert(readFileSync('public/index.html','utf8').includes('Start with a random biome. Follow your own imagination.'));
+assert.match(readFileSync('public/index.html','utf8'),/id="shuffleIdeas"[\s\S]*?<span>More Ideas<\/span><\/button>/);

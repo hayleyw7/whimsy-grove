@@ -296,14 +296,37 @@ const ideaById=Object.fromEntries((window.GroveIdeas||[]).map(idea=>[idea.id,ide
 const freeCreateChoice=$('#freeCreate');let selectedIdea=null,selectedBiome='haze',displayedIdeas=[];
 function syncPromptReminder(){const idea=ideaById[state.promptId];$('#promptReminder').hidden=!idea||!!state.promptHidden;$('#promptTitle').textContent=idea?.title||'';$('#promptText').textContent=idea?.text||'';}
 $('#dismissPrompt').addEventListener('click',()=>{state.promptHidden=true;syncPromptReminder();queueDraft();});
-function fillIdeas(){const ideas=[...(window.GroveIdeas||[])];for(let i=ideas.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ideas[i],ideas[j]]=[ideas[j],ideas[i]];}displayedIdeas=ideas.slice(0,2);const area=$('#ideaChoices');area.replaceChildren();for(const idea of displayedIdeas){const button=document.createElement('button'),title=document.createElement('strong'),text=document.createElement('span');button.type='button';button.className='idea-choice';title.textContent=idea.title;text.textContent=idea.text;button.append(title,text);button.addEventListener('click',()=>chooseIdea(idea.id));area.append(button);}area.append(freeCreateChoice);}
-function chooseFreeCreate(){const excluded=new Set(displayedIdeas.map(idea=>idea.biome));const choices=biomeNames.filter(name=>name!=='none'&&!excluded.has(name));selectedIdea=null;selectedBiome=choices[Math.floor(Math.random()*choices.length)]||'haze';$('#ideaStep').hidden=true;$('#biomeStep').hidden=false;$('#startTitle').textContent='Choose a Biome';$('#startIntro').textContent='Choose a biome, then start adding.';syncNewBiome();$('#startDialog').scrollTop=0;scrollNewGroveToTop();$('#newBiomeButton').focus({preventScroll:true});}
+function ideaCard(tag,idea){
+ const card=document.createElement(tag),title=document.createElement('strong'),text=document.createElement('span');
+ card.className='idea-choice';title.textContent=idea.title;text.textContent=idea.text;card.append(title,text);return card;
+}
+function fillIdeas(){
+ const allIdeas=window.GroveIdeas||[],ideas=[...allIdeas];
+ for(let i=ideas.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ideas[i],ideas[j]]=[ideas[j],ideas[i]];}
+ displayedIdeas=ideas.slice(0,2);const area=$('#ideaChoices');area.replaceChildren();
+ for(const [index,idea] of displayedIdeas.entries()){
+  const button=ideaCard('button',idea);button.type='button';button.style.gridRow=String(index+1);
+  button.addEventListener('click',()=>chooseIdea(idea.id));area.append(button);
+ }
+ area.append(freeCreateChoice);
+ const sizing=document.createElement('div');sizing.className='idea-size-rack';sizing.setAttribute('aria-hidden','true');
+ for(const idea of allIdeas)sizing.append(ideaCard('div',idea));
+ area.append(sizing);
+}
+function chooseFreeCreate(){
+ const dialog=$('#startDialog');if(!dialog.open)return;
+ const excluded=new Set(displayedIdeas.map(idea=>idea.biome));
+ const choices=biomeNames.filter(name=>name!=='none'&&!excluded.has(name));
+ selectedIdea=null;selectedBiome=choices[Math.floor(Math.random()*choices.length)]||'haze';
+ finishGroveSetup();
+}
 function syncNewBiome(){$('#newBiome').value=selectedBiome;syncDropdown('newBiome',biomeNames.map(value=>({value,label:biomeLabels[value]})).sort((a,b)=>a.label.localeCompare(b.label)),selectedBiome,'Haze');}
 function scrollNewGroveToTop(){window.scrollTo?.({top:0,left:0,behavior:'instant'});}
-function chooseIdea(id){selectedIdea=id;selectedBiome=ideaById[id]?.biome||'haze';$('#ideaStep').hidden=true;$('#biomeStep').hidden=false;$('#startTitle').textContent='Choose a Biome';$('#startIntro').textContent='Choose a biome, then start adding.';syncNewBiome();$('#startDialog').scrollTop=0;scrollNewGroveToTop();$('#newBiomeButton').focus({preventScroll:true});}
-function chooseGroveStart(){return new Promise(resolve=>{const dialog=$('#startDialog');selectedIdea=null;selectedBiome='haze';$('#ideaStep').hidden=false;$('#biomeStep').hidden=true;$('#startTitle').textContent='Choose an idea';$('#startIntro').textContent='Choose an idea, or create freely.';fillIdeas();dialog.returnValue='cancel';dialog.addEventListener('close',()=>{closeDropdown('newBiome');resolve(dialog.returnValue==='start'?{background:selectedBiome,promptId:selectedIdea}:null);},{once:true});showDialog(dialog,canvas);$('#ideaChoices').querySelector?.('button')?.focus({preventScroll:true});});}
+function chooseIdea(id){selectedIdea=id;selectedBiome=ideaById[id]?.biome||'haze';$('#ideaStep').hidden=true;$('#biomeStep').hidden=false;$('#startTitle').textContent='Choose a Biome';syncNewBiome();$('#startDialog').scrollTop=0;scrollNewGroveToTop();$('#newBiomeButton').focus({preventScroll:true});}
+function chooseGroveStart(){return new Promise(resolve=>{const dialog=$('#startDialog');selectedIdea=null;selectedBiome='haze';$('#ideaStep').hidden=false;$('#biomeStep').hidden=true;$('#startTitle').textContent='Choose an idea';fillIdeas();dialog.returnValue='cancel';dialog.addEventListener('close',()=>{closeDropdown('newBiome');resolve(dialog.returnValue==='start'?{background:selectedBiome,promptId:selectedIdea}:null);},{once:true});showDialog(dialog,canvas);$('#ideaChoices').querySelector?.('button')?.focus({preventScroll:true});});}
 $('#startDialog').addEventListener('cancel',event=>event.preventDefault());
-$('#freeCreate').addEventListener('click',chooseFreeCreate);$('#shuffleIdeas').addEventListener('click',fillIdeas);$('#newBiome').addEventListener('change',event=>{selectedBiome=event.target.value;syncNewBiome();});$('#backIdeas').addEventListener('click',()=>{$('#biomeStep').hidden=true;$('#ideaStep').hidden=false;$('#startTitle').textContent='Choose an idea';$('#startIntro').textContent='Choose an idea, or create freely.';$('#freeCreate').focus({preventScroll:true});});$('#startGrove').addEventListener('click',()=>{$('#startDialog').returnValue='start';$('#startDialog').close();scrollNewGroveToTop();});
+$('#freeCreate').addEventListener('click',chooseFreeCreate);$('#shuffleIdeas').addEventListener('click',fillIdeas);$('#newBiome').addEventListener('change',event=>{selectedBiome=event.target.value;syncNewBiome();});$('#backIdeas').addEventListener('click',()=>{closeDropdown('newBiome');$('#biomeStep').hidden=true;$('#ideaStep').hidden=false;$('#startTitle').textContent='Choose an idea';$('#freeCreate').focus({preventScroll:true});});$('#startGrove').addEventListener('click',finishGroveSetup);
+function finishGroveSetup(){const dialog=$('#startDialog');if(!dialog.open)return;dialog.returnValue='start';dialog.close();scrollNewGroveToTop();}
 async function startNewGrove(first=false,initialChoice=null){if(busy||!ready||$('#startDialog').open)return;if(!first&&!requireAccount('keep your current creation before starting a new grove'))return;const previous=snapshot();if(!first){if(!await confirmation('clear'))return;setBusy(true,'Starting grove');try{await persistScene('history',previous,'Before starting a new grove');}catch(error){notify(error.message+' Your creation is unchanged.','error');setBusy(false);return;}setBusy(false);}const choice=initialChoice||await chooseGroveStart();if(!choice)return;if(JSON.stringify(state)!==JSON.stringify(previous)){notify('Your creation changed while choosing. Start New again to keep it safely.');return;}const next={...blankScene(),...choice,motion:previous.motion!==false,motionPreference:sceneMotionChoice(previous)};setBusy(true,'Waking the grove...');try{const prepared=await prepareScene(next);remember();state=next;selected=null;activeUid=null;render(prepared);if(first)markOnboardingComplete();scrollNewGroveToTop();}catch(error){notify(error.message+' Your creation is unchanged.','error');}finally{setBusy(false);}}
 
 const badgeDefinitions=window.GroveBadges||[],badgeById=Object.fromEntries(badgeDefinitions.map(b=>[b.id,b]));
@@ -502,6 +525,8 @@ function dropdownPlacement(box,desiredHeight,vh){
 }
 function positionDropdown(key){
  const data=dropdowns[key],menu=$(data.menu),button=$(data.button);if(menu.hidden)return;
+ // Keep the New Grove list in the dialog flow so it can only open below.
+ if(key==='newBiome'){menu.dataset.dropdownSide='below';button.dataset.dropdownSide='below';return;}
  const box=button.getBoundingClientRect(),margin=12,vw=window.innerWidth||400,vh=window.innerHeight||800;
  const width=Math.max(1,Math.min(box.width,vw-2*margin));
  menu.style.width=width+'px';
@@ -526,7 +551,7 @@ function alignDropdownOpenScroll(menu){
 }
 function openDropdown(key){if(busy&&key!=='music')return;for(const other of Object.keys(floatingPanels))if(key!=='music'||other!=='user')closeFloating(other);const data=dropdowns[key],menu=$(data.menu);if(!menu.hidden){closeDropdown(key,true);return;}for(const other of Object.keys(dropdowns))if(other!==key)closeDropdown(other);menu.hidden=false;positionDropdown(key);menu.scrollTop=data.scroll;const selectedOption=[...menu.children].find(x=>x.dataset.value===data.value)||menu.children[0];if(!data.opened||data.closedValue!==data.value){if(selectedOption)menu.scrollTop=Math.max(0,selectedOption.offsetTop-(menu.clientHeight-selectedOption.offsetHeight)/2);}alignDropdownOpenScroll(menu);data.opened=true;$(data.button).setAttribute('aria-expanded','true');selectedOption?.focus({preventScroll:true});}
 for(const [key,data] of Object.entries(dropdowns)){const button=$(data.button),menu=$(data.menu);button.addEventListener('click',()=>openDropdown(key));button.addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();if(menu.hidden)openDropdown(key);}});menu.addEventListener('scroll',()=>{data.scroll=menu.scrollTop;},{passive:true});menu.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation?.();closeDropdown(key,true);return;}if(e.key==='Tab'){closeDropdown(key);return;}const options=[...menu.children],index=options.indexOf(document.activeElement);let next=index;if(e.key==='ArrowDown')next=Math.min(options.length-1,index+1);else if(e.key==='ArrowUp')next=Math.max(0,index-1);else if(e.key==='Home')next=0;else if(e.key==='End')next=options.length-1;else return;e.preventDefault();e.stopPropagation?.();options[next]?.focus({preventScroll:true});options[next]?.scrollIntoView({block:'nearest'});});}
-document.addEventListener('pointerdown',e=>{for(const [key,data]of Object.entries(dropdowns))if(!$(data.menu).hidden&&!$(data.menu).contains(e.target)&&!$(data.button).contains(e.target))closeDropdown(key);});
+document.addEventListener('pointerdown',e=>{for(const [key,data]of Object.entries(dropdowns))if(!$(data.menu).hidden&&!$(data.menu).contains(e.target)&&!$(data.button).contains(e.target)&&!(key==='newBiome'&&e.target.closest?.('#biomeStep .dialog-actions')))closeDropdown(key);});
 window.addEventListener('resize',()=>{if(ready){syncDragSurface();syncHandles();}for(const key of Object.keys(dropdowns))positionDropdown(key);});window.addEventListener('scroll',()=>{for(const key of Object.keys(dropdowns))positionDropdown(key);},{passive:true});
 function pointerPosition(e){const b=canvas.getBoundingClientRect();return{x:(e.clientX-b.left)/b.width*W,y:(e.clientY-b.top)/b.height*H};}
 const normalizeAngle=angle=>((angle+180)%360+360)%360-180;
