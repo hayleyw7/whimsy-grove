@@ -7,7 +7,7 @@ const editor=(await readFile('public/index.html','utf8')).replace(/<meta name="d
 await writeFile('dist/editor.html',editor);
 await writeFile('dist/index.html',await welcomePage().text());
 const gardenSource=await readFile('public/garden.js','utf8');
-const catalogue= gardenSource.slice(gardenSource.indexOf('const catalog='),gardenSource.indexOf('const customRects='));
+const catalogue= gardenSource.slice(gardenSource.indexOf('const oddityCatalog='),gardenSource.indexOf('const customRects='));
 await writeFile('scripts/browser-catalog.json',JSON.stringify([...catalogue.matchAll(/id:'([^']+)'/g)].map(x=>x[1])));
 const journal=JSON.parse(await readFile('drizzle/meta/_journal.json','utf8'));
 await writeFile('scripts/browser-migrations.json',JSON.stringify(await Promise.all(journal.entries.map(x=>readFile('drizzle/'+x.tag+'.sql','utf8')))));

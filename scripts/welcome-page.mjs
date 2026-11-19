@@ -2,7 +2,8 @@
 const siteUrl='https://hayleyw7.github.io/whimsy-grove/';
 const description='Feeling whimsical? Create your own grove art!';
 export const pageTitle='Whimsy Grove | Create Your Own Cozy Scene Art';
-export const sharingMetadata=`<meta name="description" content="${description}">
+export const sharingMetadata=`<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<meta name="description" content="${description}">
 <link rel="canonical" href="${siteUrl}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Whimsy Grove"><meta property="og:title" content="${pageTitle}"><meta property="og:description" content="${description}"><meta property="og:url" content="${siteUrl}">
 <meta property="og:image" content="${siteUrl}assets/whimsy-grove-preview-v3.jpg"><meta property="og:image:type" content="image/jpeg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="A tuxedo cat, pink sleeping bunny, alien, and ghost gathered with a lantern, mushroom, and fern above the Whimsy Grove name.">

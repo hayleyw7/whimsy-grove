@@ -1,7 +1,7 @@
 import { GIFEncoder, quantize, applyPalette } from './vendor/gifenc.esm.js';
 
 export async function encodeGif(drawFrame,{durationMs=3000,signal,onProgress=()=>{},canvasFactory=()=>document.createElement('canvas')}={}){
-  const width=400,height=360,duration=durationMs===6000?6000:3000,frames=duration===6000?50:24,canvas=canvasFactory();canvas.width=width;canvas.height=height;
+  const width=400,height=360,duration=[6000,9000,12000,36000].includes(durationMs)?durationMs:3000,frames=duration===3000?24:duration/120,canvas=canvasFactory();canvas.width=width;canvas.height=height;
   const context=canvas.getContext('2d',{willReadFrequently:true}),gif=GIFEncoder(),abort=()=>{if(signal?.aborted)throw new DOMException('Cancelled','AbortError');};
   let palette;
   try{
