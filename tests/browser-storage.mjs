@@ -120,3 +120,61 @@ for(const effect of ['breeze','wind','gusts','snow','blizzard','mist','mist-wisp
   assert.deepEqual((await request('/api/drawings/'+groveId)).drawing.scene.weather,[effect]);
 }
 console.log('PASS: Breeze, existing Wind, Gusts, existing Snow, Blizzard, Haze, Mist, Smoke, and Smog persist in drafts, Album, and editable backup restore.');
+
+const ideaContext={window:{}};
+runInNewContext(await readFile('public/ideas.js','utf8'),ideaContext);
+const ideas=ideaContext.window.GroveIdeas;
+for(const idea of ideas){
+ const draft={...scene,promptId:idea.id,promptHidden:false,background:idea.biome};
+ await call('/api/draft','PUT',{scope:session.draftScope,editId:crypto.randomUUID(),scene:draft});
+ assert.equal((await request('/api/draft')).draft.scene.promptId,idea.id);
+}
+const riverIdea=ideas.find(idea=>idea.id==='river-post-office'),riverGroveId=crypto.randomUUID();
+await call('/api/drawings','POST',{id:riverGroveId,collection:'history',scene:{...scene,promptId:riverIdea.id,background:riverIdea.biome},thumbnail:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg=='});
+assert.equal((await request('/api/drawings/'+riverGroveId)).drawing.scene.promptId,'river-post-office');
+console.log('PASS: all '+ideas.length+' offered ideas can autosave; River Post Office can also save to History.');
+
+// True Album duplicates ignore names and metadata, but preserve visible edits and layer order.
+const albumThumbnail=exportedJson.groves[0].thumbnail,originalArtwork={...scene,background:'ruins',seed:72,items:[
+  {...scene.items[0],order:0},
+  {...scene.items[0],id:'mothman',uid:crypto.randomUUID(),order:1}
+]};
+const originalArtworkId=crypto.randomUUID(),duplicateArtworkId=crypto.randomUUID();
+const albumBeforeDuplicates=(await request('/api/album-backup')).groves.length;
+const saveArtwork=(id,title,scene,collection='album')=>call('/api/drawings','POST',{id,collection,title,scene,thumbnail:albumThumbnail});
+assert.equal((await saveArtwork(originalArtworkId,'Ruins Moss',originalArtwork)).saved,true);
+const sameArtwork={...originalArtwork,creationId:crypto.randomUUID(),promptHidden:true,items:originalArtwork.items.map(item=>({...item,uid:crypto.randomUUID(),order:item.order+5})).reverse()};
+assert.deepEqual(await saveArtwork(duplicateArtworkId,'Other Title',sameArtwork),{saved:false,duplicate:true});
+assert.equal((await request('/api/album-backup')).groves.length,albumBeforeDuplicates+1);
+assert.equal((await request('/api/album-backup')).groves.find(grove=>grove.id===originalArtworkId).title,'Ruins Moss');
+assert.equal((await saveArtwork(duplicateArtworkId,null,sameArtwork,'history')).saved,true);
+assert.deepEqual(await call('/api/drawings/'+duplicateArtworkId+'/album','POST',{title:'Historical Art'}),{saved:false,duplicate:true});
+assert.equal((await request('/api/drawings/'+duplicateArtworkId)).drawing.inAlbum,false);
+const changedPosition={...originalArtwork,items:originalArtwork.items.map((item,index)=>index?item:{...item,x:item.x+6})};
+assert.equal((await saveArtwork(crypto.randomUUID(),'Moss Shifted',changedPosition)).saved,true);
+const changedLayers={...originalArtwork,items:originalArtwork.items.map(item=>({...item,order:1-item.order}))};
+assert.equal((await saveArtwork(crypto.randomUUID(),'Front Moss',changedLayers)).saved,true);
+assert.equal((await request('/api/album-backup')).groves.length,albumBeforeDuplicates+3);
+console.log('PASS: Album rejects duplicate artwork with different names, IDs and metadata; saves changes and preserves History.');
+
+// The displayed Album suggestion is exactly what gets saved, and names cannot clash.
+const nameSuggestion=async query=>(await request('/api/album-name?'+query)).title;
+assert.equal(await nameSuggestion('biome=ruins'),'Ruins Grove');
+const firstNamedId=crypto.randomUUID(),secondNamedId=crypto.randomUUID();
+assert.equal((await saveArtwork(firstNamedId,null,{...originalArtwork,seed:201})).drawing.title,'Ruins Grove');
+assert.equal(await nameSuggestion('biome=ruins'),'Ruins Grove 2');
+assert.equal((await saveArtwork(secondNamedId,'Ruins Grove 2',{...originalArtwork,seed:202})).drawing.title,'Ruins Grove 2');
+assert.equal(await nameSuggestion('biome=ruins'),'Ruins Grove 3');
+const duplicateTitle={saved:false,titleTaken:true};
+assert.deepEqual(await saveArtwork(crypto.randomUUID(),'  rUinS   GROVE  ',{...originalArtwork,seed:203}),duplicateTitle);
+const promoteTitleId=crypto.randomUUID();
+await saveArtwork(promoteTitleId,null,{...originalArtwork,seed:204},'history');
+assert.equal(await nameSuggestion('historyId='+promoteTitleId),'Ruins Grove 3');
+assert.deepEqual(await call('/api/drawings/'+promoteTitleId+'/album','POST',{title:'ruins  grove 2'}),duplicateTitle);
+assert.equal((await request('/api/drawings/'+promoteTitleId)).drawing.inAlbum,false);
+assert.equal((await call('/api/drawings/'+promoteTitleId+'/album','POST',{})).drawing.title,'Ruins Grove 3');
+assert.deepEqual(await call('/api/drawings/'+secondNamedId,'PATCH',{title:' Ruins   Grove '}),duplicateTitle);
+assert.equal((await call('/api/drawings/'+secondNamedId,'PATCH',{title:' ruins   Grove 2 '})).drawing.title,'ruins Grove 2');
+const verifiedTitles=(await request('/api/album-backup')).groves.filter(g=>[firstNamedId,secondNamedId,promoteTitleId].includes(g.id)).map(g=>g.title);
+assert.deepEqual(new Set(verifiedTitles),new Set(['Ruins Grove','ruins Grove 2','Ruins Grove 3']));
+console.log('PASS: Album suggestions are per biome, are saved as shown, and conflicting names are rejected across save, promotion and rename.');

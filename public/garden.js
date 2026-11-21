@@ -216,13 +216,12 @@ const weatherChoices=[{value:'clear',label:'Clear'},{value:'mist-wisps',label:'M
 const weatherLabel=value=>weatherChoices.find(option=>option.value===value)?.label||titleCaseLabel(value);
 const biomeNames=['none','swamp','greenhouse','tide-pools','ruins','attic','crystal-cavern','frozen-lake','rooftop','haze','gnome-hollow','ember-river','abandoned-prison','under-bridge','cave','backyard-garden','basement','beach','corn-maze','desert','factory','forest','graveyard','haunted-house','heaven','hell','jungle','pumpkin-patch','river','sandy-dunes','space','steampunk','underwater','void','volcano','wonderland'];
 const biomeLabels={'none':'Blank','swamp':'Swamp','greenhouse':'Greenhouse','tide-pools':'Tide Pools','ruins':'Ruins','attic':'Attic','crystal-cavern':'Crystal Cavern','frozen-lake':'Frozen Lake','rooftop':'Rooftop','haze':'Haze','abandoned-prison':'Prison','under-bridge':'Bridge','cave':'Cave','backyard-garden':'Backyard','basement':'Basement','beach':'Beach','corn-maze':'Corn maze','desert':'Desert','factory':'Factory','forest':'Forest','graveyard':'Graveyard','haunted-house':'Haunted house','heaven':'Heaven','hell':'Hell','jungle':'Jungle','pumpkin-patch':'Pumpkin patch','river':'River','sandy-dunes':'Dunes','space':'Space','steampunk':'Steampunk','underwater':'Underwater','void':'Void','volcano':'Volcano','wonderland':'Wonderland','gnome-hollow':'Gnome Hollow','ember-river':'Ember River'};
-const saveNamePrefixes={"attic":"Loft","backyard-garden":"Yard","basement":"Below","beach":"Shore","none":"Blank","under-bridge":"Span","cave":"Cave","corn-maze":"Maize","crystal-cavern":"Gem","desert":"Arid","sandy-dunes":"Dunes","ember-river":"Ember","factory":"Works","forest":"Woods","frozen-lake":"Frost","gnome-hollow":"Gnome","graveyard":"Grave","greenhouse":"Glass","haunted-house":"Haunt","haze":"Haze","heaven":"Halo","hell":"Hell","jungle":"Vines","abandoned-prison":"Cell","pumpkin-patch":"Patch","river":"River","rooftop":"Roof","ruins":"Ruins","space":"Orbit","steampunk":"Brass","swamp":"Swamp","tide-pools":"Tide","underwater":"Deep","void":"Void","volcano":"Lava","wonderland":"Fable"};
 for(const id of Object.keys(biomeLabels))biomeLabels[id]=titleCaseLabel(biomeLabels[id]);
 const heartIcon='<svg class="ui-icon heart-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
 const backgroundImages=new Map();
 const blankScene=()=>({version:2,creationId:crypto.randomUUID(),items:[],palette:'haunted',background:'haze',moon:'none',galaxy:'none',shootingStars:false,weather:[],motion:true,motionPreference:'auto',promptId:null,promptHidden:false,seed:8921});
 let draftScope=null,draftEnabled=false,draftTimer=null,draftInFlight=false,draftPending=null,draftSignature='',draftCloudReady=false;
-let state=blankScene(),undoStack=[],redoStack=[],favorites=new Set(),favoritesOnly=false,favoritePending=new Set(),selected=null,oddityCategory='all',mode='move',activeUid=null,ready=false,catalogReady=false,busy=false,keyboard=false,cursor={x:600,y:600},drag=null,transformGesture=null,pinchGesture=null,toastTimer,pendingToast=null,animationId=0,animationTime=0,accountReady=false,signedIn=null,accountChecked=false,pendingSave=null,collection='album',albumSort='newest',albumHistoryRenderedSort='newest',albumHistorySorts={album:'newest',history:'newest'},albumHistoryHeightFloor=0,albumHistoryOpening=false,nextOffset=null,albumHistoryGeneration=0;
+let state=blankScene(),undoStack=[],redoStack=[],favorites=new Set(),favoritesOnly=false,favoritePending=new Set(),selected=null,oddityCategory='all',mode='move',activeUid=null,ready=false,catalogReady=false,busy=false,keyboard=false,cursor={x:600,y:600},drag=null,transformGesture=null,pinchGesture=null,toastTimer,pendingToast=null,animationId=0,animationTime=0,accountReady=false,signedIn=null,accountChecked=false,pendingSave=null,collection='album',albumSort='newest',albumHistoryRenderedSort='newest',albumHistorySorts={album:'newest',history:'newest'},albumHistoryOpening=false,nextOffset=null,albumHistoryGeneration=0;
 const motionMedia=window.matchMedia?.('(prefers-reduced-motion: reduce)');let reducedMotion=motionMedia?.matches||false,canvasVisible=true;
 const clone=value=>JSON.parse(JSON.stringify(value));
 const snapshot=()=>clone(state);
@@ -240,18 +239,19 @@ function setBusy(value,text='Saving your memory…'){busy=value;if(value&&typeof
 function rand(seed){let n=seed>>>0;return()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};}
 function dimensions(item){const s=sprites.get(item.id);if(!s)return{w:0,h:0};const m=Math.max(s.width,s.height),size=Math.min(MAX_SIZE,item.size*(byId[item.id]?.renderScale||1));return{w:s.width/m*size,h:s.height/m*size};}
 function makeOddity(id,x,y,size){const c=byId[id];if(!c)throw Error('Unknown item');const item={uid:uid(),order:state.items.reduce((max,item,i)=>Math.max(max,item.order??i),-1)+1,id,x,y,size:Math.min(MAX_SIZE,Math.max(40,size||c.size)),flip:false,flipY:false,rotation:0};return item;}
-function placeOddity(id,x,y){if(!ready||busy)return false;if(!id){notify('Choose an item from a collection first.');return false;}if(state.items.length>=100){notify('There is no room for another oddity. Remove one, or start a new grove.');return false;}remember();const item=makeOddity(id,x,y);state.items.push(item);activeUid=item.uid;render();noteProgress('first_item');return true;}
+function placeOddity(id,x,y){if(!ready||busy)return false;if(!id)return false;if(state.items.length>=100)return false;remember();const item=makeOddity(id,x,y);state.items.push(item);activeUid=item.uid;render();noteProgress('first_item');return true;}
 function announceOddityAdded(id){
  const text=byId[id].name+' Added';
  const status=$('#oddityAddedStatus');status.textContent='';
  // Announce when the canvas is exposed, after the picker closes if needed.
  requestAnimationFrame(()=>{status.textContent=text;});
 }
-function addOddity(id){if(!byId[id])return;const d=dimensions({id,size:byId[id].size});if(placeOddity(id,W/2,(H+d.h)/2)){window.groveAudio?.effect('add');announceOddityAdded(id);if(isMobilePicker())returnToCanvas();}}
+function addOddity(id){if(!byId[id])return;const d=dimensions({id,size:byId[id].size});if(placeOddity(id,W/2,(H+d.h)/2)){window.groveAudio?.effect('add');announceOddityAdded(id);if(usesOddityModal())returnToCanvas();}}
 let pickerDragController=null;import('./picker-drag.js').then(({installPickerDrag})=>pickerDragController=installPickerDrag({picker:$('#oddity-grid'),canvas,canStart:()=>ready&&!busy&&!document.body.classList.contains('grove-view')&&![...document.querySelectorAll('dialog')].some(d=>d.open),preview:id=>{const d=dimensions({id,size:byId[id].size}),r=canvas.getBoundingClientRect();return{src:thumbs.get(id),width:d.w*r.width/W,height:d.h*r.height/H};},place:(id,x,y)=>{const d=dimensions({id,size:byId[id].size});if(placeOddity(id,x*W,y*H+d.h/2)){window.groveAudio?.effect('add');announceOddityAdded(id);}}})).catch(()=>{});
-function copyActive(){const item=activeOddity();if(!item||busy)return false;if(state.items.length>=100){notify('There is no room for another oddity. Remove one, or start a new grove.');return false;}remember();const d=dimensions(item),offset=Math.max(70,Math.min(150,item.size*.18)),cx=item.x,cy=item.y-d.h/2;const copy={...clone(item),uid:uid(),order:state.items.reduce((max,value,i)=>Math.max(max,value.order??i),-1)+1,x:Math.max(-MAX_SIZE,Math.min(W+MAX_SIZE,item.x+(cx>W*.72?-offset:offset))),y:Math.max(-MAX_SIZE,Math.min(H+MAX_SIZE,item.y+(cy>H*.72?-offset:offset)))};state.items.push(copy);activeUid=copy.uid;render();window.groveAudio?.effect('copy');notify(byId[copy.id].name+' copied.','success');return true;}
+function duplicateOddity(item){if(!item||busy||state.items.length>=100)return false;remember();const d=dimensions(item),offset=Math.max(70,Math.min(150,item.size*.18)),cx=item.x,cy=item.y-d.h/2;const copy={...clone(item),uid:uid(),order:state.items.reduce((max,value,i)=>Math.max(max,value.order??i),-1)+1,x:Math.max(-MAX_SIZE,Math.min(W+MAX_SIZE,item.x+(cx>W*.72?-offset:offset))),y:Math.max(-MAX_SIZE,Math.min(H+MAX_SIZE,item.y+(cy>H*.72?-offset:offset)))};state.items.push(copy);activeUid=copy.uid;render();window.groveAudio?.effect('copy');return true;}
+function copyActive(){return duplicateOddity(activeOddity());}
 async function loadFavorites(){showActivity('favorites','Loading favorite oddities…');try{const result=await request('/api/favorites');favorites=new Set(result.items.filter(id=>byId[id]));renderOddities();}catch{notify('Favorites could not load. Your creations are still available.','error');}finally{hideActivity('favorites');}}
-async function toggleFavorite(itemId){if(busy||favoritePending.has(itemId))return;if(!requireAccount('sync your favorite oddities'))return;favoritePending.add(itemId);showActivity('favorite-'+itemId,'Saving favorite oddity…');renderOddities();try{const result=await request('/api/favorites',{method:'POST',body:JSON.stringify({itemId,favorite:!favorites.has(itemId)})});if(!result.saved)throw Error('The favorite was not saved.');result.favorite?favorites.add(itemId):favorites.delete(itemId);notify(result.favorite?'Added to favorites.':'Removed from favorites.','success');}catch(e){notify(e.message,'error');}finally{favoritePending.delete(itemId);hideActivity('favorite-'+itemId);renderOddities();}}
+async function toggleFavorite(itemId){if(busy||favoritePending.has(itemId))return;if(!requireAccount('sync your favorite oddities'))return;favoritePending.add(itemId);showActivity('favorite-'+itemId,'Saving favorite oddity…');renderOddities();try{const result=await request('/api/favorites',{method:'POST',body:JSON.stringify({itemId,favorite:!favorites.has(itemId)})});if(!result.saved)throw Error('The favorite was not saved.');result.favorite?favorites.add(itemId):favorites.delete(itemId);}catch(e){notify(e.message,'error');}finally{favoritePending.delete(itemId);hideActivity('favorite-'+itemId);renderOddities();}}
 const itemAliases={'sleeping-cat':'orange ginger sleeping curled cat kitten feline','stretching-cat':'grey gray tabby stretching cat kitten feline','calico-cat':'calico orange black white sitting cat kitten feline',cat:'black cat walking', 'black-cat':'black cat sitting', 'willow-tree':'willow weeping tree', 'birch-tree':'birch tree', 'bare-tree':'bare leafless dead tree',bush:'bush shrub',horse:'horse pony equine', 'smoking-pipe':'smoking tobacco pipe',ribs:'rib cage ribs torso',bell:'ghost cap ghost mushroom',wavy:'wavy cap mushroom',toadstool:'spotted mushroom toadstool spots',bridge:'little bridge',sapling:'twisted tree crooked tree sapling','white-longhaired-cat':'white longhair longhaired fluffy rolling cat kitten feline', 'tuxedo-cat':'tuxedo dancing cat paw raised druid', 'cat-skull':'feline skull cat bones', 'jackalope-skull':'jackalope rabbit antler skull bones', snake:'reptile serpent', lizard:'reptile gecko', 'alien-antennae':'alien extraterrestrial antenna long', 'alien-cyclops':'cyclops mythical giant monster round one eye', beanstalk:'bean stalk vine giant plant', tadpole:'tadpole frog larva', turtle:'turtle reptile tortoise', butterfly:'butterfly insect wings', 'bird-nest':'bird nest twigs nesting', snowman:'snowman winter snow', fairy:'fairy faerie sprite magical', submarine:'submarine underwater boat vehicle', 'crystal-ball':'crystal ball fortune telling orb glass', cactus:'cactus succulent desert', raindrop:'rain drop weather water droplet', snowflake:'snowflake snow flake ice weather', chipmunk:'chipmunk rodent squirrel', dove:'dove pigeon bird', jellyfish:'jellyfish jelly fish ocean sea', shell:'shell seashell ocean sea', worm:'worm earthworm bug', caterpillar:'caterpillar insect larva bug', ladybug:'ladybug ladybird beetle bug insect', dragonfly:'dragonfly insect bug wings','crystal-point':'gem gemstone quartz amethyst point', 'crystal-heart':'gem gemstone quartz heart', 'crystal-sphere':'gem gemstone crystal ball sphere', kelpie:'mythical water horse spirit', 'will-o-the-wisp':'will o the wisp ghost spirit ghostlight light flame', gargoyle:'mythical gargoyle stone guardian', 'forest-spirit':'tiny forest spirit woodland sprite dryad', 'antique-key':'antique key old vintage brass', 'potion-bottle':'potion bottle single elixir vial', hourglass:'hourglass sand timer time', 'broken-column':'broken column pillar ruin stone', driftwood:'driftwood drift wood beach', 'lily-pad':'pond lily pad waterlily water lily leaf', feather:'single feather plume bird',seal:'pinniped ocean marine mammal', 'red-panda':'red panda firefox lesser panda', 'giant-panda':'giant panda bear bamboo', 'grizzly-bear':'grizzly brown bear', 'polar-bear':'polar arctic bear',jack:'jack o lantern carved pumpkin',teeth:'fang tooth','corner-web':'cobweb messy tangled web',bunny:'rabbit',idol:'satanic demon devil sculpture',pentagram:'satanic occult pentacle',ritualcircle:'satanic occult sigil ritual',gnome:'gnomes goblin',alien:'aliens extraterrestrial',ufo:'aliens spaceship saucer',fairyring:'mushrooms faerie fairy ring',flytrap:'carnivorous venus flytrap','shooting-star':'meteor shooting stars',clouds:'cloud sky',tornado:'storm cyclone',waterbear:'tardigrade water bear',trex:'t-rex dinosaur',triceratops:'dinosaur',nessie:'nessie loch ness monster','poppy-seeds':'poppy seed pods',cannabis:'marijuana weed pot drug'};
 Object.assign(itemAliases,{fireflies:'firefly fireflies lightning bug lightning bugs'});
 const oddityCategoryTerms={animals:'animal creature critter wildlife',characters:'character creature mythical cryptid monster',props:'prop object tool decoration',creatures:'creature animal critter',plants:'plant botanical flower flora vegetation',mushrooms:'fungi fungus mushroom toadstool',nature:'nature natural outdoor landscape',bones:'bone skeleton skeletal remains anatomy',structures:'structure building architecture furniture',magic:'magic magical occult witch witchcraft ritual haunted',sky:'sky celestial astronomy cosmic space'};
@@ -269,7 +269,20 @@ const irregularWords={fungi:'fungus',mice:'mouse',teeth:'tooth',leaves:'leaf',bu
 function searchWords(text){return text.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).filter(Boolean).map(word=>irregularWords[word]||(/ies$/.test(word)?word.slice(0,-3)+'y':word.length>3&&word.endsWith('s')&&!word.endsWith('ss')?word.slice(0,-1):word));}
 const searchIndex=new Map(oddityCatalog.map(item=>[item.id,new Set(searchWords([item.name,item.id==='alien-cyclops'?'cyclops':item.id,oddityCategoryTerms[item.oddityCategory],item.oddityCategory,itemAliases[item.id]||'',...Object.entries(relatedTerms).filter(([,ids])=>ids.includes(item.id)).map(([term])=>term),'oddity item'].join(' ')))]));
 function matchesSearch(item,query){const words=searchIndex.get(item.id);return searchWords(query).every(term=>[...words].some(word=>word===term||word.startsWith(term)));}
-function renderOddities(){if(!catalogReady)return;syncOddityCategoryPicker();const el=$('#oddity-grid'),query=$('#odditySearch').value.trim().toLowerCase(),focused=document.activeElement,focusedCard=focused?.closest?.('.oddity-card'),focusState=focusedCard&&el.contains(focused)?{id:focusedCard.dataset.id,index:[...el.children].indexOf(focusedCard),heart:focused.classList.contains('favorite-heart'),left:el.scrollLeft,top:el.scrollTop}:null;const restoreFocus=()=>{if(!focusState)return;el.scrollLeft=focusState.left;el.scrollTop=focusState.top;const cards=[...el.children].filter(x=>x.classList?.contains('oddity-card')),card=cards.find(x=>x.dataset.id===focusState.id)||cards[Math.min(focusState.index,cards.length-1)],button=card?.querySelector?.(focusState.heart?'.favorite-heart':'.oddity-tile')||$('#favoriteFilter');if(!button.disabled)button.focus({preventScroll:true});};const entries=oddityCatalog.filter(v=>!v.hidden&&(favoritesOnly?favorites.has(v.id):query||oddityCategory==='all'?true:v.oddityCategory===oddityCategory)&&(!query||matchesSearch(v,query))).sort((a,b)=>a.name.localeCompare(b.name,undefined,{sensitivity:'base'}));el.classList.add('oddity-grid');el.classList.toggle('empty-favorites',favoritesOnly&&favorites.size===0&&entries.length===0);el.classList.toggle('many',entries.length>6);el.classList.toggle('search-results',!!query);const shortResults=!!(query||favoritesOnly||oddityCategory!=='all')&&entries.length>0&&entries.length<=6;el.classList.toggle('short-results',shortResults);el.style.setProperty?.('--result-columns',String(entries.length<=2?entries.length:Math.ceil(entries.length/2)));el.style.setProperty?.('--result-rows',String(entries.length<=2?1:2));el.replaceChildren();$('#favoriteFilter').setAttribute('aria-pressed',String(favoritesOnly));$('#favoriteFilter').setAttribute('aria-label',favoritesOnly?'Show All Oddities':'Show Favorite Oddities');$('#favoriteFilter').title=favoritesOnly?'Show All Oddities':'Show Favorite Oddities';$('#catalogCount').textContent=favoritesOnly?entries.length+' '+(entries.length===1?'favorite':'favorites'):query?entries.length+' '+(entries.length===1?'match':'matches'):entries.length+' '+({all:'items',mushrooms:'fungi',nature:'natural objects',magic:'magical objects',sky:'sky objects'}[oddityCategory]||oddityCategory);if(!entries.length){const p=document.createElement('p');p.className='search-empty';if(favoritesOnly)p.innerHTML='Tap '+heartIcon+'<span class="sr-only">a heart</span> on an oddity to favorite it.';else{p.className+=' search-no-results';p.innerHTML='<span>Nothing lurking by that name.</span><span>Try another term.</span>';}el.append(p);if(favoritesOnly&&favorites.size===0&&matchMedia('(max-width:650px)').matches){const browse=document.createElement('button');browse.id='browseOddities';browse.type='button';browse.textContent='Browse Oddities';browse.addEventListener('click',()=>{oddityCategory='all';$('#favoriteFilter').click();$('#odditySearch').focus({preventScroll:true});});el.append(browse);}restoreFocus();return;}for(const item of entries){const card=document.createElement('div');card.className='oddity-card';card.dataset.id=item.id;const b=document.createElement('button');b.className='oddity-tile';b.setAttribute('aria-label','Add '+item.name+' to the center');b.title='Add '+item.name;b.dataset.id=item.id;b.disabled=busy;const im=document.createElement('img');im.alt='';im.draggable=false;im.src=thumbs.get(item.id);b.append(im,document.createTextNode(item.name));b.addEventListener('click',()=>addOddity(item.id));const heart=document.createElement('button');heart.className='favorite-heart'+(signedIn===false?' requires-sign-in':'');heart.innerHTML=heartIcon;heart.setAttribute('aria-pressed',String(favorites.has(item.id)));heart.setAttribute('aria-label',(favorites.has(item.id)?'Remove ':'Add ')+item.name+(favorites.has(item.id)?' from favorites':' to favorites'));heart.disabled=busy;heart.setAttribute('aria-disabled',String(busy||favoritePending.has(item.id)));heart.addEventListener('click',()=>toggleFavorite(item.id));const handle=document.createElement('button');handle.className='oddity-drag-handle';handle.dataset.id=item.id;handle.type='button';handle.textContent='✥';handle.setAttribute('aria-label','Drag '+item.name+' to canvas, or activate to add in center');handle.title='Drag to canvas';handle.disabled=busy;handle.addEventListener('click',()=>addOddity(item.id));card.append(b,heart,handle);el.append(card);}restoreFocus();}
+const odditySearchEasterEggs=new Map([
+ [['test','testing','check'],'<span>The mushrooms hear your call.</span><span>It echoes through the forest.</span>'],
+ [['penis','dick','cock','willy','dong','schlong'],'<span>Wrong kind of mushroom.</span><span>May your journey be fruitful.</span>'],
+ [['boob','boobs','boobies','breast','breasts','tits','bosom','bewbs','bewb','bewbz','tiddies','tiddy','titt','titty','titties'],'<span>Lovely hills.</span><span>Have you tried the Biome menu?</span>'],
+ [['poo','poop','dung','feces','faeces','shit','turd','dookie','poopie','poopy'],'<span>The dung beetles carry it underground.</span><span>What returns to the soil helps new life grow.</span>'],
+ [['vag','vagina','vaginas','vulva','pussy','pussies','puss','cooch'],'<span>The most magical secret garden of all.</span>'],
+].flatMap(([queries,message])=>queries.map(query=>[query,message])));
+function odditySearchEasterEgg(query){
+ for(const word of query.match(/[\p{L}\p{M}\p{N}_]+/gu)??[]){
+  const message=odditySearchEasterEggs.get(word);
+  if(message)return message;
+ }
+}
+function renderOddities(){if(!catalogReady)return;syncOddityCategoryPicker();const el=$('#oddity-grid'),query=$('#odditySearch').value.trim().toLowerCase(),focused=document.activeElement,focusedCard=focused?.closest?.('.oddity-card'),focusState=focusedCard&&el.contains(focused)?{id:focusedCard.dataset.id,index:[...el.children].indexOf(focusedCard),heart:focused.classList.contains('favorite-heart'),left:el.scrollLeft,top:el.scrollTop}:null;const restoreFocus=()=>{if(!focusState)return;el.scrollLeft=focusState.left;el.scrollTop=focusState.top;const cards=[...el.children].filter(x=>x.classList?.contains('oddity-card')),card=cards.find(x=>x.dataset.id===focusState.id)||cards[Math.min(focusState.index,cards.length-1)],button=card?.querySelector?.(focusState.heart?'.favorite-heart':'.oddity-tile')||$('#favoriteFilter');if(!button.disabled)button.focus({preventScroll:true});};const entries=oddityCatalog.filter(v=>!v.hidden&&(favoritesOnly?favorites.has(v.id):query||oddityCategory==='all'?true:v.oddityCategory===oddityCategory)&&(!query||matchesSearch(v,query))).sort((a,b)=>a.name.localeCompare(b.name,undefined,{sensitivity:'base'}));el.classList.add('oddity-grid');el.classList.toggle('empty-favorites',favoritesOnly&&favorites.size===0&&entries.length===0);el.classList.toggle('many',entries.length>6);el.classList.toggle('search-results',!!query);const shortResults=!!(query||favoritesOnly||oddityCategory!=='all')&&entries.length>0&&entries.length<=6;el.classList.toggle('short-results',shortResults);el.style.setProperty?.('--result-columns',String(entries.length<=2?entries.length:Math.ceil(entries.length/2)));el.style.setProperty?.('--result-rows',String(entries.length<=2?1:2));el.replaceChildren();$('#favoriteFilter').setAttribute('aria-pressed',String(favoritesOnly));$('#favoriteFilter').setAttribute('aria-label',favoritesOnly?'Show All Oddities':'Show Favorite Oddities');$('#favoriteFilter').title=favoritesOnly?'Show All Oddities':'Show Favorite Oddities';$('#catalogCount').textContent=favoritesOnly?entries.length+' '+(entries.length===1?'favorite':'favorites'):query?entries.length+' '+(entries.length===1?'match':'matches'):entries.length+' '+({all:'items',mushrooms:'fungi',nature:'natural objects',magic:'magical objects',sky:'sky objects'}[oddityCategory]||oddityCategory);if(!entries.length){const p=document.createElement('p');p.className='search-empty';if(favoritesOnly)p.innerHTML='Tap '+heartIcon+'<span class="sr-only">a heart</span> on an oddity to favorite it.';else{p.className+=' search-no-results';p.innerHTML=odditySearchEasterEgg(query)??'<span>Nothing lurking by that name.</span><span>Try another term.</span>';}el.append(p);if(favoritesOnly&&favorites.size===0&&usesOddityModal()){const browse=document.createElement('button');browse.id='browseOddities';browse.type='button';browse.textContent='Browse Oddities';browse.addEventListener('click',()=>{oddityCategory='all';$('#favoriteFilter').click();$('#odditySearch').focus({preventScroll:true});});el.append(browse);}restoreFocus();return;}for(const item of entries){const card=document.createElement('div');card.className='oddity-card';card.dataset.id=item.id;const b=document.createElement('button');b.className='oddity-tile';b.setAttribute('aria-label','Add '+item.name+' to the center');b.title='Add '+item.name;b.dataset.id=item.id;b.disabled=busy;const im=document.createElement('img');im.alt='';im.draggable=false;im.src=thumbs.get(item.id);b.append(im,document.createTextNode(item.name));b.addEventListener('click',()=>addOddity(item.id));const heart=document.createElement('button');heart.className='favorite-heart'+(signedIn===false?' requires-sign-in':'');heart.innerHTML=heartIcon;heart.setAttribute('aria-pressed',String(favorites.has(item.id)));heart.setAttribute('aria-label',(favorites.has(item.id)?'Remove ':'Add ')+item.name+(favorites.has(item.id)?' from favorites':' to favorites'));heart.disabled=busy;heart.setAttribute('aria-disabled',String(busy||favoritePending.has(item.id)));heart.addEventListener('click',()=>toggleFavorite(item.id));const handle=document.createElement('button');handle.className='oddity-drag-handle';handle.dataset.id=item.id;handle.type='button';handle.textContent='✥';handle.setAttribute('aria-label','Drag '+item.name+' to canvas, or activate to add in center');handle.title='Drag to canvas';handle.disabled=busy;handle.addEventListener('click',()=>addOddity(item.id));card.append(b,heart,handle);el.append(card);}restoreFocus();}
 function drawSprite(target,id,x,y,size,flip=false,hue=0,flipY=false,filter='',rotation=0){const s=sprites.get(id);if(!s)return;const scale=Math.min(MAX_SIZE,size*(byId[id]?.renderScale||1))/Math.max(s.width,s.height),w=s.width*scale,h=s.height*scale;target.save();target.translate(x,y-h/2);target.rotate((rotation||0)*Math.PI/180);target.scale(flip?-1:1,flipY?-1:1);if(hue||filter)target.filter=[hue?`hue-rotate(${hue}deg)`:'',filter].filter(Boolean).join(' ');target.drawImage(s,-w/2,-h/2,w,h);target.restore();}
 function blankColor(p){const colors={haunted:'#eee7f2',candy:'#f7e8e8',bog:'#edf1dd',dusk:'#eee6f5',monochrome:'#ededed',ember:'#f8e8d4',ocean:'#e3eff4',spectral:'#e7f1e2'};return colors[Object.keys(colorOptions).find(key=>colorOptions[key]===p)]||colors.haunted;}
 const sceneLayerCache=new Map(),backgroundLayerCache=new Map();
@@ -290,7 +303,7 @@ const motionPreferenceKey='spooky-grove-motion-v1';let savedMotionPreference=nul
 function sceneMotionChoice(scene=state){if(typeof savedMotionPreference==='boolean')return savedMotionPreference;return typeof scene.motionPreference==='boolean'?scene.motionPreference:scene.motionPreference==='auto'?'auto':scene.motion===false?false:'auto';}
 function motionEnabled(scene=state){const choice=sceneMotionChoice(scene);return choice==='auto'?!reducedMotion:choice;}
 function hasAnimation(scene=state){return motionEnabled(scene)&&!!window.GroveMotion?.hasMotion(scene);}
-function paintFrame(time=0){const moving=motionEnabled();draw(ctx,state,moving?time:0,false);const item=activeOddity();if(item&&!document.body.classList.contains('grove-view')){const d=dimensions(item);ctx.save();ctx.translate(item.x,item.y-d.h/2);ctx.rotate((item.rotation||0)*Math.PI/180);ctx.strokeStyle='#743251';ctx.lineWidth=4;ctx.setLineDash([10,7]);ctx.strokeRect(-d.w/2-8,-d.h/2-8,d.w+16,d.h+16);ctx.restore();}}
+function paintFrame(time=0){const moving=motionEnabled();draw(ctx,state,moving?time:0,false);const item=activeOddity();if(item&&!document.body.classList.contains('grove-view')){const d=dimensions(item);ctx.save();ctx.translate(item.x,item.y-d.h/2);ctx.rotate((item.rotation||0)*Math.PI/180);ctx.strokeStyle='#fff2f8';ctx.lineWidth=4;ctx.setLineDash([10,7]);ctx.strokeRect(-d.w/2-8,-d.h/2-8,d.w+16,d.h+16);ctx.restore();}}
 function animate(time){animationId=0;if(document.hidden||!canvasVisible||!hasAnimation())return;if(time-animationTime>=50){animationTime=time;paintFrame(time);}animationId=requestAnimationFrame(animate);}
 function manageAnimation(){if(animationId)cancelAnimationFrame(animationId);animationId=0;paintFrame(animationTime);if(hasAnimation()&&!document.hidden&&canvasVisible)animationId=requestAnimationFrame(animate);}
 motionMedia?.addEventListener?.('change',event=>{reducedMotion=event.matches;if(ready){manageAnimation();syncMotionControl();}});
@@ -299,17 +312,38 @@ function syncMotionControl(){$('#motionToggle').checked=motionEnabled();$('#moti
 $('#motionToggle').addEventListener('change',event=>{if(busy)return;remember();savedMotionPreference=event.target.checked;try{localStorage.setItem(motionPreferenceKey,JSON.stringify(savedMotionPreference));}catch{}state.motion=event.target.checked;state.motionPreference=event.target.checked;render();});
 document.addEventListener('grove-view-change',()=>{if(ready)paintFrame(animationTime);});
 const ideaById=Object.fromEntries((window.GroveIdeas||[]).map(idea=>[idea.id,idea]));
-const freeCreateChoice=$('#freeCreate');let pendingIdea=null,selectedGroveChoice=null,displayedIdeas=[];
+const freeCreateChoice=$('#freeCreate');let pendingIdea=null,selectedGroveChoice=null,displayedIdeas=[],remainingIdeas=[];
 function syncPromptReminder(){const idea=ideaById[state.promptId];$('#promptReminder').hidden=!idea||!!state.promptHidden;$('#promptTitle').textContent=idea?.title||'';$('#promptText').textContent=idea?.text||'';}
 $('#dismissPrompt').addEventListener('click',()=>{state.promptHidden=true;syncPromptReminder();queueDraft();});
 function ideaCard(tag,idea){
- const card=document.createElement(tag),title=document.createElement('strong'),text=document.createElement('span');
- card.className='idea-choice';title.textContent=idea.title;text.textContent=idea.text;card.append(title,text);return card;
+ const card=document.createElement(tag),slot=document.createElement('span'),copy=document.createElement('span'),title=document.createElement('strong'),text=document.createElement('span');
+ const icon=document.createElement('img');icon.className='idea-oddity';icon.alt='';icon.width=icon.height=24;
+ if(tag==='button')icon.dataset.ideaOddity=idea.oddity;
+ card.className='idea-choice';slot.className='idea-oddity-slot';copy.className='idea-copy';text.className='idea-description';
+ title.textContent=idea.title;text.textContent=idea.text;slot.append(icon);copy.append(title,text);card.append(slot,copy);return card;
 }
-function fillIdeas(){
- const allIdeas=window.GroveIdeas||[],ideas=[...allIdeas];
- for(let i=ideas.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ideas[i],ideas[j]]=[ideas[j],ideas[i]];}
- displayedIdeas=ideas.slice(0,2);
+function syncIdeaOddityIcons(){
+ for(const icon of $('#startDialog').querySelectorAll('img[data-idea-oddity]:not([src])')){
+  const thumbnail=thumbs.get(icon.dataset.ideaOddity);if(thumbnail)icon.src=thumbnail;
+ }
+}
+function nextIdeaPair(allIdeas,reset=false){
+ if(reset||!remainingIdeas.length){
+  const ideas=[...allIdeas];
+  for(let i=ideas.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ideas[i],ideas[j]]=[ideas[j],ideas[i]];}
+  if(!reset&&ideas.length>=4){
+   const previous=new Set(displayedIdeas.map(idea=>idea.id));
+   for(let i=0;i<2;i++)if(previous.has(ideas[i].id)){
+    const j=ideas.findIndex((idea,index)=>index>i&&!previous.has(idea.id));[ideas[i],ideas[j]]=[ideas[j],ideas[i]];
+   }
+  }
+  remainingIdeas=ideas;
+ }
+ return remainingIdeas.splice(0,2);
+}
+function fillIdeas(reset=false){
+ const allIdeas=window.GroveIdeas||[];
+ displayedIdeas=nextIdeaPair(allIdeas,reset);
  if(pendingIdea&&pendingIdea!=='free'&&!displayedIdeas.some(idea=>idea.id===pendingIdea))pendingIdea=null;
  const area=$('#ideaChoices');area.replaceChildren();
  for(const [index,idea] of displayedIdeas.entries()){
@@ -319,15 +353,18 @@ function fillIdeas(){
  area.append(freeCreateChoice);
  const sizing=document.createElement('div');sizing.className='idea-size-rack';sizing.setAttribute('aria-hidden','true');
  for(const idea of allIdeas)sizing.append(ideaCard('div',idea));
- area.append(sizing);syncGroveIdeaSelection();
+ area.append(sizing);syncIdeaOddityIcons();syncGroveIdeaSelection();
 }
 function syncGroveIdeaSelection(){
  const chooser=$('#ideaStep'),review=$('#ideaReviewStep'),title=$('#startTitle'),idea=ideaById[pendingIdea],isFree=pendingIdea==='free';
  const selected=isFree||!!idea;
  chooser.hidden=selected;chooser.inert=selected;review.hidden=!selected;
- title.textContent=selected?'Start this grove?':'Choose an idea';
+ title.textContent=selected?'Start this grove?':'Find your inspiration';
  $('#reviewIdeaTitle').textContent=isFree?freeCreateChoice.querySelector('strong').textContent:idea?.title||'';
- $('#reviewIdeaDescription').textContent=isFree?freeCreateChoice.querySelector('span').textContent:idea?.text||'';
+ $('#reviewIdeaDescription').textContent=isFree?freeCreateChoice.querySelector('.idea-description').textContent:idea?.text||'';
+ const icon=$('#reviewIdeaOddity'),oddity=isFree?freeCreateChoice.querySelector('.idea-oddity').dataset.ideaOddity:idea?.oddity||'';
+ if(icon.dataset.ideaOddity!==oddity){icon.dataset.ideaOddity=oddity;icon.removeAttribute('src');}
+ if(selected)syncIdeaOddityIcons();
  $('#startGrove').disabled=!selected;
 }
 function selectGroveIdea(id){
@@ -337,13 +374,13 @@ function selectGroveIdea(id){
 function scrollNewGroveToTop(){window.scrollTo?.({top:0,left:0,behavior:'instant'});}
 function chooseGroveStart(){
  return new Promise(resolve=>{
-  const dialog=$('#startDialog');pendingIdea=null;selectedGroveChoice=null;fillIdeas();dialog.returnValue='cancel';
+  const dialog=$('#startDialog');pendingIdea=null;selectedGroveChoice=null;fillIdeas(true);dialog.returnValue='cancel';
   dialog.addEventListener('close',()=>resolve(dialog.returnValue==='start'?selectedGroveChoice:null),{once:true});
   showDialog(dialog,canvas);$('#ideaChoices').querySelector?.('button')?.focus({preventScroll:true});
  });
 }
 $('#startDialog').addEventListener('cancel',event=>event.preventDefault());
-$('#freeCreate').addEventListener('click',()=>selectGroveIdea('free'));$('#shuffleIdeas').addEventListener('click',fillIdeas);
+$('#freeCreate').addEventListener('click',()=>selectGroveIdea('free'));$('#shuffleIdeas').addEventListener('click',()=>fillIdeas());
 $('#chooseAnotherIdea').addEventListener('click',clearGroveIdeaSelection);
 $('#startGrove').addEventListener('click',finishGroveSetup);
 function clearGroveIdeaSelection(){
@@ -369,7 +406,7 @@ async function startNewGrove(first=false,initialChoice=null){
  if(!first&&!await confirmation('clear'))return;
  const choice=initialChoice||await chooseGroveStart();if(!choice)return;
  if(JSON.stringify(state)!==JSON.stringify(previous)){
-  window.groveAudio?.cancelGroveTrack?.();notify('Your creation changed while choosing. Start New again to keep it safely.');return;
+  window.groveAudio?.cancelGroveTrack?.();return;
  }
  const next={...blankScene(),...choice,motion:previous.motion!==false,motionPreference:sceneMotionChoice(previous)};
  setBusy(true,'Waking the grove...');
@@ -379,7 +416,7 @@ async function startNewGrove(first=false,initialChoice=null){
   remember();state=next;selected=null;activeUid=null;if(first)armFirstOddityGuide();
   window.groveAudio?.chooseGroveTrack?.(choice.promptId);render(prepared);
   if(first)markOnboardingComplete();scrollNewGroveToTop();
- }catch(error){window.groveAudio?.cancelGroveTrack?.();notify(error.message+' Your creation is unchanged.','error');}
+ }catch(error){window.groveAudio?.cancelGroveTrack?.();const message=error.message.trim();notify(/Your (?:creation|last confirmed save) is unchanged\./.test(message)?message:message+' Your creation is unchanged.','error');}
  finally{setBusy(false);}
 }
 
@@ -390,7 +427,23 @@ function progressQueue(key){if(progressQueues.has(key))return progressQueues.get
 function keepProgressQueue(key,values){progressQueues.set(key,values);try{localStorage.setItem('grove-progress-pending-'+key,JSON.stringify(values));}catch{}}
 function resetProgressContext(){const key=currentProgressKey();if(key===progressKey)return false;progressKey=key;progressGeneration++;progressTask=null;progressAgain=false;progressError='';progressState={earned:[],savedCount:0,biomeCount:0};if(key==='guest'){try{const value=JSON.parse(localStorage.getItem('grove-guest-progress')||'null');if(value)progressState={...progressState,earned:(value.earned||[]).filter(x=>badgeById[x.id])};}catch{}}renderAchievements();return true;}
 function useProgress(value,key){if(key!==currentProgressKey()||value.scope!==key)return;progressState={earned:(value.earned||[]).filter(x=>badgeById[x.id]),savedCount:Math.max(0,Number(value.savedCount)||0),biomeCount:Math.max(0,Number(value.biomeCount)||0)};renderAchievements();}
-function renderAchievements(){const grid=$('#achievementGrid');if(!grid)return;const earned=new Set(progressState.earned.map(x=>x.id));grid.replaceChildren();for(const badge of badgeDefinitions){const card=document.createElement('article'),image=document.createElement('img'),body=document.createElement('div'),title=document.createElement('h3'),criteria=document.createElement('p'),status=document.createElement('span');card.className='achievement-card'+(earned.has(badge.id)?' earned':'');image.src=thumbs.get(badge.icon)||'';image.alt='';title.textContent=badge.title;criteria.textContent=badge.text;status.className='achievement-state';status.textContent=earned.has(badge.id)?'Earned':'Not Yet';body.append(title,criteria,status);card.append(image,body);grid.append(card);}$('#achievementCounts').textContent=progressState.savedCount+' distinct creations saved';$('#achievementPrivacy').textContent=progressKey==='guest'?'These badges stay on this device. Clearing site data removes this progress.':'One credit per creation, with matching artwork counted once. Earned badges stay earned.';$('#achievementStatus').textContent=progressError||(progressTask?'Updating achievements…':'');$('#achievementStatus').classList.toggle('is-loading',!!progressTask&&!progressError);$('#achievementStatus').hidden=!$('#achievementStatus').textContent;$('#retryAchievements').hidden=!progressError||progressKey==='guest';$('#achievementSignIn').hidden=true;}
+function renderAchievements(){
+ const grid=$('#achievementGrid');if(!grid)return;
+ const earned=new Set(progressState.earned.map(x=>x.id)),total=badgeDefinitions.length,unlocked=badgeDefinitions.filter(badge=>earned.has(badge.id)).length;
+ $('#achievementProgress').textContent=unlocked+'/'+total;
+ $('#achievementProgressLabel').textContent=unlocked+' of '+total+' achievements unlocked';
+ grid.replaceChildren();
+ for(const badge of badgeDefinitions){
+  const done=earned.has(badge.id),card=document.createElement('article'),art=document.createElement('div'),image=document.createElement('img'),body=document.createElement('div'),title=document.createElement('h3'),criteria=document.createElement('p'),status=document.createElement('span');
+  card.className='achievement-card'+(done?' earned':'');art.className='achievement-art';
+  const thumb=thumbs.get(badge.icon);if(thumb)image.src=thumb;
+  image.alt='';art.append(image);title.textContent=badge.title;criteria.textContent=badge.text;
+  if(done)title.insertAdjacentHTML('beforeend','<svg class="achievement-check" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>');
+  status.className='sr-only';status.textContent=done?'Unlocked':'Locked';
+  body.append(title,criteria,status);card.append(art,body);grid.append(card);
+ }
+ $('#achievementStatus').textContent=progressError||(progressTask?'Updating achievements…':'');$('#achievementStatus').classList.toggle('is-loading',!!progressTask&&!progressError);$('#achievementStatus').hidden=!$('#achievementStatus').textContent;$('#retryAchievements').hidden=!progressError||progressKey==='guest';$('#achievementSignIn').hidden=true;
+}
 async function syncAchievements(){resetProgressContext();const key=progressKey;if(!key||key==='guest'){renderAchievements();return;}if(progressTask){progressAgain=true;return progressTask;}const generation=progressGeneration;progressError='';const task=(async()=>{try{while(progressQueue(key).length){if(generation!==progressGeneration)return;const event=progressQueue(key)[0],result=await request('/api/achievements/event',{method:'POST',body:JSON.stringify({...event,scope:key})});if(generation!==progressGeneration)return;useProgress(result,key);keepProgressQueue(key,progressQueue(key).filter(x=>x.key!==event.key));}let more=true;while(more){const result=await request('/api/achievements/sync',{method:'POST',body:JSON.stringify({scope:key})});if(generation!==progressGeneration)return;useProgress(result,key);more=!!result.hasMore;}}catch(error){if(generation===progressGeneration)progressError='Progress could not be saved in this browser. Your creation is unchanged.';}finally{if(generation===progressGeneration){progressTask=null;const again=progressAgain;progressAgain=false;renderAchievements();if(again)await syncAchievements();}}})();progressTask=task;renderAchievements();return task;}
 function noteProgress(type){const badge={first_item:'first-item',share:'share-a-grove',download:'take-it-with-you'}[type];if(!badge)return;resetProgressContext();const key=progressKey;if(!key)return;if(key==='guest'){if(!progressState.earned.some(x=>x.id===badge))progressState.earned.push({id:badge,earnedAt:Date.now()});try{const previous=JSON.parse(localStorage.getItem('grove-guest-progress')||'{}');localStorage.setItem('grove-guest-progress',JSON.stringify({...previous,...progressState}));}catch{}renderAchievements();return;}if(progressState.earned.some(x=>x.id===badge))return;if(!progressQueue(key).some(x=>x.key===type))keepProgressQueue(key,[...progressQueue(key),{key:type,type}]);syncAchievements();}
 $('#openAchievements').addEventListener('click',()=>{closeFloating('user');resetProgressContext();showDialog($('#achievementDialog'),$('#userMenuButton'));syncAchievements();$('#closeAchievements').focus({preventScroll:true});});$('#closeAchievements').addEventListener('click',()=>$('#achievementDialog').close());$('#retryAchievements').addEventListener('click',syncAchievements);$('#achievementSignIn').addEventListener('click',()=>requireAccount('keep achievements with your account'));window.addEventListener('focus',()=>{if(currentProgressKey())syncAchievements();});
@@ -400,7 +453,7 @@ function updateControls(){if(!ready)return;syncFirstOddityGuide();document.query
 
 function render(prepared=null){if(!ready)return;manageAnimation();$('#biomeChoice').value=state.background;syncBiomePicker();$('.garden-panel').classList.toggle('void-grove',state.background==='void');document.querySelectorAll('[data-palette]').forEach(b=>{b.classList.toggle('active',b.dataset.palette===state.palette);b.setAttribute('aria-pressed',String(b.dataset.palette===state.palette));});syncSceneChoices();syncPromptReminder();syncMotionControl();updateControls();queueDraft();}
 function syncSceneChoices(){const weather=state.weather.length?state.weather.map(weatherLabel).join(' + '):'Clear',palette=colorOptions[state.palette].name,currentWeather=!state.weather.length?'clear':state.weather.length===1&&weatherChoices.some(option=>option.value===state.weather[0])?state.weather[0]:'legacy',entries=currentWeather==='legacy'?[...weatherChoices,{value:'legacy',label:weather}]:weatherChoices;$('#weatherChoice').value=currentWeather;syncDropdown('weather',entries,currentWeather,'Clear');$('#weatherButton').setAttribute('aria-label','Weather: '+weather);$('#weatherButton').title='Weather: '+weather;$('#colorButton').setAttribute('aria-label','Color: '+palette);$('#colorButton').title='Color: '+palette;$('#biomeButton').title='Biome: '+biomeLabels[state.background];}
-function loadBackground(name){if(name==='none'||name==='void'||backgroundImages.has(name))return Promise.resolve();if(!biomeNames.includes(name))return Promise.reject(Error('Unknown biome'));return new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>{backgroundImages.set(name,image);resolve();};image.onerror=()=>reject(Error('This biome could not load. Your creation is unchanged.'));image.src='assets/bg-'+({hell:'hell-muted-v40','pumpkin-patch':'pumpkin-patch-v5','sandy-dunes':'sandy-dunes-v5','corn-maze':'corn-maze-v5',graveyard:'graveyard-v5','gnome-hollow':'gnome-hollow-v5','ember-river':'ember-river-v5',space:'space-ink-v29',underwater:'underwater-ink-v29',steampunk:'steampunk-v2',wonderland:'wonderland-v2','haunted-house':'haunted-house-v2',factory:'factory-v2'}[name]||name)+'.webp';});}
+function loadBackground(name){if(name==='none'||name==='void'||backgroundImages.has(name))return Promise.resolve();if(!biomeNames.includes(name))return Promise.reject(Error('Unknown biome'));return new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>{backgroundImages.set(name,image);resolve();};image.onerror=()=>reject(Error('The '+biomeLabels[name]+' biome could not load. Refresh the page and try again. Your creation is unchanged.'));image.src='assets/bg-'+({hell:'hell-muted-v40','pumpkin-patch':'pumpkin-patch-v5','sandy-dunes':'sandy-dunes-v5','corn-maze':'corn-maze-v5',graveyard:'graveyard-v5','gnome-hollow':'gnome-hollow-v5','ember-river':'ember-river-v5',space:'space-ink-v29',underwater:'underwater-ink-v29',steampunk:'steampunk-v2',wonderland:'wonderland-v2','haunted-house':'haunted-house-v2',factory:'factory-v2'}[name]||name)+'.webp';});}
 async function prepareScene(scene){await Promise.all([...new Set(scene.items.map(item=>byId[item.id]?.sheet))].map(key=>sheetLoads.get(key)));if(scene.items.some(item=>!sprites.has(item.id)))throw Error('This creation uses newer illustrations. Refresh to load them.');await loadBackground(scene.background);return makePicture(scene);}
 async function chooseBiome(name){if(busy)return;setBusy(true,'Waking the grove...');try{const next={...snapshot(),background:name},prepared=await prepareScene(next);remember();state=next;render(prepared);}catch(e){notify(e.message,'error');$('#biomeChoice').value=state.background;syncBiomePicker();}finally{setBusy(false);}}
 function undo(){if(busy||!undoStack.length)return;redoStack.push(snapshot());state=undoStack.pop();activeUid=null;render();}
@@ -409,23 +462,115 @@ function resizeActive(size,keepUndo=true){const item=activeOddity();if(!item||bu
 function makePicture(scene=state){const out=document.createElement('canvas');out.width=W;out.height=H;draw(out.getContext('2d'),scene,animationTime,true);return out;}
 function makeThumbnail(scene){const picture=makePicture(scene),out=document.createElement('canvas');out.width=480;out.height=432;out.getContext('2d').drawImage(picture,0,0,480,432);return out.toDataURL('image/webp',.82);}
 function pictureBlob(){return new Promise((resolve,reject)=>makePicture().toBlob(blob=>blob?resolve(blob):reject(Error('The picture could not be created.')),'image/png'));}
-function pictureFilename(extension='png'){return 'whimsy-grove-'+new Date().toISOString().replace(/[:.]/g,'-')+'-'+uid().slice(0,8)+'.'+extension;}
-function downloadBlob(blob,extension='png',userGesture=false){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=pictureFilename(extension);document.body.append(a);a.click();a.remove();if(userGesture)noteProgress('download');setTimeout(()=>URL.revokeObjectURL(url),60000);}
-let exportController=null;
-function savePicture(){if(busy||!ready)return;$('#downloadChoices').hidden=false;$('#downloadProgress').hidden=true;$('#downloadCancel').textContent='Cancel';showDialog($('#downloadDialog'));$('#downloadPng').focus({preventScroll:true});}
-async function exportPicture(format,event){if(exportController||busy||!ready)return;const controller=new AbortController();exportController=controller;const scene=snapshot();$('#downloadChoices').hidden=true;$('#downloadProgress').hidden=false;$('#exportProgress').value=0;$('#exportStatus').textContent=format==='gif'?'Preparing animated GIF…':'Preparing PNG…';setBusy(true,'Preparing download');$('#busyOverlay').hidden=true;$('#downloadCancel').focus({preventScroll:true});try{let blob;if(format==='gif'){const {encodeGif}=await import('./export-gif.js?v=storm');blob=await encodeGif((target,time)=>draw(target,scene,time,false,true,true),{durationMs:scene.weather.includes('thunderstorm')?(scene.weather.includes('breeze')?36000:12000):scene.weather.includes('breeze')?9000:scene.weather.includes('wind')?6000:3000,signal:controller.signal,onProgress:value=>{$('#exportProgress').value=value;$('#exportStatus').textContent='Making GIF: '+Math.round(value*100)+'%';}});}else blob=await new Promise((resolve,reject)=>makePicture(scene).toBlob(value=>value?resolve(value):reject(Error('The picture could not be created.')),'image/png'));if(controller.signal.aborted)return;downloadBlob(blob,format,!!event?.isTrusted);exportController=null;$('#downloadDialog').close();notify(format==='gif'?'Your GIF is ready to download.':'Your picture is ready to download.','success');}catch(error){if(error.name!=='AbortError')notify(error.message||'The download could not be prepared. Try PNG instead.','error');}finally{if(exportController===controller)exportController=null;if($('#downloadDialog').open)$('#downloadDialog').close();setBusy(false);}}
-$('#downloadPng').addEventListener('click',event=>exportPicture('png',event));$('#downloadGif').addEventListener('click',event=>exportPicture('gif',event));$('#downloadCancel').addEventListener('click',()=>{$('#downloadDialog').returnValue='cancel';$('#downloadDialog').close();});$('#downloadDialog').addEventListener('close',()=>exportController?.abort());
-
-async function sharePicture(event){if(busy||!ready)return;if(event?.isTrusted)noteProgress('share');try{const blob=await pictureBlob(),file=new File([blob],pictureFilename(),{type:'image/png'});if(navigator.share&&navigator.canShare?.({files:[file]})){try{await navigator.share({files:[file],title:'Whimsy Grove'});}catch(e){if(e.name!=='AbortError')throw e;}}else{downloadBlob(blob,'png',!!event?.isTrusted);notify('This browser cannot share image files directly. Download the picture, then share it from your gallery.');}}catch{notify('Sharing did not open. Use Download, then share it from your gallery.','error');}}
+function pictureFilename(biome,extension,date=new Date()){
+ const slug=biome==='none'?'blank':/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(biome)&&typeof biome==='string'?biome:'blank';
+ const stamp=[String(date.getFullYear()).padStart(4,'0'),...[date.getMonth()+1,date.getDate()].map(value=>String(value).padStart(2,'0'))].join('-');
+ return 'whimsy-grove-'+slug+'-'+stamp+'.'+extension;
+}
+function downloadBlob(blob,filename,userGesture=false){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();if(userGesture)noteProgress('download');setTimeout(()=>URL.revokeObjectURL(url),60000);}
+let exportController=null,exportAction='download',preparedShare=null,sharingFile=false;
+function openExportPicker(action){
+ if(busy||!ready||exportController||sharingFile)return;
+ exportAction=action;preparedShare=null;$('#downloadTitle').textContent=action==='share'?'Share Grove':'Download Grove';
+ $('#downloadChoices').hidden=false;$('#downloadProgress').hidden=true;$('#shareReady').hidden=true;$('#exportProgress').hidden=true;
+ showDialog($('#downloadDialog'));$('#downloadPng').focus({preventScroll:true});
+}
+function savePicture(){openExportPicker('download');}
+function sharePicture(){openExportPicker('share');}
+async function prepareExportBlob(format,scene,controller){
+ if(format==='gif'){
+  const {encodeGif}=await import('./export-gif.js?v=storm');
+  return encodeGif((target,time)=>draw(target,scene,time,false,true,true),{
+   durationMs:scene.weather.includes('thunderstorm')?(scene.weather.includes('breeze')?36000:12000):scene.weather.includes('breeze')?9000:scene.weather.includes('wind')?6000:3000,
+   signal:controller.signal,onProgress:value=>{$('#exportProgress').value=value;$('#exportStatus').textContent='Making GIF: '+Math.round(value*100)+'%';}
+  });
+ }
+ return new Promise((resolve,reject)=>makePicture(scene).toBlob(value=>value?resolve(value):reject(Error('The picture could not be created.')),'image/png'));
+}
+async function exportPicture(format,event){
+ if(exportController||busy||!ready)return;
+ const action=exportAction,controller=new AbortController();exportController=controller;
+ let downloadFinished=false;
+ const scene=snapshot(),filename=pictureFilename(scene.background,format),dialog=$('#downloadDialog');$('#downloadChoices').hidden=true;$('#downloadProgress').hidden=false;
+ $('#downloadProgress .status-spinner').hidden=false;$('#exportFinishedIcon').toggleAttribute('hidden',true);$('#exportProgress').value=0;$('#exportProgress').hidden=false;$('#exportStatus').textContent=format==='gif'?'Preparing animated GIF…':'Preparing PNG…';
+ setBusy(true,action==='share'?'Preparing to share':'Preparing download');$('#busyOverlay').hidden=true;$('#downloadCancel').focus({preventScroll:true});
+ try{
+  const blob=await prepareExportBlob(format,scene,controller);
+  if(controller.signal.aborted||!dialog.open)return;
+  if(action==='share'){
+   $('#exportProgress').value=1;
+   const file=new File([blob],filename,{type:format==='gif'?'image/gif':'image/png'});
+   let canShare=false;
+   try{canShare=!!(navigator.share&&navigator.canShare?.({files:[file]}));}catch{}
+   preparedShare={file,blob,format,canShare};
+   // Use the original click when the encoder finished before activation expired.
+   if(canShare&&event?.isTrusted&&navigator.userActivation?.isActive){
+    await openNativeShare(event,true);
+   }
+  }else{
+   downloadBlob(blob,filename,!!event?.isTrusted);showDownloadComplete();downloadFinished=true;
+  }
+ }catch(error){
+  if(error.name!=='AbortError')notify(error.message||'The file could not be prepared. Try PNG instead.','error');
+ }finally{
+  if(exportController===controller)exportController=null;
+  setBusy(false);
+  if(dialog.open&&preparedShare&&!controller.signal.aborted){
+   showPreparedShare();
+  }else if(dialog.open&&!downloadFinished)dialog.close();
+ }
+}
+function showDownloadComplete(){
+ $('#shareReady').hidden=true;$('#downloadProgress').hidden=false;
+ $('#downloadProgress .status-spinner').hidden=true;$('#exportFinishedIcon').toggleAttribute('hidden',false);$('#exportProgress').value=1;
+ $('#exportStatus').textContent='Download started.';
+ $('#downloadCancel').focus({preventScroll:true});
+}
+function showPreparedShare(){
+ if(!preparedShare)return;
+ const {format,canShare,message}=preparedShare,kind=format.toUpperCase(),button=$('#sharePrepared');
+ $('#downloadProgress').hidden=true;$('#shareReady').hidden=false;button.hidden=false;
+ $('#shareReadyText').textContent=message||(canShare?'':'This browser can’t share '+kind+' files directly. Download it to share from your device.');
+ button.textContent=canShare?'Open device share menu':'Download '+kind;button.focus({preventScroll:true});
+}
+async function openNativeShare(event,fromChoice=false){
+ const entry=preparedShare,dialog=$('#downloadDialog');if(!entry||sharingFile)return;
+ sharingFile=true;
+ $('#downloadProgress').hidden=true;$('#shareReady').hidden=false;$('#sharePrepared').hidden=true;
+ $('#exportStatus').textContent='';$('#shareReadyText').textContent='Choose where to share.';
+ $('#downloadCancel').focus({preventScroll:true});
+ try{
+  await navigator.share({files:[entry.file],title:'Whimsy Grove'});
+  if(event?.isTrusted)noteProgress('share');
+  if(dialog.open&&preparedShare===entry)dialog.close();
+ }catch(error){
+  if(!dialog.open||preparedShare!==entry||error.name==='AbortError')return;
+  // An activation or policy error can still succeed from the explicit button.
+  if(fromChoice&&error.name==='NotAllowedError')return;
+  entry.canShare=false;
+  entry.message='The share menu couldn’t open. Download this '+entry.format.toUpperCase()+' to share it from your device.';
+ }finally{sharingFile=false;}
+}
+async function sharePreparedFile(event){
+ if(!preparedShare||sharingFile)return;
+ const {blob,file,canShare}=preparedShare,dialog=$('#downloadDialog');
+ if(!canShare){downloadBlob(blob,file.name,!!event?.isTrusted);preparedShare=null;showDownloadComplete();return;}
+ await openNativeShare(event);
+ if(dialog.open)showPreparedShare();
+}
+$('#downloadPng').addEventListener('click',event=>exportPicture('png',event));
+$('#downloadGif').addEventListener('click',event=>exportPicture('gif',event));
+$('#sharePrepared').addEventListener('click',sharePreparedFile);
+$('#downloadCancel').addEventListener('click',()=>{$('#downloadDialog').returnValue='cancel';$('#downloadDialog').close();});
+$('#downloadDialog').addEventListener('close',()=>{if(!$('#downloadDialog').open){exportController?.abort();preparedShare=null;}});
 const browserStorage=import('./browser-storage.js');
 async function request(path,options={}){return (await browserStorage).request(path,options);}
 const activityStates=new Map();
 function showActivity(key,label){activityStates.set(key,label);syncFeedback();}
 function hideActivity(key){activityStates.delete(key);syncFeedback();}
 function refreshAccountGates(){$('#accountSignIn').hidden=true;if(ready)updateControls();}
-function showAccountNotice(){favorites=new Set();if(ready)renderOddities();$('#accountNotice').hidden=true;$('#accountStatus').hidden=true;}
 function requireAccount(){if(accountReady)return true;notify('Browser storage is not ready. It may be full or blocked.','error');return false;}
-async function checkAccount(){showActivity('account','Opening browser storage…');try{const data=await request('/api/session');signedIn=!!data.signedIn;const nextScope=data.draftScope||null;if(draftScope!==nextScope&&draftEnabled)draftEnabled=false;draftScope=nextScope;accountReady=signedIn&&!!data.storageReady;accountChecked=true;$('#accountStatus').textContent=signedIn&&!accountReady?'Browser storage is temporarily unavailable':'';$('#accountStatus').hidden=!signedIn||accountReady;$('#accountNotice').hidden=true;if(accountReady)await loadFavorites();else if(!signedIn){favorites=new Set();renderOddities();}}catch{signedIn=false;draftScope=null;accountChecked=true;accountReady=false;favorites=new Set();$('#accountStatus').hidden=false;$('#accountStatus').textContent='Browser storage needs attention';renderOddities();}finally{hideActivity('account');refreshAccountGates();syncAchievements();}}
+async function checkAccount(){showActivity('account','Opening browser storage…');try{const data=await request('/api/session');signedIn=!!data.signedIn;const nextScope=data.draftScope||null;if(draftScope!==nextScope&&draftEnabled)draftEnabled=false;draftScope=nextScope;accountReady=signedIn&&!!data.storageReady;accountChecked=true;$('#accountStatus').textContent=signedIn&&!accountReady?'Browser storage is temporarily unavailable':'';$('#accountStatus').hidden=!signedIn||accountReady;if(accountReady)await loadFavorites();else if(!signedIn){favorites=new Set();renderOddities();}}catch{signedIn=false;draftScope=null;accountChecked=true;accountReady=false;favorites=new Set();$('#accountStatus').hidden=false;$('#accountStatus').textContent='Browser storage needs attention';renderOddities();}finally{hideActivity('account');refreshAccountGates();syncAchievements();}}
 $('#openHelp').addEventListener('click',()=>{closeFloating('user');showDialog($('#helpDialog'),$('#userMenuButton'));$('#closeHelp').focus({preventScroll:true});});
 $('#closeHelp').addEventListener('click',()=>$('#helpDialog').close());
 $('#helpDialog').addEventListener('close',()=>$('#userMenuButton').focus({preventScroll:true}));
@@ -435,7 +580,17 @@ function validDraftScene(scene){return !!scene&&(scene.motionPreference===undefi
 function currentDraftKey(){return signedIn&&draftScope?'spooky-grove-current-'+draftScope:signedIn===false?'spooky-grove-current-guest':null;}
 function localDraft(){const key=currentDraftKey();if(!key)return null;try{const value=JSON.parse(localStorage.getItem(key)||'null');return value&&validDraftScene(value.scene)&&typeof value.editId==='string'?value:null;}catch{return null;}}
 function keepLocalDraft(value){const key=currentDraftKey();if(!key)return false;try{localStorage.setItem(key,JSON.stringify(value));return true;}catch{return false;}}
-function draftNotice(text){$('#draftStatus').textContent=text;$('#draftStatus').hidden=!text;}
+const draftSaveWarning='Your grove couldn’t be saved. Download it before leaving this page.';
+let draftSaveWarningShown=false;
+function setDraftSaveWarning(unsaved){
+ if(unsaved){
+  if(!draftSaveWarningShown){draftSaveWarningShown=true;notify(draftSaveWarning,'error');}
+ }else if(draftSaveWarningShown){
+  draftSaveWarningShown=false;
+  if(pendingToast?.text===draftSaveWarning)pendingToast=null;
+  if($('#toast').firstChild?.textContent===draftSaveWarning)dismissToast();
+ }
+}
 function freshScene(){const scene=blankScene(),worlds=biomeNames.filter(x=>x!=='none');scene.background=worlds[Math.floor(Math.random()*worlds.length)];return scene;}
 function onboardingKey(){return'whimsy-grove-onboarding-complete:'+new URL('.',location.href).pathname;}
 function onboardingComplete(){try{return localStorage.getItem(onboardingKey())==='1';}catch{return false;}}
@@ -450,7 +605,7 @@ function armFirstOddityGuide(){
 }
 function syncFirstOddityGuide(){
  const hint=$('#firstOddityGuide'),plus=$('#toggleOddities'),guide=firstOddityGuide;
- const show=!!guide&&!guide.dismissed&&guide.creationId===state.creationId&&!state.items.length&&ready&&!busy&&isMobilePicker();
+ const show=!!guide&&!guide.dismissed&&guide.creationId===state.creationId&&!state.items.length&&ready&&!busy&&usesOddityModal();
  hint.hidden=!show;
  if(show)plus.setAttribute('aria-describedby','firstOddityGuide');
  else plus.removeAttribute('aria-describedby');
@@ -482,7 +637,6 @@ async function restoreCurrentDraft(fromSignIn=false){
       draftCloudReady=true;
     }catch(error){
       if(!local&&!fromSignIn)throw error;
-      draftNotice('Your creation is kept on this device. Browser saving is unavailable.');
     }
   }
   const pendingLocal=local?.pending;
@@ -511,7 +665,8 @@ async function restoreCurrentDraft(fromSignIn=false){
     {...chosen,editId:migrated?uid():chosen.editId,updatedAt:migrated?Date.now():chosen.updatedAt,scene:snapshot(),pending:true,scope:draftScope}:
     fresh?{scene:snapshot(),editId:uid(),updatedAt:Date.now(),pending:true,scope:draftScope}:null;
   if(!firstGrove){
-    keepLocalDraft(draftPending||{scene:snapshot(),editId:chosen.editId,updatedAt:chosen.updatedAt,pending:false});
+    const kept=keepLocalDraft(draftPending||{scene:snapshot(),editId:chosen.editId,updatedAt:chosen.updatedAt,pending:false});
+    if(draftPending&&!kept&&!(signedIn&&draftCloudReady))setDraftSaveWarning(true);
     if(fresh&&signedIn&&draftCloudReady){
       const saved=await saveDraftRecord(draftPending,true);
       if(saved){await loadBackground(saved.scene.background);state=clone(saved.scene);draftSignature=JSON.stringify(state);}
@@ -522,21 +677,57 @@ async function restoreCurrentDraft(fromSignIn=false){
   if(!firstGrove&&!onboardingComplete())markOnboardingComplete();
   return firstGrove;
 }
-function queueDraft(force=false){if(!draftEnabled||!ready)return;const signature=JSON.stringify(state);if(signature!==draftSignature){draftSignature=signature;draftPending={scene:snapshot(),editId:uid(),updatedAt:Date.now(),pending:true,scope:draftScope};const kept=keepLocalDraft(draftPending);if(!kept)draftNotice(signedIn?'Browser saving is pending. Keep this page open until it finishes.':'This browser could not keep your creation. Download it before leaving.');}if(!draftPending&&!force)return;if(draftTimer)clearTimeout(draftTimer);if(signedIn&&draftCloudReady)draftTimer=setTimeout(()=>flushDraft(),450);}
-async function saveDraftRecord(record,initialize=false,keepalive=false){if(!record||!signedIn||!draftCloudReady||record.scope!==draftScope)return null;try{const result=await request('/api/draft',{method:'PUT',keepalive,body:JSON.stringify({scope:record.scope,editId:record.editId,scene:record.scene,initialize})});if(!result.saved||result.scope!==record.scope||!validDraftScene(result.draft?.scene))throw Error('The current creation save was not confirmed.');if(draftPending?.editId===record.editId){draftPending=null;if(!keepLocalDraft({...result.draft,pending:false})){try{localStorage.removeItem(currentDraftKey());}catch{}}draftNotice('');}return result.draft;}catch(error){console.error('Draft save failed',error);draftNotice(localDraft()?.editId===record.editId?'Your latest creation is kept on this device. Browser saving could not finish.':'Browser saving could not finish. Keep this page open, or download your creation.');return null;}}
+function queueDraft(force=false){if(!draftEnabled||!ready)return;const signature=JSON.stringify(state);if(signature!==draftSignature){draftSignature=signature;draftPending={scene:snapshot(),editId:uid(),updatedAt:Date.now(),pending:true,scope:draftScope};const kept=keepLocalDraft(draftPending);if(kept)setDraftSaveWarning(false);else if(!(signedIn&&draftCloudReady))setDraftSaveWarning(true);}if(!draftPending&&!force)return;if(draftTimer)clearTimeout(draftTimer);if(signedIn&&draftCloudReady)draftTimer=setTimeout(()=>flushDraft(),450);}
+async function saveDraftRecord(record,initialize=false,keepalive=false){if(!record||!signedIn||!draftCloudReady||record.scope!==draftScope)return null;try{const result=await request('/api/draft',{method:'PUT',keepalive,body:JSON.stringify({scope:record.scope,editId:record.editId,scene:record.scene,initialize})});if(!result.saved||result.scope!==record.scope||!validDraftScene(result.draft?.scene))throw Error('The current creation save was not confirmed.');if(draftPending?.editId===record.editId){draftPending=null;if(!keepLocalDraft({...result.draft,pending:false})){try{localStorage.removeItem(currentDraftKey());}catch{}}setDraftSaveWarning(false);}return result.draft;}catch(error){console.error('Draft save failed',error);if(draftPending?.editId===record.editId&&record.scope===draftScope)setDraftSaveWarning(localDraft()?.editId!==record.editId);return null;}}
 async function flushDraft(keepalive=false){if(draftTimer)clearTimeout(draftTimer);draftTimer=null;if(draftInFlight||!draftEnabled||!draftPending||!signedIn||!draftCloudReady)return;const record=draftPending;draftInFlight=true;try{await saveDraftRecord(record,false,keepalive);}finally{draftInFlight=false;if(draftPending&&draftPending.editId!==record.editId)draftTimer=setTimeout(()=>flushDraft(),250);}}
 window.addEventListener('pagehide',()=>{queueDraft();flushDraft(true);});
 window.addEventListener('focus',()=>{if(draftEnabled&&draftPending&&draftCloudReady)flushDraft();});
 const themeIcons={'light': '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>', 'dark': '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.7 13.2A9 9 0 0 1 10.8 3.3 9 9 0 1 0 20.7 13.2Z"/></svg>'};
 function updateThemeButton(){const dark=document.documentElement.dataset.theme!=='light';document.querySelector('meta[name=theme-color]')?.setAttribute('content',dark?'#23192b':'#f3ece1');const label=dark?'Switch to Light Mode':'Switch to Dark Mode';$('#themeToggle').innerHTML=themeIcons[dark?'light':'dark']+'<span>'+(dark?'Light Mode':'Dark Mode')+'</span>';$('#themeToggle').setAttribute('aria-label',label);$('#themeToggle').title=label;}
 $('#themeToggle').addEventListener('click',()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'dark':'light';try{localStorage.setItem('spooky-grove-theme',document.documentElement.dataset.theme);}catch{}updateThemeButton();closeFloating('user',true);});updateThemeButton();
-async function persistScene(collectionName,scene,reason='Creation',title=null){const signature=collectionName+JSON.stringify(scene)+JSON.stringify(title);if(!pendingSave||pendingSave.signature!==signature)pendingSave={signature,id:uid()};const result=await request('/api/drawings',{method:'POST',body:JSON.stringify({id:pendingSave.id,collection:collectionName,scene,title,thumbnail:makeThumbnail(scene)})});if(!result.saved)throw Error('The save was not confirmed. Your creation is unchanged.');pendingSave=null;accountReady=true;signedIn=true;accountChecked=true;refreshAccountGates();return result.drawing;}
-function confirmation(kind){return new Promise(resolve=>{const dialog=$('#confirmDialog'),newGrove=kind!=='restore'&&kind!=='randomize';$('#confirmNewMushroom').hidden=!newGrove;$('#confirmOtherSymbol').hidden=newGrove;$('#confirmCancel').textContent=newGrove?'Cancel':'Keep Creating';$('#confirmTitle').textContent=kind==='randomize'?'Let a new grove take root?':kind==='restore'?'Open this grove?':'Let this grove become a memory?';$('#confirmText').textContent=kind==='restore'?'Your current creation will be saved in History before this creation opens.':'This will clear your creation, but you will be able to access it in your history.';$('#confirmAction').textContent=kind==='randomize'?'Save and Randomize':kind==='restore'?'Save and Open':'Start Over';dialog.returnValue='cancel';dialog.addEventListener('close',()=>resolve(dialog.returnValue==='confirm'),{once:true});showDialog(dialog);});}
+async function persistScene(collectionName,scene,reason='Creation',title=null){const signature=collectionName+JSON.stringify(scene)+JSON.stringify(title);if(!pendingSave||pendingSave.signature!==signature)pendingSave={signature,id:uid()};const result=await request('/api/drawings',{method:'POST',body:JSON.stringify({id:pendingSave.id,collection:collectionName,scene,title,thumbnail:makeThumbnail(scene)})});if(collectionName==='album'&&result.titleTaken){pendingSave=null;return result;}if(collectionName==='album'&&result.duplicate){pendingSave=null;return null;}if(!result.saved)throw Error('The save was not confirmed. Your creation is unchanged.');pendingSave=null;accountReady=true;signedIn=true;accountChecked=true;refreshAccountGates();return result.drawing;}
+function confirmation(kind){return new Promise(resolve=>{const dialog=$('#confirmDialog'),newGrove=kind!=='restore'&&kind!=='randomize';$('#confirmNewMushroom').hidden=!newGrove;$('#confirmOtherSymbol').hidden=newGrove;$('#confirmTitle').textContent=kind==='randomize'?'Let a new grove take root?':kind==='restore'?'Open this grove?':'Let this grove become a memory?';$('#confirmText').textContent=kind==='restore'?'Your current creation will be saved in History before this creation opens.':'This will clear your creation, but you will be able to access it in your history.';$('#confirmAction').textContent=kind==='randomize'?'Save and Randomize':kind==='restore'?'Save and Open':'Start Over';dialog.returnValue='cancel';dialog.addEventListener('close',()=>resolve(dialog.returnValue==='confirm'),{once:true});showDialog(dialog);});}
 function randomizedScene(){const s=blankScene(),r=rand(Date.now()%1000000);s.seed=Math.floor(r()*1000000);s.palette=Object.keys(colorOptions)[Math.floor(r()*Object.keys(colorOptions).length)];s.background=biomeNames[1+Math.floor(r()*(biomeNames.length-1))];for(let i=0;i<18;i++){const available=oddityCatalog.filter(x=>!x.hidden),choice=available[Math.floor(r()*available.length)];const item=makeOddity(choice.id,(.12+r()*.76)*W,(.28+r()*.66)*H,choice.size*(.75+r()*.35));item.flip=r()<.25;item.order=i;s.items.push(item);}return s;}
-async function replaceScene(kind,replacement=null){if(busy||!ready)return;if(!requireAccount('save a memory before replacing your creation'))return;if(kind!=='restore'&&!await confirmation(kind))return;setBusy(true,kind==='restore'?'Waking the grove...':kind==='randomize'?'Randomizing grove':'Starting grove');const previous=snapshot();try{await persistScene('history',previous,kind==='clear'?'Before clearing':kind==='randomize'?'Before randomizing':'Before restoring');const next=kind==='clear'?(replacement?clone(replacement):blankScene()):kind==='randomize'?randomizedScene():clone(replacement);const prepared=await prepareScene(next);remember();state=next;selected=null;activeUid=null;mode='move';renderOddities();render(prepared);notify(kind==='clear'?'A fresh grove is ready.':kind==='randomize'?'A new grove has taken root.':'Creation ready to edit.');}catch(e){notify(e.message+' Your creation is unchanged.','error');}finally{setBusy(false);}}
-async function saveToAlbum(){if(busy||!ready)return;if(!requireAccount('save creations to your Album'))return;const suggested=(saveNamePrefixes[state.background]||'')+' Grove',name=await namePrompt(suggested.trim(),true,true);if(name===null)return;setBusy(true,'Adding To Album…');try{const saved=await persistScene('album',snapshot(),'Whimsy Grove',name===suggested.trim()?'':name);state.albumSourceId=saved.id;queueDraft();window.groveAudio?.effect('save');syncAchievements();notify('Added to Album','success');}catch(e){notify(e.message,'error');}finally{setBusy(false);}}
+async function replaceScene(kind,replacement=null){if(busy||!ready)return;if(!requireAccount('save a memory before replacing your creation'))return;if(kind!=='restore'&&!await confirmation(kind))return;setBusy(true,kind==='restore'?'Waking the grove...':kind==='randomize'?'Randomizing grove':'Starting grove');const previous=snapshot();try{await persistScene('history',previous,kind==='clear'?'Before clearing':kind==='randomize'?'Before randomizing':'Before restoring');const next=kind==='clear'?(replacement?clone(replacement):blankScene()):kind==='randomize'?randomizedScene():clone(replacement);const prepared=await prepareScene(next);remember();state=next;selected=null;activeUid=null;mode='move';renderOddities();render(prepared);}catch(e){notify(e.message+' Your creation is unchanged.','error');}finally{setBusy(false);}}
+const albumNameTakenMessage='That name is already in your Album. Choose a different name.';
+async function albumNameSuggestion(query){
+  return (await request('/api/album-name?'+new URLSearchParams(query))).title;
+}
+const duplicateAlbumMessage='This creation is already saved in your Album.';
+async function saveToAlbum(){
+  if(busy||!ready||$('#renameDialog').open)return;
+  if(!requireAccount('save creations to your Album'))return;
+  const scene=snapshot();
+  try{
+    const suggestion=await albumNameSuggestion({biome:scene.background});
+    if(busy)return;
+    let saved;
+    const title=await namePrompt(suggestion,true,'',async title=>{
+      saved=await persistScene('album',scene,'Whimsy Grove',title);
+      return saved?.titleTaken?albumNameTakenMessage:!saved?duplicateAlbumMessage:'';
+    });
+    if(title===null)return;
+    state.albumSourceId=saved.id;queueDraft();window.groveAudio?.effect('save');syncAchievements();
+  }catch(e){notify(e.message,'error');}
+}
+async function addHistoryToAlbum(item,add){
+  add.disabled=true;
+  try{
+    const suggestion=await albumNameSuggestion({historyId:item.id});
+    const title=await namePrompt(suggestion,true,'',async title=>{
+      const result=await request('/api/drawings/'+item.id+'/album',{method:'POST',body:JSON.stringify({title})});
+      if(result.titleTaken)return albumNameTakenMessage;
+      if(result.duplicate)return duplicateAlbumMessage;
+      if(!result.saved)throw Error('The save was not confirmed.');
+      return '';
+    });
+    if(title===null)return;
+    item.inAlbum=true;add.textContent='In Album';window.groveAudio?.effect('save');syncAchievements();
+  }catch(e){notify(e.message,'error');}
+  finally{add.disabled=item.inAlbum;if(!item.inAlbum)add.textContent='Add to Album';}
+}
 function syncAlbumOptions(){const wrap=$('#albumOptionsWrap');wrap.hidden=collection!=='album';document.dispatchEvent(new Event('grove-album-options-close'));$('#backupStatus').hidden=true;$('#backupStatus').textContent='';}
-async function openAlbumHistory(kind,append=false,options={}){if(busy)return;closeSavedMenu();if(!requireAccount('open your '+(kind==='album'?'Album':'History')))return;const previousCollection=collection;if(kind!==collection)albumSort=albumHistorySorts[kind];collection=kind;syncAlbumOptions();$('#albumSortControl').hidden=false;syncAlbumSort();const generation=++albumHistoryGeneration;$('#albumHistoryTitle').textContent='Groves';document.querySelectorAll('[data-gallery]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.gallery===kind)));const grid=$('#savedGroveGrid'),dialog=$('#albumHistoryDialog'),preserveLayout=!append&&dialog.open,previousScroll=dialog.scrollTop;if(preserveLayout){albumHistoryHeightFloor=Math.max(albumHistoryHeightFloor,Math.min(dialog.getBoundingClientRect().height,(window.innerHeight||800)*.85));dialog.style.minHeight=albumHistoryHeightFloor+'px';grid.style.minHeight=grid.getBoundingClientRect().height+'px';grid.setAttribute('aria-busy','true');grid.classList.add('gallery-refreshing');for(const button of grid.querySelectorAll?.('button')||[]){if(button.dataset.albumHistoryWasDisabled===undefined)button.dataset.albumHistoryWasDisabled=String(button.disabled);button.disabled=true;}/* Keep the sort trigger stable; the gallery grid announces loading. */}else if(!append){grid.style.minHeight='';grid.setAttribute('aria-busy','false');grid.classList.remove('gallery-refreshing');for(const button of grid.querySelectorAll?.('button')||[]){if(button.dataset.albumHistoryWasDisabled!==undefined){button.disabled=button.dataset.albumHistoryWasDisabled==='true';delete button.dataset.albumHistoryWasDisabled;}}$('#albumSortButton').classList.remove('is-loading');grid.replaceChildren();nextOffset=null;}if(!$('#albumHistoryDialog').open)showDialog($('#albumHistoryDialog'),kind==='album'?$('#openAlbum'):$('#userMenuButton'));$('#loadMore').hidden=true;const loading=document.createElement('p');loading.className='gallery-empty';loading.setAttribute('role','status');loading.setAttribute('aria-live','polite');loading.classList.add('is-loading');loading.textContent='Loading '+(kind==='album'?'Album':'History')+'…';if(!append&&!preserveLayout)grid.append(loading);try{const data=await request('/api/drawings?collection='+kind+'&sort='+albumSort+'&offset='+(append?nextOffset||0:0));if(generation!==albumHistoryGeneration)return;albumHistoryRenderedSort=albumSort;loading.remove();if(preserveLayout){closeSavedMenu();grid.replaceChildren();nextOffset=null;}for(const item of data.items){const card=document.createElement('article');card.className='saved-card';const image=document.createElement('img');image.src=item.thumbnail;image.alt='';image.loading='lazy';const thumbnail=document.createElement('figure');thumbnail.className='saved-thumbnail';thumbnail.append(image);const body=document.createElement('div'),title=document.createElement('h3'),date=document.createElement('p'),buttons=document.createElement('div');title.textContent=item.title;title.title=item.title;date.className='saved-date';const datePart=document.createElement('span'),timePart=document.createElement('span');datePart.textContent=new Date(item.createdAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})+' ';timePart.textContent=new Date(item.createdAt).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});datePart.className='saved-day';timePart.className='saved-clock';date.append(datePart,timePart);buttons.className='saved-actions';const restore=document.createElement('button');restore.textContent='Open';restore.addEventListener('click',()=>openSavedCreation(item,restore));buttons.append(restore);if(kind==='history'){const add=document.createElement('button');add.textContent=item.inAlbum?'In Album':'Add to Album';add.disabled=item.inAlbum;add.addEventListener('click',async()=>{const name=await namePrompt(item.title,true);if(name===null)return;add.disabled=true;add.classList.add('is-loading');add.textContent='Saving…';try{const result=await request('/api/drawings/'+item.id+'/album',{method:'POST',body:JSON.stringify({title:name})});if(!result.saved)throw Error('The save was not confirmed.');add.textContent='In Album';window.groveAudio?.effect('save');syncAchievements();notify('Added to Album','success');}catch(e){add.disabled=false;add.textContent='Add to Album';notify(e.message,'error');}finally{add.classList.remove('is-loading');}});buttons.append(add);}addSavedGroveActions(buttons,item,kind,card);body.append(title,date);mountSavedMenu(card,body,buttons,item);card.prepend(thumbnail);card.append(body);grid.append(card);}nextOffset=data.nextOffset;$('#loadMore').hidden=nextOffset===null;if(!grid.children.length){const p=document.createElement('p');p.className='gallery-empty';p.textContent=kind==='album'?'Album is empty.':'History is empty.';grid.append(p);}}catch(e){if(generation!==albumHistoryGeneration)return;if(preserveLayout){collection=previousCollection;syncAlbumOptions();albumSort=options.previousSort||albumHistorySorts[previousCollection];albumHistorySorts[previousCollection]=albumSort;$('#albumHistoryTitle').textContent=collection==='album'?'Album':'History';document.querySelectorAll('[data-gallery]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.gallery===collection)));syncAlbumSort();notify(e.message,'error');}else{loading.classList.remove('is-loading');loading.textContent=e.message;if(append)grid.append(loading);}}finally{if(generation===albumHistoryGeneration){grid.setAttribute('aria-busy','false');grid.classList.remove('gallery-refreshing');for(const button of grid.querySelectorAll?.('button')||[]){if(button.dataset.albumHistoryWasDisabled!==undefined){button.disabled=button.dataset.albumHistoryWasDisabled==='true';delete button.dataset.albumHistoryWasDisabled;}}$('#albumSortButton').classList.remove('is-loading');if(preserveLayout){dialog.scrollTop=previousScroll;requestAnimationFrame(()=>{if(generation===albumHistoryGeneration){grid.style.minHeight='';dialog.scrollTop=previousScroll;}});}}}}
+async function openAlbumHistory(kind,append=false,options={}){if(busy)return;closeSavedMenu();if(!requireAccount('open your '+(kind==='album'?'Album':'History')))return;const previousCollection=collection;if(kind!==collection)albumSort=albumHistorySorts[kind];collection=kind;syncAlbumOptions();$('#albumSortControl').hidden=false;syncAlbumSort();const generation=++albumHistoryGeneration;$('#albumHistoryTitle').textContent='Groves';document.querySelectorAll('[data-gallery]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.gallery===kind)));const grid=$('#savedGroveGrid'),dialog=$('#albumHistoryDialog'),preserveLayout=!append&&dialog.open,scroller=$('#galleryContent'),previousScroll=scroller.scrollTop;if(preserveLayout){grid.style.minHeight=grid.getBoundingClientRect().height+'px';grid.setAttribute('aria-busy','true');grid.classList.add('gallery-refreshing');for(const button of grid.querySelectorAll?.('button')||[]){if(button.dataset.albumHistoryWasDisabled===undefined)button.dataset.albumHistoryWasDisabled=String(button.disabled);button.disabled=true;}/* Keep the sort trigger stable; the gallery grid announces loading. */}else if(!append){grid.style.minHeight='';grid.setAttribute('aria-busy','false');grid.classList.remove('gallery-refreshing');for(const button of grid.querySelectorAll?.('button')||[]){if(button.dataset.albumHistoryWasDisabled!==undefined){button.disabled=button.dataset.albumHistoryWasDisabled==='true';delete button.dataset.albumHistoryWasDisabled;}}$('#albumSortButton').classList.remove('is-loading');grid.replaceChildren();nextOffset=null;}if(!$('#albumHistoryDialog').open)showDialog($('#albumHistoryDialog'),kind==='album'?$('#openAlbum'):$('#userMenuButton'));$('#loadMore').hidden=true;const loading=document.createElement('p');loading.className='gallery-empty';loading.setAttribute('role','status');loading.setAttribute('aria-live','polite');loading.classList.add('is-loading');loading.textContent='Loading '+(kind==='album'?'Album':'History')+'…';if(!append&&!preserveLayout)grid.append(loading);try{const data=await request('/api/drawings?collection='+kind+'&sort='+albumSort+'&offset='+(append?nextOffset||0:0));if(generation!==albumHistoryGeneration)return;albumHistoryRenderedSort=albumSort;loading.remove();if(preserveLayout){closeSavedMenu();grid.replaceChildren();nextOffset=null;}for(const item of data.items){const card=document.createElement('article');card.className='saved-card';const image=document.createElement('img');image.src=item.thumbnail;image.alt='';image.loading='lazy';const thumbnail=document.createElement('figure');thumbnail.className='saved-thumbnail';thumbnail.append(image);const body=document.createElement('div'),title=document.createElement('h3'),date=document.createElement('p'),buttons=document.createElement('div');title.textContent=item.title;title.title=item.title;date.className='saved-date';const datePart=document.createElement('span'),timePart=document.createElement('span');datePart.textContent=new Date(item.createdAt).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})+' ';timePart.textContent=new Date(item.createdAt).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});datePart.className='saved-day';timePart.className='saved-clock';date.append(datePart,timePart);buttons.className='saved-actions';const restore=document.createElement('button');restore.textContent='Open';restore.addEventListener('click',()=>openSavedCreation(item,restore));buttons.append(restore);if(kind==='history'){const add=document.createElement('button');add.textContent=item.inAlbum?'In Album':'Add to Album';add.disabled=item.inAlbum;add.addEventListener('click',()=>addHistoryToAlbum(item,add));buttons.append(add);}addSavedGroveActions(buttons,item,kind,card);body.append(title,date);mountSavedMenu(card,body,buttons,item);card.prepend(thumbnail);card.append(body);grid.append(card);}nextOffset=data.nextOffset;$('#loadMore').hidden=nextOffset===null;if(!grid.children.length){const p=document.createElement('p');p.className='gallery-empty';p.textContent=kind==='album'?'Album is empty.':'History is empty.';grid.append(p);}}catch(e){if(generation!==albumHistoryGeneration)return;if(preserveLayout){collection=previousCollection;syncAlbumOptions();albumSort=options.previousSort||albumHistorySorts[previousCollection];albumHistorySorts[previousCollection]=albumSort;$('#albumHistoryTitle').textContent=collection==='album'?'Album':'History';document.querySelectorAll('[data-gallery]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.gallery===collection)));syncAlbumSort();notify(e.message,'error');}else{loading.classList.remove('is-loading');loading.textContent=e.message;if(append)grid.append(loading);}}finally{if(generation===albumHistoryGeneration){grid.setAttribute('aria-busy','false');grid.classList.remove('gallery-refreshing');for(const button of grid.querySelectorAll?.('button')||[]){if(button.dataset.albumHistoryWasDisabled!==undefined){button.disabled=button.dataset.albumHistoryWasDisabled==='true';delete button.dataset.albumHistoryWasDisabled;}}$('#albumSortButton').classList.remove('is-loading');if(preserveLayout){scroller.scrollTop=previousScroll;requestAnimationFrame(()=>{if(generation===albumHistoryGeneration){grid.style.minHeight='';scroller.scrollTop=previousScroll;}});}}}}
 async function openSavedCreation(item,button){if(busy||albumHistoryOpening)return;albumHistoryOpening=true;button.disabled=true;button.setAttribute('aria-busy','true');const status=$('#albumHistoryStatus');status.hidden=false;status.classList.add('is-loading');status.textContent='Waking the grove...';setBusy(true,'Waking the grove...');$('#busyOverlay').hidden=true;try{const result=await request('/api/drawings/'+item.id);$('#albumHistoryStatus').hidden=true;$('#albumHistoryDialog').close();setBusy(false);await replaceScene('restore',{...result.drawing.scene,creationId:result.drawing.scene.creationId||item.id,...(result.drawing.inAlbum?{albumSourceId:item.id}:{})});}catch(e){notify(e.message,'error');}finally{status.hidden=true;status.classList.remove('is-loading');albumHistoryOpening=false;setBusy(false);button.disabled=false;button.setAttribute('aria-busy','false');}}
 $('#cancelRename').addEventListener('click',()=>{$('#renameDialog').returnValue='cancel';$('#renameDialog').close();});
 const nameSegments=typeof Intl.Segmenter==='function'?new Intl.Segmenter(undefined,{granularity:'grapheme'}):null;
@@ -545,23 +736,123 @@ const clipName=value=>nameCharacters(value).slice(0,15).join('');
 let nameComposing=false;
 function hardLimitName(){const input=$('#renameInput');if(nameComposing)return;const start=input.selectionStart??input.value.length,end=input.selectionEnd??start,next=clipName(input.value);if(next!==input.value){input.value=next;input.setSelectionRange?.(Math.min(start,next.length),Math.min(end,next.length));}input.setCustomValidity('');}
 function insertNameText(text){const input=$('#renameInput'),start=input.selectionStart??input.value.length,end=input.selectionEnd??start,prefix=input.value.slice(0,start),suffix=input.value.slice(end),available=Math.max(0,15-nameCharacters(prefix+suffix).length),added=nameCharacters(text).slice(0,available).join(''),next=clipName(prefix+added+suffix);input.value=next;const caret=Math.min(next.length,prefix.length+added.length);input.setSelectionRange?.(caret,caret);input.setCustomValidity('');}
-function namePrompt(title,adding=false,automatic=false){return new Promise(resolve=>{const dialog=$('#renameDialog');nameComposing=false;$('#nameHelp').textContent=automatic?'Up to 15 characters. The suggested name gets a number.':'Up to 15 characters.';$('#renameTitle').textContent=adding?'Name This Creation':'Rename This Creation';$('#nameConfirm').textContent=adding?'Add to Album':'Save Name';$('#renameInput').value=adding?clipName(title):title;$('#renameInput').setCustomValidity('');$('#renameInput').placeholder=adding?'Automatic Name if Blank':'';dialog.returnValue='cancel';dialog.addEventListener('close',()=>resolve(dialog.returnValue==='confirm'?$('#renameInput').value.trim():null),{once:true});showDialog(dialog);$('#renameInput').focus();$('#renameInput').select();});}
+async function presentMutationSuccess(status,message){
+  status.hidden=false;status.textContent=message;status.focus({preventScroll:true});
+  await new Promise(resolve=>setTimeout(resolve,1250));
+}
+function namePrompt(title,adding=false,feedback='',submitName=null){
+  const dialog=$('#renameDialog');
+  if(dialog.open)return Promise.resolve(null);
+  dialog.toggleAttribute('data-adding',adding);
+  return new Promise(resolve=>{
+    const form=$('#renameDialog form'),input=$('#renameInput'),confirm=$('#nameConfirm'),cancel=$('#cancelRename'),error=$('#nameError'),success=$('#nameSuccess');
+    const showError=message=>{error.hidden=!message;error.textContent=message;};
+    const actionLabel=adding?'Save to Album':'Save Name';
+    let saving=false;
+    const preventBusyCancel=event=>{if(saving)event.preventDefault();};
+    const submit=async event=>{
+      if(event.defaultPrevented)return;
+      event.preventDefault();
+      if(saving)return;
+      saving=true;confirm.disabled=true;cancel.disabled=true;input.readOnly=true;confirm.textContent='Saving…';
+      showError('');
+      try{
+        const problem=await submitName(input.value.trim());
+        if(problem){showError(problem);input.focus();return;}
+        await presentMutationSuccess(success,adding?'Added to Album':'Creation renamed.');
+        dialog.close('confirm');
+      }catch(e){showError(e.message||'The save was not confirmed.');input.focus();}
+      finally{saving=false;confirm.disabled=false;cancel.disabled=false;input.readOnly=false;confirm.textContent=actionLabel;success.hidden=true;success.textContent='';}
+    };
+    nameComposing=false;
+    showError(feedback);
+    $('#renameTitle').textContent=adding?'Name Grove':'Rename This Creation';
+    confirm.textContent=actionLabel;
+    input.value=adding?clipName(title):title;
+    input.setCustomValidity('');
+    input.placeholder=adding?'Automatic Name if Blank':'';
+    dialog.returnValue='cancel';
+    if(submitName){form.addEventListener('submit',submit);dialog.addEventListener('cancel',preventBusyCancel);}
+    dialog.addEventListener('close',()=>{
+      form.removeEventListener('submit',submit);dialog.removeEventListener('cancel',preventBusyCancel);
+      resolve(dialog.returnValue==='confirm'?input.value.trim():null);
+    },{once:true});
+    showDialog(dialog);input.focus();input.setSelectionRange(input.value.length,input.value.length);
+  });
+}
 $('#renameInput').addEventListener('beforeinput',e=>{if(nameComposing||e.isComposing||!e.inputType?.startsWith('insert')||e.data==null)return;const input=$('#renameInput'),start=input.selectionStart??input.value.length,end=input.selectionEnd??start,next=input.value.slice(0,start)+e.data+input.value.slice(end);if(nameCharacters(next).length>15){e.preventDefault();insertNameText(e.data);}});
 $('#renameInput').addEventListener('paste',e=>{const text=e.clipboardData?.getData('text/plain');if(text===undefined)return;e.preventDefault();insertNameText(text);});
 $('#renameInput').addEventListener('compositionstart',()=>{nameComposing=true;});
 $('#renameInput').addEventListener('compositionend',()=>{nameComposing=false;hardLimitName();});
 $('#renameInput').addEventListener('input',e=>{if(!e.isComposing)hardLimitName();});
 $('#renameDialog form').addEventListener('submit',e=>{if(nameComposing||nameCharacters($('#renameInput').value.trim().replace(/\s+/g,' ')).length>15){e.preventDefault();$('#renameInput').setCustomValidity('Use 15 characters or fewer.');$('#renameInput').reportValidity();}});
-function renamePrompt(item){return namePrompt(item.title);}
-function deletePrompt(item){return new Promise(resolve=>{const dialog=$('#deleteDialog'),places=item.inAlbum&&item.inHistory?'Album and History':item.inAlbum?'Album':'History';$('#deleteText').textContent='“'+item.title+'” will be permanently deleted from '+places+'. This cannot be undone.';dialog.returnValue='cancel';dialog.addEventListener('close',()=>resolve(dialog.returnValue==='confirm'),{once:true});showDialog(dialog);$('#cancelDelete').focus();});}
-function addSavedGroveActions(buttons,item,kind,card){if(kind==='album'){const rename=document.createElement('button');rename.textContent='Rename';rename.addEventListener('click',async()=>{const title=await renamePrompt(item);if(title===null||title===item.title)return;if(!title){notify('Give this grove a name.','error');return;}rename.disabled=true;rename.classList.add('is-loading');rename.textContent='Saving Name…';try{const result=await request('/api/drawings/'+item.id,{method:'PATCH',body:JSON.stringify({title})});if(!result.saved)throw Error('The new name was not confirmed.');notify('Creation renamed.','success');await openAlbumHistory('album');}catch(e){notify(e.message,'error');}finally{rename.disabled=false;rename.classList.remove('is-loading');rename.textContent='Rename';}});buttons.append(rename);}const remove=document.createElement('button');remove.textContent='Delete';remove.className='delete-drawing';remove.addEventListener('click',async()=>{if(!await deletePrompt(item))return;remove.disabled=true;remove.classList.add('is-loading');remove.textContent='Deleting…';try{const result=await request('/api/drawings/'+item.id,{method:'DELETE',body:JSON.stringify({confirmation:'permanently-delete',collection:kind,title:item.title})});if(!result.deleted)throw Error('The deletion was not confirmed. Reopen your saved creations to check.');notify(result.cleanupPending?'Creation deleted. Image cleanup could not be confirmed.':'Creation permanently deleted.',result.cleanupPending?'error':'success');await openAlbumHistory(kind);}catch(e){notify(e.status?e.message:'The deletion could not be confirmed. Reopen Album or History to check.','error');}finally{remove.disabled=false;remove.classList.remove('is-loading');remove.textContent='Delete';}});buttons.append(remove);}
+async function renameAlbumGrove(item,rename){
+  rename.disabled=true;
+  let renamed=false;
+  try{
+    await namePrompt(item.title,false,'',async title=>{
+      if(title===item.title)return 'Enter a different name to rename this creation.';
+      if(!title)return 'Give this grove a name.';
+      const result=await request('/api/drawings/'+item.id,{method:'PATCH',body:JSON.stringify({title})});
+      if(result.titleTaken)return albumNameTakenMessage;
+      if(!result.saved)throw Error('The new name was not confirmed.');
+      renamed=true;return '';
+    });
+    if(renamed)await openAlbumHistory('album');
+  }catch(e){notify(e.message,'error');}
+  finally{rename.disabled=false;}
+}
+function deletePrompt(item,kind){
+  const dialog=$('#deleteDialog');
+  if(dialog.open)return Promise.resolve(null);
+  return new Promise(resolve=>{
+    const form=$('#deleteDialog form'),cancel=$('#cancelDelete'),action=$('#deleteAction'),error=$('#deleteError'),success=$('#deleteSuccess');
+    const places=item.inAlbum&&item.inHistory?'Album and History':item.inAlbum?'Album':'History';
+    let deleting=false;
+    const preventBusyCancel=event=>{if(deleting)event.preventDefault();};
+    const submit=async event=>{
+      if(event.submitter!==action)return;
+      event.preventDefault();
+      if(deleting)return;
+      deleting=true;action.disabled=true;cancel.disabled=true;
+      error.hidden=true;error.textContent='';action.textContent='Deleting…';
+      try{
+        const result=await request('/api/drawings/'+item.id,{method:'DELETE',body:JSON.stringify({confirmation:'permanently-delete',collection:kind,title:item.title})});
+        if(!result.deleted)throw Error('The deletion was not confirmed. Reopen your saved creations to check.');
+        await presentMutationSuccess(success,result.cleanupPending?'Creation deleted. Image cleanup could not be confirmed.':'Creation permanently deleted.');
+        dialog.close('confirm');
+      }catch(e){
+        error.textContent=e.status?e.message:'The deletion could not be confirmed. Reopen Album or History to check.';
+        error.hidden=false;
+      }finally{deleting=false;action.disabled=false;cancel.disabled=false;action.textContent='Permanently delete';success.hidden=true;success.textContent='';if(dialog.open)cancel.focus();}
+    };
+    $('#deleteText').textContent='“'+item.title+'” will be permanently deleted from '+places+'. This cannot be undone.';
+    error.hidden=true;error.textContent='';dialog.returnValue='cancel';
+    form.addEventListener('submit',submit);dialog.addEventListener('cancel',preventBusyCancel);
+    dialog.addEventListener('close',()=>{form.removeEventListener('submit',submit);dialog.removeEventListener('cancel',preventBusyCancel);resolve(dialog.returnValue==='confirm');},{once:true});
+    showDialog(dialog);cancel.focus();
+  });
+}
+function addSavedGroveActions(buttons,item,kind,card){
+  if(kind==='album'){const rename=document.createElement('button');rename.textContent='Rename';rename.addEventListener('click',()=>renameAlbumGrove(item,rename));buttons.append(rename);}
+  const remove=document.createElement('button');remove.textContent='Delete';remove.className='delete-drawing';
+  remove.addEventListener('click',async()=>{if(await deletePrompt(item,kind))await openAlbumHistory(kind);});buttons.append(remove);
+}
 let savedMenu=null;
 function closeSavedMenu(focus=false){if(!savedMenu)return;const {button,menu,cardTrigger}=savedMenu;menu.hidden=true;button.setAttribute('aria-expanded','false');cardTrigger.setAttribute('aria-expanded','false');savedMenu=null;if(focus)(isMobilePicker()?cardTrigger:button).focus({preventScroll:true});}
 function popupPlacement(box,desiredWidth,desiredHeight=320,alignRight=false){const margin=12,gap=7,vw=window.innerWidth||400,vh=window.innerHeight||800,width=Math.max(1,Math.min(desiredWidth,vw-margin*2)),below=Math.max(0,vh-margin-box.bottom-gap),above=Math.max(0,box.top-gap-margin),up=below<Math.min(desiredHeight,180)&&above>below;let available=Math.min(Math.max(1,vh-margin*2),up?above:below),top=up?Math.max(margin,box.top-gap-Math.min(desiredHeight,available)):box.bottom+gap;if(available<44){available=Math.max(1,vh-margin*2);top=margin;}const maxHeight=Math.max(1,Math.min(desiredHeight,available));top=Math.max(margin,Math.min(top,vh-margin-maxHeight));return{left:Math.max(margin,Math.min(alignRight?(box.right??box.left+box.width)-width:box.left,vw-width-margin))+'px',width:width+'px',top:top+'px',bottom:'auto',maxHeight:maxHeight+'px'};}
-function positionSavedMenu(){if(!savedMenu)return;const {button,menu,cardTrigger}=savedMenu,box=(isMobilePicker()?cardTrigger:button).getBoundingClientRect();menu.style.width='max-content';menu.style.minWidth='0';menu.style.maxWidth=Math.max(1,(window.innerWidth||400)-24)+'px';Object.assign(menu.style,popupPlacement(box,menu.getBoundingClientRect().width||160,Math.min(300,menu.scrollHeight||200),true));}
+function positionSavedMenu(){
+ if(!savedMenu)return;
+ const {button,menu,cardTrigger}=savedMenu,mobile=isMobilePicker(),box=(mobile?cardTrigger:button).getBoundingClientRect(),margin=8,vw=window.innerWidth||400,vh=window.innerHeight||800;
+ const width=Math.min(160,vw-margin*2);
+ menu.style.width=width+'px';
+ const height=menu.getBoundingClientRect().height,desktopInset=10,below=mobile?box.top+8:box.bottom-desktopInset,above=box.top+desktopInset-height;
+ const top=!mobile&&below+height>vh-margin&&above>=margin?above:Math.max(margin,Math.min(below,vh-margin-height));
+ const left=Math.max(margin,Math.min(box.right-width-(mobile?8:desktopInset),vw-margin-width));
+ Object.assign(menu.style,{left:left+'px',top:top+'px'});
+}
 function mountSavedMenu(card,body,menu,item){const button=document.createElement('button');button.type='button';button.className='saved-menu-trigger icon-button';button.innerHTML='<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';button.setAttribute('aria-label','Actions for '+item.title);button.title='Actions for '+item.title;button.setAttribute('aria-haspopup','menu');button.setAttribute('aria-expanded','false');menu.id='actions-'+item.id;button.setAttribute('aria-controls',menu.id);menu.classList.add('saved-menu');menu.setAttribute('role','menu');menu.setAttribute('aria-label','Actions for '+item.title);menu.hidden=true;for(const action of menu.children){action.setAttribute('role','menuitem');action.addEventListener('click',()=>closeSavedMenu());}const cardTrigger=document.createElement('button');cardTrigger.type='button';cardTrigger.className='saved-card-hit-target';cardTrigger.setAttribute('aria-label','Actions for '+item.title);cardTrigger.setAttribute('aria-haspopup','menu');cardTrigger.setAttribute('aria-controls',menu.id);cardTrigger.setAttribute('aria-expanded','false');const toggleMenu=()=>{if(savedMenu?.menu===menu){closeSavedMenu(true);return;}closeSavedMenu();savedMenu={button,menu,cardTrigger};menu.hidden=false;button.setAttribute('aria-expanded','true');cardTrigger.setAttribute('aria-expanded','true');positionSavedMenu();[...menu.children].find(x=>!x.disabled)?.focus({preventScroll:true});};button.addEventListener('click',e=>{e.stopPropagation?.();toggleMenu();});cardTrigger.addEventListener('click',e=>{e.stopPropagation?.();if(isMobilePicker())toggleMenu();});menu.addEventListener('click',e=>e.stopPropagation?.());menu.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closeSavedMenu(true);return;}if(e.key==='Tab'){closeSavedMenu();return;}const options=[...menu.children].filter(x=>!x.disabled),index=options.indexOf(document.activeElement);let next=index;if(e.key==='ArrowDown')next=(index+1)%options.length;else if(e.key==='ArrowUp')next=(index-1+options.length)%options.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=options.length-1;else return;e.preventDefault();e.stopPropagation?.();options[next]?.focus();});body.append(menu);card.append(button,cardTrigger);}
-document.addEventListener('pointerdown',e=>{if(savedMenu&&!savedMenu.menu.contains(e.target)&&!savedMenu.button.contains(e.target)&&!savedMenu.cardTrigger.contains(e.target))closeSavedMenu();});for(const event of ['resize','scroll'])window.addEventListener(event,positionSavedMenu,{passive:true});$('#albumHistoryDialog').addEventListener('close',()=>{closeSavedMenu();albumHistoryHeightFloor=0;$('#albumHistoryDialog').style.minHeight='';});
-window.addEventListener('resize',()=>{if($('#albumHistoryDialog').open&&albumHistoryHeightFloor){albumHistoryHeightFloor=Math.min(albumHistoryHeightFloor,(window.innerHeight||800)*.85);$('#albumHistoryDialog').style.minHeight=albumHistoryHeightFloor+'px';}});
+document.addEventListener('pointerdown',e=>{if(savedMenu&&!savedMenu.menu.contains(e.target)&&!savedMenu.button.contains(e.target)&&!savedMenu.cardTrigger.contains(e.target))closeSavedMenu();});for(const event of ['resize','scroll'])window.addEventListener(event,positionSavedMenu,{passive:true});$('#galleryContent').addEventListener('scroll',()=>{closeSavedMenu();closeDropdown('albumSort');},{passive:true});$('#albumHistoryDialog').addEventListener('close',()=>{closeSavedMenu();$('#galleryContent').scrollTop=0;});
 const floatingPanels={user:{button:'#userMenuButton',panel:'#userMenu',width:220},color:{button:'#colorButton',panel:'#colorPanel',width:280}};
 function positionFloating(key){const data=floatingPanels[key],panel=$(data.panel);if(panel.hidden)return;Object.assign(panel.style,popupPlacement($(data.button).getBoundingClientRect(),data.width,Math.min(560,(panel.scrollHeight||400)+Math.max(0,panel.offsetHeight-panel.clientHeight)),key==='color'));}
 function closeFloating(key,focus=false){if(key==='user'&&typeof dropdowns!=='undefined'&&dropdowns.music)closeDropdown('music');const data=floatingPanels[key],panel=$(data.panel);panel.hidden=true;$(data.button).setAttribute('aria-expanded','false');if(focus)$(data.button).focus({preventScroll:true});}
@@ -606,15 +897,21 @@ function dropdownPlacement(box,desiredHeight,vh){
 function positionDropdown(key){
  const data=dropdowns[key],menu=$(data.menu),button=$(data.button);if(menu.hidden)return;
  const box=button.getBoundingClientRect(),margin=12,vw=window.innerWidth||400,vh=window.innerHeight||800;
- const width=Math.max(1,Math.min(box.width,vw-2*margin));
+ const sceneMenu=key==='biome'||key==='weather';
+ const drawingWidth=sceneMenu?$('#garden').getBoundingClientRect().width:0;
+ const compact=sceneMenu&&drawingWidth>0&&drawingWidth<=360;
+ const width=Math.max(1,Math.min(compact?Math.max(176,box.width*2):box.width,vw-2*margin));
+ const left=Math.max(margin,Math.min(box.left,vw-margin-width));
+ menu.dataset.extendsLeft=String(left<box.left-1);
+ menu.dataset.extendsRight=String(left+width>box.left+box.width+1);
  menu.style.width=width+'px';
  // Measure the joined menu without the seam padding before choosing its side.
  menu.dataset.dropdownSide='below';
  const desiredHeight=(menu.scrollHeight||44)+Math.max(0,menu.offsetHeight-menu.clientHeight);
- const {side,top,maxHeight}=dropdownPlacement(box,['weather','biome'].includes(key)?Math.min(320,desiredHeight):desiredHeight,vh);
+ const {side,top,maxHeight}=dropdownPlacement(box,['weather','biome','oddityCategory'].includes(key)?Math.min(320,desiredHeight):desiredHeight,vh);
  if(key==='albumSort')menu.classList.toggle('sort-overflow',maxHeight<desiredHeight);
  menu.dataset.dropdownSide=side;button.dataset.dropdownSide=side;
- Object.assign(menu.style,{left:Math.max(margin,Math.min(box.left,vw-margin-width))+'px',top:top+'px',bottom:'auto',maxHeight:maxHeight+'px'});
+ Object.assign(menu.style,{left:left+'px',top:top+'px',bottom:'auto',maxHeight:maxHeight+'px'});
 }
 function closeDropdown(key,focus=false){const data=dropdowns[key],menu=$(data.menu);if(menu.hidden)return;data.scroll=menu.scrollTop;data.closedValue=data.value;menu.hidden=true;$(data.button).setAttribute('aria-expanded','false');if(focus)$(data.button).focus({preventScroll:true});}
 function alignDropdownOpenScroll(menu){
@@ -684,25 +981,47 @@ function deleteSelectedOddityShortcut(event){
  if([...document.querySelectorAll('.dropdown-menu,.floating-panel,[role=menu]')].some(menu=>!menu.closest('[hidden]')&&menu.getClientRects().length))return;
  if(removeActiveOddity())event.preventDefault();
 }
+let oddityClipboard=null;
+function oddityClipboardShortcut(event){
+ if(!ready||busy||event.defaultPrevented||event.isComposing||event.repeat||event.altKey||event.shiftKey||event.ctrlKey===event.metaKey)return;
+ const key=event.key.toLowerCase();
+ if(!['c','x','v'].includes(key)||document.body.classList.contains('grove-view')||document.querySelector('dialog[open]'))return;
+ const nativeTarget=element=>element?.isContentEditable||element?.closest?.('input,textarea,select');
+ if(nativeTarget(event.target)||nativeTarget(document.activeElement)||window.getSelection()?.toString())return;
+ if(key==='v'){
+  if(!duplicateOddity(oddityClipboard))return;
+ }else{
+  const item=activeOddity();
+  if(!item)return;
+  const snapshot=clone(item);
+  if(key==='x'&&!removeActiveOddity())return;
+  oddityClipboard=snapshot;
+ }
+ event.preventDefault();
+}
+document.addEventListener('keydown',oddityClipboardShortcut);
 document.addEventListener('keydown',deleteSelectedOddityShortcut);
 $('#undo').addEventListener('click',undo);$('#redo').addEventListener('click',redo);document.addEventListener('keydown',e=>{const tag=document.activeElement?.tagName;if(['INPUT','TEXTAREA','SELECT'].includes(tag)||busy||document.body.classList.contains('grove-view')||[...document.querySelectorAll('dialog')].some(dialog=>dialog.open))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo();}});$('#clear').addEventListener('click',()=>{closeFloating('user');return startNewGrove();});$('#saveAlbum').addEventListener('click',saveToAlbum);$('#save').addEventListener('click',savePicture);$('#share').addEventListener('click',sharePicture);$('#openAlbum').addEventListener('click',()=>{closeFloating('user');return openAlbumHistory('album');});$('#openHistory').addEventListener('click',()=>{closeFloating('user');return openAlbumHistory('history');});$('#closeGallery').addEventListener('click',()=>$('#albumHistoryDialog').close());document.querySelectorAll('[data-gallery]').forEach(b=>b.addEventListener('click',()=>openAlbumHistory(b.dataset.gallery)));$('#loadMore').addEventListener('click',()=>openAlbumHistory(collection,true));document.addEventListener('grove-album-imported',()=>openAlbumHistory('album'));document.addEventListener('visibilitychange',()=>{if(ready)manageAnimation();});
 function hitOutline(sprite){const w=sprite.width,h=sprite.height,pixels=sprite.getContext('2d').getImageData(0,0,w,h).data,left=[],right=[],step=Math.max(1,Math.ceil(h/36));for(let y=0;y<h;y+=step){let min=w,max=-1;for(let yy=y;yy<Math.min(h,y+step);yy++)for(let x=0;x<w;x++)if(pixels[(yy*w+x)*4+3]>35){min=Math.min(min,x);max=Math.max(max,x);}if(max>=min){left.push([min/w*100,y/h*100],[min/w*100,Math.min(h,y+step)/h*100]);right.push([(max+1)/w*100,y/h*100],[(max+1)/w*100,Math.min(h,y+step)/h*100]);}}return [...left,...right.reverse()];}
 function loadSheet(key,[src,cols,rows]){return new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>{try{const cw=Math.floor(im.width/cols),ch=Math.floor(im.height/rows);for(let cell=0;cell<cols*rows;cell++){const entry=oddityCatalog.find(v=>v.sheet===key&&v.cell===cell);if(!entry)continue;const [sx,sy,sw,sh]=customRects[key]?.[cell]||[(cell%cols)*cw,Math.floor(cell/cols)*ch,cw,ch],tile=document.createElement('canvas');tile.width=sw;tile.height=sh;const tc=tile.getContext('2d',{willReadFrequently:true});tc.drawImage(im,sx,sy,sw,sh,0,0,sw,sh);for(const rect of sheetExclusions[key]?.[cell]||[])tc.clearRect(...rect);const pixels=tc.getImageData(0,0,sw,sh).data;let minX=sw,minY=sh,maxX=0,maxY=0;for(let y=0;y<sh;y++)for(let x=0;x<sw;x++)if(pixels[(y*sw+x)*4+3]>25){minX=Math.min(x,minX);maxX=Math.max(x,maxX);minY=Math.min(y,minY);maxY=Math.max(y,maxY);}if(maxX<minX||maxY<minY)throw Error('Empty illustration');const cut=document.createElement('canvas');cut.width=maxX-minX+1;cut.height=maxY-minY+1;cut.getContext('2d').drawImage(tile,minX,minY,cut.width,cut.height,0,0,cut.width,cut.height);const id=entry.id;if(id){sprites.set(id,cut);hitShapes.set(id,hitOutline(cut));const thumb=document.createElement('canvas'),scale=112/Math.max(cut.width,cut.height);thumb.width=Math.max(1,Math.round(cut.width*scale));thumb.height=Math.max(1,Math.round(cut.height*scale));thumb.getContext('2d').drawImage(cut,0,0,thumb.width,thumb.height);thumbs.set(id,thumb.toDataURL('image/webp',.86));}}resolve();}catch(e){reject(e);}};im.onerror=()=>reject(Error('Illustrations could not load. Try refreshing the page.'));im.src=src;});}
 const mobilePickerMedia=window.matchMedia?.('(max-width: 650px)');
 const isMobilePicker=()=>mobilePickerMedia?mobilePickerMedia.matches:(window.innerWidth||1024)<=650;
+const usesOddityModal=()=>isMobilePicker()||document.body.hasAttribute?.('data-oddities-modal');
 mobilePickerMedia?.addEventListener('change',syncFirstOddityGuide);
+document.addEventListener('grove-picker-layout',()=>{syncFirstOddityGuide();if(catalogReady&&favoritesOnly&&favorites.size===0)renderOddities();});
 let pickerHighlightTimer=null;
 function scrollToOddities(keyboardFocus=false){for(const key of Object.keys(dropdowns))closeDropdown(key);requestAnimationFrame(()=>{if(keyboardFocus)$('#oddityCategoryButton').focus({preventScroll:true});const picker=$('#oddityPicker');picker.scrollIntoView({behavior:reducedMotion?'auto':'smooth',block:'start'});picker.classList.add('picker-highlight');clearTimeout(pickerHighlightTimer);pickerHighlightTimer=setTimeout(()=>picker.classList.remove('picker-highlight'),1300);});}
 function returnToCanvas(){requestAnimationFrame(()=>{canvas.focus?.({preventScroll:true});$('.garden-panel').scrollIntoView({behavior:reducedMotion?'auto':'smooth',block:'start'});});}
 $('#toggleOddities').addEventListener('click',e=>scrollToOddities(e.detail===0));
 function dismissToast(){const toast=$('#toast');if(!toast.classList.contains('show'))return;const restore=toast.contains(document.activeElement);clearTimeout(toastTimer);toast.classList.remove('show');toast.hidden=true;if(restore)queueMicrotask(()=>focusSafely(toastReturnFocus));}
 document.addEventListener('pointerdown',event=>{if(!$('#toast').contains(event.target)&&event.target.closest?.('.grove-scroll-track')?.getAttribute('aria-controls')!=='toast')dismissToast();},{capture:true,passive:true});
-for(const dialog of document.querySelectorAll('dialog')){let backdropStart=false;const outside=e=>{const b=dialog.getBoundingClientRect();return e.target===dialog&&(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom);};dialog.addEventListener('pointerdown',e=>{backdropStart=outside(e);});dialog.addEventListener('click',e=>{if(!backdropStart||!outside(e)){backdropStart=false;return;}backdropStart=false;e.preventDefault();e.stopPropagation();if(dialog.id==='startDialog'||dialog.id==='importBackupDialog')return;dialog.returnValue='cancel';dialog.close();});dialog.addEventListener('close',()=>{const target=dialogReturnFocus.get(dialog),index=dialogStack.indexOf(dialog);if(index>=0)dialogStack.splice(index,1);queueMicrotask(()=>focusSafely(target));});}
+for(const dialog of document.querySelectorAll('dialog')){let backdropStart=false;const outside=e=>{const b=dialog.getBoundingClientRect();return e.target===dialog&&(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom);};dialog.addEventListener('pointerdown',e=>{backdropStart=outside(e);});dialog.addEventListener('click',e=>{if(!backdropStart||!outside(e)){backdropStart=false;return;}backdropStart=false;e.preventDefault();e.stopPropagation();if(dialog.id==='startDialog'||dialog.id==='importBackupDialog')return;if((dialog.id==='renameDialog'||dialog.id==='deleteDialog')&&!dialog.dispatchEvent(new Event('cancel',{cancelable:true})))return;dialog.returnValue='cancel';dialog.close();});dialog.addEventListener('close',()=>{const target=dialogReturnFocus.get(dialog),index=dialogStack.indexOf(dialog);if(index>=0)dialogStack.splice(index,1);queueMicrotask(()=>focusSafely(target));});}
 function registerTools(){const context=document.modelContext;if(!context?.registerTool)return;const lifecycle=new AbortController();const register=tool=>{try{Promise.resolve(context.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}};register({name:'read_grove',description:'Read the current creation and available item catalogue. It does not read saved Album or History entries.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>({scene:snapshot(),catalogue:oddityCatalog.filter(x=>!x.hidden).map(({id,name,oddityCategory})=>({id,name,group:oddityCategory})),selected,mode})});register({name:'place_grove_items',description:'Place the explicitly named items in this creation. Coordinates are between zero and one.',inputSchema:{type:'object',properties:{items:{type:'array',minItems:1,maxItems:20,items:{type:'object',properties:{id:{type:'string',enum:oddityCatalog.filter(x=>!x.hidden).map(x=>x.id)},x:{type:'number',minimum:0,maximum:1},y:{type:'number',minimum:0,maximum:1}},required:['id','x','y'],additionalProperties:false}}},required:['items'],additionalProperties:false},annotations:{readOnlyHint:false},execute:input=>{if(busy||!ready)throw Error('Editor is busy');if(!input||!Array.isArray(input.items)||!input.items.length||input.items.length>20||input.items.some(v=>!byId[v.id]||!Number.isFinite(v.x)||!Number.isFinite(v.y)||v.x<0||v.x>1||v.y<0||v.y>1)||state.items.length+input.items.length>100)throw Error('Invalid items');remember();for(const item of input.items)state.items.push(makeOddity(item.id,item.x*W,item.y*H));render();noteProgress('first_item');return{itemCount:state.items.length};}});window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});}
 setBusy(true,'Waking the grove...');
 // Load catalog sheets in parallel, but only the restored scene's own sheets block the editor.
 const sheetLoads=new Map(Object.entries(sources).filter(([key])=>oddityCatalog.some(item=>item.sheet===key)).map(([key,value])=>[key,loadSheet(key,value)]));
-const catalogLoaded=Promise.all(sheetLoads.values()).then(()=>{catalogReady=true;renderOddities();}).catch(()=>{const status=$('#odditiesLoading');if(status){status.textContent='Oddities could not load. Refresh to try again.';status.setAttribute('role','alert');}});
+for(const sheet of sheetLoads.values())sheet.then(syncIdeaOddityIcons,()=>{});
+const catalogLoaded=Promise.all(sheetLoads.values()).then(()=>{catalogReady=true;renderOddities();}).catch(()=>{const status=$('#odditiesLoading');if(status){status.setAttribute('role','alert');status.setAttribute('aria-live','assertive');status.lastElementChild.innerHTML='Oddities could not load.<br>Refresh to try again.';}});
 async function bootEditor(){
   try{
     await checkAccount();

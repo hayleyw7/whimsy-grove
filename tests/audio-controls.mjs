@@ -59,7 +59,7 @@ const soundtrack=new Map();
 for(const idea of ideas.window.GroveIdeas){
  const h=harness(null,.99);h.window.groveAudio.chooseGroveTrack(idea.id);soundtrack.set(idea.id,h.settings().music);assert.equal(h.contexts.length,0,'choosing an idea alone cannot start audio');
 }
-assert.deepEqual([...soundtrack.values()].sort(),['cosmic','cosmic','cosmic','cosmic','gentle','gentle','gentle','gentle','haunted','haunted','haunted','haunted']);
+assert.deepEqual([...soundtrack.values()].sort(),[...Array(6).fill('cosmic'),...Array(7).fill('gentle'),...Array(7).fill('haunted')]);
 assert.equal(soundtrack.get('cosmic-visitors'),'cosmic');assert.equal(soundtrack.get('cozy-witch-corner'),'haunted');assert.equal(soundtrack.get('pond-gathering'),'gentle');
 for(const [seed,track] of [[0,'gentle'],[.5,'haunted'],[.99,'cosmic']]){
  const h=harness(null,seed);h.window.groveAudio.chooseGroveTrack(null);assert.equal(h.settings().music,track);

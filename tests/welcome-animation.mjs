@@ -40,7 +40,7 @@ assert(html.includes('width:min(84vw,19rem)'));assert(html.includes('aspect-rati
 assert(!/is-visible|translate:0 9px|welcome-enter|welcome-fade|welcome-stagger|--arrival/.test(html));
 assert(html.includes('.welcome-handoff #welcomeStartup img{animation:welcome-loader-wiggle 2.2s ease-in-out infinite}'));
 assert(html.includes('ghost-float 6s'));assert(html.includes('lantern-glow 3.6s'));
-assert(html.includes('begin="indefinite" values="0;12;0;8;0"'));
+assert(html.includes('begin="indefinite" values="0;6;0;4;0"'));
 console.log('PASS: welcome art and controls reveal together without entrance animation, with a bounded failure fallback and separate ambient effects.');
 
 const editorCss=readFileSync('public/style.css','utf8');
@@ -48,5 +48,8 @@ for(const [role,value] of [['--ui-primary-fill','#8b567c'],['--ui-primary-ink','
  assert(editorCss.includes(role+':'+value+';'));assert(html.includes(role+':'+value));
 }
 assert(html.includes('min-height:56px;padding:12px 34px'));
+assert.match(editorCss,/--grove-radius-panel:16px;--grove-radius-control:8px;/);
+assert.match(html,/--grove-radius-control:8px/);
+assert.match(html,/\.button\{[^}]*border-radius:var\(--grove-radius-control\);/);
 assert(html.includes('.button:hover{filter:brightness(1.1)}'));
 assert(html.includes('.button:focus-visible{outline:3px solid var(--ui-focus-ring);outline-offset:3px}'));

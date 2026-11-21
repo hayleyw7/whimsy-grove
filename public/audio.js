@@ -6,7 +6,10 @@ const ideaTracks={
  'moonlit-garden':'haunted','pond-gathering':'gentle','cozy-witch-corner':'haunted',
  'tide-pool-treasures':'gentle','crystal-hideaway':'cosmic','rooftop-stargazers':'cosmic',
  'greenhouse-wanderer':'gentle','swamp-lanterns':'haunted','snowy-neighbors':'gentle',
- 'cosmic-visitors':'cosmic','forgotten-fairy-ring':'haunted','curious-keepsakes':'cosmic'
+ 'cosmic-visitors':'cosmic','forgotten-fairy-ring':'haunted','curious-keepsakes':'cosmic',
+ 'gnome-night-market':'gentle','river-post-office':'gentle','rainbow-dunes':'gentle',
+ 'pumpkin-patch-patrol':'haunted','attic-lost-and-found':'haunted','mothman-crossing':'haunted',
+ 'octopus-observatory':'cosmic','phoenix-at-daybreak':'cosmic'
 };
 const randomTrack=()=>tracks[Math.floor(Math.random()*tracks.length)];
 const defaults={music:randomTrack(),volume:35,sfx:true,muted:false,musicPinned:false,groveTrack:false};let settings={...defaults};try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved){const validTrack=['off',...tracks].includes(saved.music);settings.musicPinned=saved.musicPinned===true||(saved.musicPinned===undefined&&validTrack)||saved.music==='off'||saved.muted===true;if(settings.musicPinned&&validTrack)settings.music=saved.music;else if(saved.groveTrack===true&&tracks.includes(saved.music)){settings.music=saved.music;settings.groveTrack=true;}if(Number.isFinite(saved.volume))settings.volume=Math.max(0,Math.min(100,saved.volume));if(typeof saved.sfx==='boolean')settings.sfx=saved.sfx;if(typeof saved.muted==='boolean')settings.muted=saved.muted;}}catch{}

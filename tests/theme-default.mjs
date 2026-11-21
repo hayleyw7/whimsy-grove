@@ -57,7 +57,12 @@ const contrast=(a,b)=>{const values=[luminance(a),luminance(b)].sort((a,b)=>b-a)
 for(const bg of ['--paper','--panel','--ui-rest-fill','--ui-surface-hover'])assert(contrast(light['--ink'],light[bg])>=4.5,bg);
 assert(contrast(light['--ui-muted-ink'],light['--panel'])>=4.5);
 assert(contrast('#ffffff',light['--ui-primary-fill'])>=4.5);
-assert.equal(light['--ui-frame-border-color'],'#8f748b');
+assert.equal(light['--ui-editor-border-color'],'var(--line)');
+assert.equal(dark['--ui-editor-border-color'],'#705777');
+for(const selector of ['.masthead','.garden-panel','.grove-section','.prompt-reminder']){
+ const selectorPattern=selector.replace('.','\\.');
+ assert.match(themeCss,new RegExp(selectorPattern+'\\{[^}]*border-color:var\\(--ui-editor-border-color\\)'));
+}
 assert.match(html,/html\[data-theme=light\] body\{background:#f3ece1\}/);
 console.log('PASS: parchment light palette and AA ink contrast, quieter canvas border, matching first paint.');
 
@@ -92,7 +97,7 @@ assert.match(themeCss,/--ui-control-rest-fill:var\(--ui-rest-fill,/);
 assert.equal(light['--ui-rest-fill'],'#DDD0D7');
 console.log('PASS: rosy mauve light resting control fill; shared control/rail aliases retained.');
 
-assert.match(fs.readFileSync('public/style.css','utf8'),/body\.editor-ui #confirmDialog:has\(#confirmNewMushroom:not\(\[hidden\]\)\) #confirmCancel\{border-color:transparent;\}/);
+assert.match(fs.readFileSync('public/style.css','utf8'),/body\.editor-ui :is\(#confirmDialog:has\(#confirmNewMushroom:not\(\[hidden\]\)\) #confirmCancel,#renameDialog #cancelRename\)\{border-color:transparent;\}/);
 console.log('PASS: Start Over Cancel border is transparent; geometry/fill/focus and other confirmation modes untouched.');
 
 assert.equal(light['--ui-color-trigger-open-fill'],'#d1bfcb');
@@ -107,7 +112,7 @@ assert.match(themeCss,/html\[data-theme\] body\.editor-ui :is\(\.dropdown-menu,#
 assert.match(themeCss,/data-dropdown-side=below\]\{\s*border-top-color:var\(--ui-dialog-divider\)/);
 assert.match(themeCss,/data-dropdown-side=above\]\{\s*border-bottom-color:var\(--ui-dialog-divider\)/);
 
-assert.match(themeCss,/\[aria-haspopup=listbox\]\[aria-expanded=true\]\{background:var\(--ui-dropdown-panel-background\)/);
+assert.match(themeCss,/\[aria-haspopup=listbox\]\[aria-expanded=true\]\{background:var\(--ui-control-rest-fill\)/);
 assert.match(themeCss,/\.dropdown-menu,\.floating-panel,#albumOptionsMenu,\.saved-card \.saved-menu\)\{background-color:var\(--ui-dropdown-panel-background\)/);
 for(const [panel,hover,selected] of [['#fcf8ef','#e4d6df','#65435f'],['#271a30','#4c3356','#8c577e']]){
  assert(contrast(panel,selected)>contrast(panel,hover),'selected is visually stronger than hover');
@@ -117,4 +122,11 @@ const audioSettingsMarkup=fs.readFileSync('public/index.html','utf8').match(/<fi
 assert.match(audioSettingsMarkup,/class="volume-label" for="musicVolume">Music [\s\S]*?id="musicVolumeValue"[\s\S]*?type="range" id="musicVolume" aria-label="Music volume"[\s\S]*?id="musicButton"[\s\S]*?id="soundEffects"/);
 
 assert.match(themeCss,/#startDialog #ideaStep :is\(button\.idea-choice,#shuffleIdeas\):hover:not\(:disabled\)\{\s*background:var\(--ui-action-hover-fill\);color:var\(--ui-action-hover-ink\);filter:none;/);
-assert.match(themeCss,/#startDialog #shuffleIdeas:not\(:hover\)\{\s*background:color-mix\(in srgb,var\(--ui-main-panel-fill\) 65%,var\(--ui-surface-muted\)\);/);
+assert.match(themeCss,/#startDialog #shuffleIdeas\{background:var\(--ui-idea-secondary-fill\);color:var\(--ui-primary-ink\);/);
+assert.match(themeCss,/:is\(#confirmDialog #confirmCancel,#startDialog #chooseAnotherIdea,#renameDialog #cancelRename\)\{background:var\(--ui-confirm-secondary-fill\);color:var\(--ui-confirm-secondary-ink\);/);
+assert.match(themeCss,/\.toast\[data-kind=error\]\{background:var\(--ui-dialog-background\);color:var\(--ui-dialog-color\);/);
+assert.equal(dark['--ui-toast-background'],'var(--ui-dialog-background)');
+assert.equal(dark['--ui-toast-color'],'var(--ui-dialog-color)');
+assert.doesNotMatch(themeCss,/html\[data-theme=dark\] \.toast\{background:#efe3f3/);
+assert.doesNotMatch(themeCss,/\.toast\[data-kind=error\]::?before/);
+assert.match(themeCss,/\.toast-dismiss\{display:block;margin:12px 0 0 auto/);
