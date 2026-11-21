@@ -1,4 +1,4 @@
-const promptIds=new Set(["moonlit-garden", "pond-gathering", "cozy-witch-corner", "tide-pool-treasures", "crystal-hideaway", "rooftop-stargazers", "greenhouse-wanderer", "swamp-lanterns", "snowy-neighbors", "cosmic-visitors", "forgotten-fairy-ring", "curious-keepsakes"]);
+const promptIds=new Set(["moonlit-garden", "pond-gathering", "cozy-witch-corner", "tide-pool-treasures", "crystal-hideaway", "rooftop-stargazers", "greenhouse-wanderer", "swamp-lanterns", "snowy-neighbors", "cosmic-visitors", "forgotten-fairy-ring", "curious-keepsakes", "gnome-night-market", "river-post-office", "rainbow-dunes", "pumpkin-patch-patrol", "attic-lost-and-found", "mothman-crossing", "octopus-observatory", "phoenix-at-daybreak"]);
 const saveNamePrefixes={"attic":"Loft","backyard-garden":"Yard","basement":"Below","beach":"Shore","none":"Blank","under-bridge":"Span","cave":"Cave","corn-maze":"Maize","crystal-cavern":"Gem","desert":"Arid","sandy-dunes":"Dunes","ember-river":"Ember","factory":"Works","forest":"Woods","frozen-lake":"Frost","gnome-hollow":"Gnome","graveyard":"Grave","greenhouse":"Glass","haunted-house":"Haunt","haze":"Haze","heaven":"Halo","hell":"Hell","jungle":"Vines","abandoned-prison":"Cell","pumpkin-patch":"Patch","river":"River","rooftop":"Roof","ruins":"Ruins","space":"Orbit","steampunk":"Brass","swamp":"Swamp","tide-pools":"Tide","underwater":"Deep","void":"Void","volcano":"Lava","wonderland":"Fable"};
 const MAX_BODY = 900000;
 const backgrounds = new Set(['none','swamp','greenhouse','tide-pools','ruins','attic','crystal-cavern','frozen-lake','rooftop','haze','gnome-hollow','ember-river','abandoned-prison','under-bridge','cave','backyard-garden','basement','beach','corn-maze','desert','factory','forest','graveyard','haunted-house','heaven','hell','jungle','pumpkin-patch','river','sandy-dunes','space','steampunk','underwater','void','volcano','wonderland']);
@@ -26,6 +26,21 @@ export function sceneValue(value) {
 const nameSegments=typeof Intl.Segmenter==='function'?new Intl.Segmenter(undefined,{granularity:'grapheme'}):null;
 const nameCharacters=value=>nameSegments?Array.from(nameSegments.segment(value),part=>part.segment):Array.from(value);
 const namePrefixes=value=>value===null?null:JSON.stringify(Array.from({length:16},(_,n)=>nameCharacters(value).slice(0,n).join('')));
+const normalizeAlbumTitle=value=>value.trim().replace(/\s+/g,' ');
+const albumTitleKey=value=>normalizeAlbumTitle(value).normalize('NFC').toLowerCase();
+async function albumTitleKeys(db,owner,exclude=null){
+  const {results}=await db.prepare('SELECT id, album_title, title FROM drawings WHERE user_id = ? AND is_album = 1').bind(owner).all();
+  return new Set(results.filter(row=>row.id!==exclude).map(row=>albumTitleKey(displayTitle(row,'album'))));
+}
+function availableAlbumTitle(background,titles){
+  const base=(saveNamePrefixes[background]||'')+' Grove';
+  for(let n=1;;n++){
+    const suffix=n===1?'':' '+n;
+    const title=nameCharacters(base.trim()).slice(0,15-suffix.length).join('').trimEnd()+suffix;
+    if(!titles.has(albumTitleKey(title)))return title;
+  }
+}
+const albumTitleTaken=()=>reply({saved:false,titleTaken:true});
 function displayTitle(row,collection='history'){const title=collection==='album'?(row.album_title||row.title):row.title;return /^Auto save \d+$/.test(title)&&(collection==='history'||title===row.title)?title.replace('Auto save ','Auto Save '):title;}
 function publicRow(row,collection='history') { return {id:row.id,title:displayTitle(row,collection),createdAt:row.created_at,inAlbum:!!row.is_album,inHistory:!!row.is_history,thumbnail:'/api/drawings/'+row.id+'/thumbnail'}; }
 async function owned(db,id,owner) {return db.prepare('SELECT * FROM drawings WHERE id = ? AND user_id = ?').bind(id,owner).first();}
@@ -37,18 +52,47 @@ const plantIds=new Set(['beanstalk','cactus','lily-pad','leaf','leaf-pile','gras
 const nocturnalIds=new Set(['calico-cat','cat','black-cat','sleeping-cat','stretching-cat','tuxedo-cat','white-longhaired-cat','bat','owl','possum','raccoon','hedgehog','wolf','fox','frog','mothman']);
 const mythicalIds=new Set(['alien-cyclops','fairy','kelpie','will-o-the-wisp','gargoyle','forest-spirit','dragon','phoenix','unicorn','griffin','kraken','mothman','slender-man','chupacabra','bigfoot','jackalope','nessie']);
 const moonIds=new Set(['moon-full','moon-half','moon-crescent','moon-blood','lunar-eclipse']);
-function scanStatement(db,owner,id){return db.prepare('INSERT INTO achievement_scans (user_id,drawing_id,rule_version) VALUES (?,?,2) ON CONFLICT(user_id,drawing_id) DO UPDATE SET rule_version=max(achievement_scans.rule_version,excluded.rule_version)').bind(owner,id);}
+const achievementRuleVersion=3;
+const catVariantIds=new Set(Object.keys(animalKinds).filter(id=>animalKinds[id]==='cat'));
+const seaCreatureIds=new Set(['shrimp','dolphin','octopus','squid','whale','manatee','seal','starfish','jellyfish','kraken']);
+const terrestrialAnimalIds=new Set([...catVariantIds,'grizzly-bear','polar-bear','red-panda','giant-panda','snail','bunny','raccoon','bat','possum','raven','spider','fox','owl','hedgehog','mouse','falcon','wolf','trex','triceratops','deer','snake','lizard','butterfly','chipmunk','dove','worm','caterpillar','ladybug','dragonfly','horse']);
+function scanStatement(db,owner,id){return db.prepare('INSERT INTO achievement_scans (user_id,drawing_id,rule_version) VALUES (?,?,?) ON CONFLICT(user_id,drawing_id) DO UPDATE SET rule_version=max(achievement_scans.rule_version,excluded.rule_version)').bind(owner,id,achievementRuleVersion);}
+const mushroomIds=new Set(['fairyring','toadstool','wavy','ruffles','twins','curly','bell']);
 const crystalIds=new Set(['crystal-point','crystal-heart','crystal-sphere','crystals','crystal-ball']);
 function badgeStatement(db,owner,id,time=Date.now()){return db.prepare('INSERT INTO achievement_badges (user_id,badge_id,earned_at) VALUES (?,?,?) ON CONFLICT(user_id,badge_id) DO UPDATE SET earned_at=min(achievement_badges.earned_at,excluded.earned_at)').bind(owner,id,time);}
 async function creationHash(scene){const value={background:scene.background,palette:scene.palette,moon:scene.moon,galaxy:scene.galaxy,shootingStars:scene.shootingStars,weather:[...scene.weather].sort(),seed:scene.seed,items:scene.items.map(({id,x,y,size,flip,flipY,rotation})=>({id,x,y,size,flip,flipY:!!flipY,rotation:rotation||0}))};const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(value)));return Array.from(new Uint8Array(bytes),x=>x.toString(16).padStart(2,'0')).join('');}
+// Backup merge preserves distinct saved records. Its internal marker cannot come from a request body or headers.
+export const albumBackupMerge=Symbol('albumBackupMerge');
+function albumArtworkKey(scene){
+  const items=scene.items.map((item,index)=>({item,order:item.order??index})).sort((a,b)=>a.order-b.order).map(({item:{id,x,y,size,flip,flipY,rotation}})=>[id,x,y,size,flip,!!flipY,rotation||0]);
+  return JSON.stringify([scene.background,scene.palette,scene.moon,scene.galaxy,scene.shootingStars,scene.weather,scene.seed,items]);
+}
+async function albumHasArtwork(db,owner,scene){
+  const key=albumArtworkKey(scene),{results}=await db.prepare('SELECT scene_json FROM drawings WHERE user_id = ? AND is_album = 1').bind(owner).all();
+  return results.some(({scene_json})=>{try{return albumArtworkKey(sceneValue(JSON.parse(scene_json)))===key;}catch{return false;}});
+}
 async function savedAchievementStatements(db,owner,row){let scene;try{scene=sceneValue(JSON.parse(row.scene_json));}catch{return [scanStatement(db,owner,row.id)];}const hash=await creationHash(scene),lineage=scene.creationId||row.id,time=row.created_at||Date.now(),ids=new Set(scene.items.map(x=>x.id));const statements=[db.prepare('INSERT OR IGNORE INTO achievement_creations (user_id,creation_id,content_hash,saved_at) SELECT ?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM achievement_contents WHERE user_id=? AND content_hash=?)').bind(owner,lineage,hash,time,owner,hash),db.prepare('INSERT OR IGNORE INTO achievement_contents (user_id,content_hash) VALUES (?,?)').bind(owner,hash),db.prepare('INSERT OR IGNORE INTO achievement_biomes (user_id,biome_id,saved_at) VALUES (?,?,?)').bind(owner,scene.background,time),badgeStatement(db,owner,'first-sprout',time)];
 const seen=[];if(ids.has('sun'))seen.push(['celestial','sun']);if(scene.moon!=='none'||[...ids].some(id=>moonIds.has(id)))seen.push(['celestial','moon']);for(const effect of new Set(scene.weather))if(['rain','drizzle','heavy-rain','thunderstorm','snow','flurries','fog','mist','wind','lightning'].includes(effect))seen.push(['weather',effect]);for(const[kind,value]of seen)statements.push(db.prepare('INSERT OR IGNORE INTO achievement_observations (user_id,kind,value,saved_at) VALUES (?,?,?,?)').bind(owner,kind,value,time));
-const earned=[];if([...ids].filter(id=>plantIds.has(id)).length>=5)earned.push('secret-garden');if([...ids].filter(id=>mythicalIds.has(id)).length>=3)earned.push('creature-feature');if(scene.items.length)earned.push('first-item');if(new Set([...ids].filter(id=>animalIds.has(id)).map(id=>animalKinds[id]||id)).size>=3)earned.push('a-little-company');if((scene.moon!=='none'||[...ids].some(id=>id.startsWith('moon-')||id==='lunar-eclipse'))&&[...ids].some(id=>plantIds.has(id))&&[...ids].some(id=>nocturnalIds.has(id)))earned.push('night-garden');if(scene.items.length>=1&&scene.items.length<=5)earned.push('tiny-world');if([...ids].filter(id=>crystalIds.has(id)).length>=3)earned.push('crystal-collector');if(scene.items.some(x=>x.flip||x.flipY)&&scene.items.some(x=>Math.abs(x.rotation||0)>.01))earned.push('a-new-perspective');if(promptIds.has(scene.promptId))earned.push('inspired');for(const id of earned)statements.push(badgeStatement(db,owner,id,time));for(const [count,id]of [[10,'ten-groves'],[50,'fifty-groves'],[100,'hundred-groves']])statements.push(db.prepare('INSERT OR IGNORE INTO achievement_badges (user_id,badge_id,earned_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM achievement_creations WHERE user_id=?)>=?').bind(owner,id,time,owner,count));statements.push(db.prepare('INSERT OR IGNORE INTO achievement_badges (user_id,badge_id,earned_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM achievement_biomes WHERE user_id=?)>=5').bind(owner,'world-wanderer',time,owner));statements.push(db.prepare("INSERT OR IGNORE INTO achievement_badges (user_id,badge_id,earned_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM achievement_observations WHERE user_id=? AND kind='celestial' AND value IN ('sun','moon'))>=2").bind(owner,'night-and-day',time,owner));statements.push(db.prepare("INSERT OR IGNORE INTO achievement_badges (user_id,badge_id,earned_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM achievement_observations WHERE user_id=? AND kind='weather')>=3").bind(owner,'weather-watcher',time,owner));statements.push(scanStatement(db,owner,row.id));return statements;}
+const earned=[];if([...ids].filter(id=>plantIds.has(id)).length>=5)earned.push('secret-garden');if([...ids].filter(id=>mythicalIds.has(id)).length>=3)earned.push('creature-feature');if(scene.items.length)earned.push('first-item');if(new Set([...ids].filter(id=>animalIds.has(id)).map(id=>animalKinds[id]||id)).size>=3)earned.push('a-little-company');if((scene.moon!=='none'||[...ids].some(id=>id.startsWith('moon-')||id==='lunar-eclipse'))&&[...ids].some(id=>plantIds.has(id))&&[...ids].some(id=>nocturnalIds.has(id)))earned.push('night-garden');if(scene.items.length>=1&&scene.items.length<=5)earned.push('tiny-world');if([...ids].filter(id=>crystalIds.has(id)).length>=3)earned.push('crystal-collector');if(scene.items.some(x=>x.flip||x.flipY)&&scene.items.some(x=>Math.abs(x.rotation||0)>.01))earned.push('a-new-perspective');if(promptIds.has(scene.promptId))earned.push('inspired');if(scene.weather.includes('thunderstorm'))earned.push('storm-chaser');
+if(scene.background==='underwater'&&ids.has('submarine')&&[...ids].some(id=>seaCreatureIds.has(id)))earned.push('deep-dive');
+if([...ids].filter(id=>catVariantIds.has(id)).length>=3)earned.push('familiar-faces');
+if(ids.has('ghost')&&(ids.has('single-candle')||ids.has('candles'))&&ids.has('mirror'))earned.push('after-hours');
+if(ids.has('ufo')&&[...ids].some(id=>terrestrialAnimalIds.has(id)))earned.push('close-encounters');
+if(ids.has('cannabis')&&[...ids].some(id=>mushroomIds.has(id))&&[...ids].some(id=>crystalIds.has(id)))earned.push('little-trip');
+if(scene.items.filter(item=>item.id==='bunny').length>=3)earned.push('somebunnys-home');
+if(scene.background==='ruins'&&scene.items.filter(item=>item.id==='broken-column').length>=2&&ids.has('arch'))earned.push('pillars-of-olympus');
+if(scene.background==='heaven'&&ids.has('dove')&&ids.has('clouds'))earned.push('heaven-sent');
+if(scene.background==='hell'&&ids.has('flame')&&ids.has('idol'))earned.push('hellraiser');
+
+for(const id of earned)statements.push(badgeStatement(db,owner,id,time));for(const [count,id]of [[10,'ten-groves'],[50,'fifty-groves'],[100,'hundred-groves']])statements.push(db.prepare('INSERT OR IGNORE INTO achievement_badges (user_id,badge_id,earned_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM achievement_creations WHERE user_id=?)>=?').bind(owner,id,time,owner,count));statements.push(db.prepare('INSERT OR IGNORE INTO achievement_badges (user_id,badge_id,earned_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM achievement_biomes WHERE user_id=?)>=5').bind(owner,'world-wanderer',time,owner));statements.push(db.prepare("INSERT OR IGNORE INTO achievement_badges (user_id,badge_id,earned_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM achievement_observations WHERE user_id=? AND kind='celestial' AND value IN ('sun','moon'))>=2").bind(owner,'night-and-day',time,owner));statements.push(db.prepare("INSERT OR IGNORE INTO achievement_badges (user_id,badge_id,earned_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM achievement_observations WHERE user_id=? AND kind='weather')>=3").bind(owner,'weather-watcher',time,owner));statements.push(db.prepare("INSERT OR IGNORE INTO achievement_badges (user_id,badge_id,earned_at) SELECT ?,?,? WHERE (SELECT COUNT(*) FROM achievement_biomes WHERE user_id=? AND biome_id IN ('heaven','hell'))=2").bind(owner,'as-above-so-below',time,owner));statements.push(scanStatement(db,owner,row.id));return statements;}
 async function recordSavedAchievements(db,owner,row){await db.batch(await savedAchievementStatements(db,owner,row));}
 async function progressPayload(db,owner,hasMore=false){const [earned,creations,biomes]=await Promise.all([db.prepare('SELECT badge_id,earned_at FROM achievement_badges WHERE user_id=? ORDER BY earned_at,badge_id').bind(owner).all(),db.prepare('SELECT COUNT(*) AS count FROM achievement_creations WHERE user_id=?').bind(owner).first(),db.prepare('SELECT COUNT(*) AS count FROM achievement_biomes WHERE user_id=?').bind(owner).first()]);return {scope:await draftScope(owner),earned:earned.results.map(x=>({id:x.badge_id,earnedAt:x.earned_at})),savedCount:creations.count,biomeCount:biomes.count,hasMore};}
-async function achievementApi(request,db,owner,url){if(request.method!=='POST')return reply({error:'Use a verified progress request.'},405);const text=await request.text();if(text.length>2000)return reply({error:'Invalid progress request.'},400);let input;try{input=JSON.parse(text);if(input.scope!==await draftScope(owner))return reply({error:'Your account changed. Refresh before syncing progress.'},409);}catch{return reply({error:'Invalid progress request.'},400);}if(url.pathname==='/api/achievements/sync'){const draft=await db.prepare('SELECT scene_json FROM current_drafts WHERE user_id=?').bind(owner).first();if(draft){let hasItems=false;try{hasItems=sceneValue(JSON.parse(draft.scene_json)).items.length>0;}catch{}if(hasItems)await badgeStatement(db,owner,'first-item').run();}const rows=await db.prepare('SELECT d.id,d.scene_json,d.created_at FROM drawings d WHERE d.user_id=? AND d.is_album=1 AND NOT EXISTS (SELECT 1 FROM achievement_scans s WHERE s.user_id=d.user_id AND s.drawing_id=d.id AND s.rule_version>=2) ORDER BY d.created_at,d.id LIMIT 20').bind(owner).all();for(const row of rows.results)await recordSavedAchievements(db,owner,row);return reply(await progressPayload(db,owner,rows.results.length===20));}if(url.pathname==='/api/achievements/event'){const badges={first_item:'first-item',share:'share-a-grove',download:'take-it-with-you'};if(badges[input.type])await badgeStatement(db,owner,badges[input.type]).run();else return reply({error:'Unknown progress event.'},400);return reply(await progressPayload(db,owner));}return reply({error:'Not found.'},404);}
+async function achievementApi(request,db,owner,url){if(request.method!=='POST')return reply({error:'Use a verified progress request.'},405);const text=await request.text();if(text.length>2000)return reply({error:'Invalid progress request.'},400);let input;try{input=JSON.parse(text);if(input.scope!==await draftScope(owner))return reply({error:'Your account changed. Refresh before syncing progress.'},409);}catch{return reply({error:'Invalid progress request.'},400);}if(url.pathname==='/api/achievements/sync'){const draft=await db.prepare('SELECT scene_json FROM current_drafts WHERE user_id=?').bind(owner).first();if(draft){let hasItems=false;try{hasItems=sceneValue(JSON.parse(draft.scene_json)).items.length>0;}catch{}if(hasItems)await badgeStatement(db,owner,'first-item').run();}const rows=await db.prepare('SELECT d.id,d.scene_json,d.created_at FROM drawings d WHERE d.user_id=? AND d.is_album=1 AND NOT EXISTS (SELECT 1 FROM achievement_scans s WHERE s.user_id=d.user_id AND s.drawing_id=d.id AND s.rule_version>=?) ORDER BY d.created_at,d.id LIMIT 20').bind(owner,achievementRuleVersion).all();for(const row of rows.results)await recordSavedAchievements(db,owner,row);
+  // Older saves already recorded Storm as a weather observation. Award without rescanning those groves.
+  await db.prepare("INSERT OR IGNORE INTO achievement_badges (user_id,badge_id,earned_at) SELECT user_id,'storm-chaser',saved_at FROM achievement_observations WHERE user_id=? AND kind='weather' AND value='thunderstorm'").bind(owner).run();
+  return reply(await progressPayload(db,owner,rows.results.length===20));}if(url.pathname==='/api/achievements/event'){const badges={first_item:'first-item',share:'share-a-grove',download:'take-it-with-you'};if(badges[input.type])await badgeStatement(db,owner,badges[input.type]).run();else return reply({error:'Unknown progress event.'},400);return reply(await progressPayload(db,owner));}return reply({error:'Not found.'},404);}
 
-async function api(request,env,url) {
+async function api(request,env,url,isAlbumBackupMerge=false) {
   const owner=user(request);
   if(url.pathname==='/api/session' && request.method==='GET')return reply({signedIn:!!owner,draftScope:owner?await draftScope(owner):null,storageReady:!!(owner&&env.DB?.prepare&&env.DB?.batch&&env.BUCKET?.put)});
   if(!owner)return reply({error:'Sign in with ChatGPT to use your Album and History.',signIn:'/signin-with-chatgpt?return_to=%2F'},401);
@@ -83,6 +127,17 @@ async function api(request,env,url) {
     else await db.prepare('DELETE FROM favorite_items WHERE user_id = ? AND item_id = ?').bind(owner,input.itemId).run();
     return reply({saved:true,itemId:input.itemId,favorite:input.favorite});
   }
+  if(url.pathname==='/api/album-name' && request.method==='GET'){
+    const id=url.searchParams.get('historyId');
+    let background=url.searchParams.get('biome');
+    if(id){
+      const row=uuid.test(id)?await owned(db,id,owner):null;
+      if(!row?.is_history)return reply({error:'Creation not found.'},404);
+      background=sceneValue(JSON.parse(row.scene_json)).background;
+    }
+    if(!Object.hasOwn(saveNamePrefixes,background))return reply({error:'Choose a valid biome.'},400);
+    return reply({title:availableAlbumTitle(background,await albumTitleKeys(db,owner))});
+  }
   if(url.pathname==='/api/drawings' && request.method==='GET') {
     const collection=url.searchParams.get('collection');
     if(!['album','history'].includes(collection))return reply({error:'Choose Album or History.'},400);
@@ -107,6 +162,12 @@ async function api(request,env,url) {
     }catch{return reply({error:'The creation could not be saved in this format.'},400);}
     const savedResponse=(row,status=200)=>reply({drawing:publicRow(row,input.collection),saved:true},status);
     const existing=await owned(db,input.id,owner);if(existing)return savedResponse(existing);
+    if(input.collection==='album'&&!isAlbumBackupMerge&&await albumHasArtwork(db,owner,scene))return reply({saved:false,duplicate:true});
+    if(input.collection==='album'&&!isAlbumBackupMerge){
+      const titles=await albumTitleKeys(db,owner);
+      if(albumTitle&&titles.has(albumTitleKey(albumTitle)))return albumTitleTaken();
+      albumTitle||=availableAlbumTitle(scene.background,titles);
+    }
     const key='drawings/'+encodeURIComponent(owner)+'/'+input.id;
     await env.BUCKET.put(key,bytes,{httpMetadata:{contentType:mime},customMetadata:{owner}});
     try {
@@ -116,7 +177,7 @@ async function api(request,env,url) {
       if(history){
         const insert=db.prepare("INSERT INTO drawings (id, user_id, scene_json, thumbnail_key, title, created_at, is_album, is_history, history_number, album_title) SELECT ?, user_id, ?, ?, 'Auto Save ' || history_count, ?, 0, 1, history_count, NULL FROM drawing_sequences WHERE user_id = ?").bind(input.id,JSON.stringify(scene),key,Date.now(),owner);
         await db.batch([increment,insert]);
-      }else{
+      }else if(isAlbumBackupMerge){
         const insert=db.prepare(`WITH RECURSIVE
           base(name,prefixes,number) AS (SELECT COALESCE(?, CASE WHEN album_count<=999 THEN ? || ' Grove ' || album_count ELSE 'Grove ' || album_count END), ?, album_count FROM drawing_sequences WHERE user_id = ?),
           candidates(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM candidates WHERE n <= (SELECT COUNT(*) FROM drawings WHERE user_id = ? AND is_album = 1)),
@@ -125,6 +186,9 @@ async function api(request,env,url) {
           SELECT ?,user_id,?,?,'Grove ' || album_count,?,1,0,NULL,
             (SELECT name FROM names WHERE NOT EXISTS (SELECT 1 FROM drawings d WHERE d.user_id = ? AND d.is_album = 1 AND COALESCE(d.album_title,d.title) = names.name COLLATE NOCASE) ORDER BY n LIMIT 1)
           FROM drawing_sequences WHERE user_id = ?`).bind(albumTitle,saveNamePrefixes[scene.background],namePrefixes(albumTitle),owner,owner,input.id,JSON.stringify(scene),key,Date.now(),owner,owner);
+        await db.batch([increment,insert,...await savedAchievementStatements(db,owner,{id:input.id,scene_json:JSON.stringify(scene),created_at:Date.now()})]);
+      }else{
+        const insert=db.prepare("INSERT INTO drawings (id,user_id,scene_json,thumbnail_key,title,created_at,is_album,is_history,history_number,album_title) SELECT ?,user_id,?,?,'Grove ' || album_count,?,1,0,NULL,? FROM drawing_sequences WHERE user_id = ?").bind(input.id,JSON.stringify(scene),key,Date.now(),albumTitle,owner);
         await db.batch([increment,insert,...await savedAchievementStatements(db,owner,{id:input.id,scene_json:JSON.stringify(scene),created_at:Date.now()})]);
       }
     }catch(error){const check=await owned(db,input.id,owner);if(check)return savedResponse(check);await env.BUCKET.delete(key).catch(()=>{});throw error;}
@@ -140,18 +204,20 @@ async function api(request,env,url) {
     }
     if(match[2]==='album' && request.method==='POST') {
       if(row.is_album)return reply({saved:true,drawing:publicRow(row,'album')});
-      let title;try{const body=await request.text();if(body.length>1000)throw Error();const input=JSON.parse(body||'{}');if(input.title!==undefined&&typeof input.title!=='string')throw Error();title=input.title?.trim().replace(/\s+/g,' ')||displayTitle(row);if(nameCharacters(title).length>15)throw Error();}catch{return reply({error:'Choose a name up to 15 characters.'},400);}
-      const promoteStatement=db.prepare(`WITH RECURSIVE
-        candidates(n) AS (SELECT 1 UNION ALL SELECT n + 1 FROM candidates WHERE n <= (SELECT COUNT(*) FROM drawings WHERE user_id = ? AND is_album = 1)),
-        names(n,name) AS (SELECT n, CASE WHEN n=1 THEN ? ELSE json_extract(?,'$[' || max(0,15-length(' (' || n || ')')) || ']') || ' (' || n || ')' END FROM candidates)
-        UPDATE drawings SET is_album=1, album_title=(SELECT name FROM names WHERE NOT EXISTS (SELECT 1 FROM drawings d WHERE d.user_id = ? AND d.is_album=1 AND d.id != ? AND COALESCE(d.album_title,d.title)=names.name COLLATE NOCASE) ORDER BY n LIMIT 1)
-        WHERE id=? AND user_id=? AND is_album=0`).bind(owner,title,namePrefixes(title),owner,row.id,row.id,owner);
+      let title;try{const body=await request.text();if(body.length>1000)throw Error();const input=JSON.parse(body||'{}');if(input.title!==undefined&&typeof input.title!=='string')throw Error();title=normalizeAlbumTitle(input.title||'');if(nameCharacters(title).length>15)throw Error();}catch{return reply({error:'Choose a name up to 15 characters.'},400);}
+      const scene=sceneValue(JSON.parse(row.scene_json));
+      if(await albumHasArtwork(db,owner,scene))return reply({saved:false,duplicate:true});
+      const titles=await albumTitleKeys(db,owner);
+      if(title&&titles.has(albumTitleKey(title)))return albumTitleTaken();
+      title||=availableAlbumTitle(scene.background,titles);
+      const promoteStatement=db.prepare('UPDATE drawings SET is_album=1, album_title=? WHERE id=? AND user_id=? AND is_album=0').bind(title,row.id,owner);
       await db.batch([promoteStatement,...await savedAchievementStatements(db,owner,{...row,created_at:Date.now()})]);
       return reply({saved:true,drawing:publicRow(await owned(db,row.id,owner),'album')});
     }
     if(!match[2] && request.method==='PATCH') {
       if(!row.is_album)return reply({error:'Only Album creations can be renamed.'},400);
       let title;try{const text=await request.text();if(text.length>1000)throw new Error();title=JSON.parse(text).title;if(typeof title!=='string')throw new Error();title=title.trim().replace(/\s+/g,' ');if(!title||nameCharacters(title).length>15)throw new Error();}catch{return reply({error:'Choose a name between 1 and 15 characters.'},400);}
+      if((await albumTitleKeys(db,owner,row.id)).has(albumTitleKey(title))&&albumTitleKey(displayTitle(row,'album'))!==albumTitleKey(title))return albumTitleTaken();
       const changes=[db.prepare('UPDATE drawings SET album_title = ? WHERE id = ? AND user_id = ? AND is_album = 1').bind(title,row.id,owner)];
       if(title!==(row.album_title||row.title))changes.push(badgeStatement(db,owner,'make-it-yours'));
       await db.batch(changes);const renamed=await owned(db,row.id,owner);if(!renamed)return reply({error:'Creation not found.'},404);
@@ -176,7 +242,7 @@ export default {
   async fetch(request,env,ctx) {
     const url=new URL(request.url);
     try {
-      if(url.pathname.startsWith('/api/'))return await api(request,env,url);
+      if(url.pathname.startsWith('/api/'))return await api(request,env,url,ctx?.[albumBackupMerge]===true);
       // Sites dispatch owns sign-in and supplies the authenticated identity.
       // Require it before serving the editor or its static assets.
       if(!user(request))return new Response(null,{status:302,headers:{location:'/signin-with-chatgpt?return_to=%2F','cache-control':'private, no-store'}});

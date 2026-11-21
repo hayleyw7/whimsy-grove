@@ -27,6 +27,23 @@ assert(!styles.includes(".about-dialog"),"Removed dialog has no orphaned styles"
 for(const retainedId of ["openHelp","helpDialog","userMenuButton","openAlbum","openHistory","openAchievements"]){
  assert(editor.includes(`id="${retainedId}"`),`${retainedId} remains available`);
 }
+const help=editor.match(/<dialog id="helpDialog"[^>]*>([\s\S]*?)<\/dialog>/)[1];
+assert.match(help,/<header>[\s\S]*?id="closeHelp"[^>]*aria-label="Close Help"[\s\S]*?<\/header>/);
+assert.match(help,/<h2 id="helpTitle">Help<\/h2>/);
+assert.deepEqual([...help.matchAll(/<h3>([^<]+)<\/h3>/g)].map(match=>match[1]),['Start a grove','Make it yours','Keep your grove','Adjust settings']);
+assert.match(styles,/#helpDialog>header\{[^}]*border-bottom:1px solid var\(--ui-editor-border-color\)/);
+assert.match(styles,/#helpDialog #closeHelp\{position:absolute;top:8px;right:8px;[^}]*width:44px;height:44px/);
+assert.match(help,/<\/header><div id="helpContent">/);
+assert.match(styles,/#helpDialog\[open\]\{[^}]*overflow:hidden/);
+assert.match(styles,/#helpContent\{min-height:0;overflow:auto/);
+assert.match(editor,/<\/header><div id="achievementContent"><p id="achievementStatus"/);
+assert.match(styles,/#achievementDialog\[open\],\s*body\.editor-ui #helpDialog\[open\]\{[^}]*overflow:hidden/);
+assert.match(styles,/#achievementContent,\s*body\.editor-ui #helpContent\{min-height:0;overflow:auto/);
+assert.doesNotMatch(styles,/\.grove-dialog,\s*\.gallery-dialog\{[^}]*outline(?:-offset|-color)?:/);
+assert.match(styles,/\.grove-dialog,\s*\.gallery-dialog\{[^}]*border:2px solid/);
+assert.match(help,/pick Free Create for a random biome/);
+assert.doesNotMatch(help,/GitHub|Feedback|choose a biome/i);
+assert(help.replace(/<[^>]*>/g,' ').trim().split(/\s+/).length<180);
 console.log("PASS: About UI, handlers, and styles removed; other menu features retained");
 
 {

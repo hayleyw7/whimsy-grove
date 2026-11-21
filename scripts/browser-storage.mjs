@@ -1,6 +1,6 @@
 // Runs the existing scene validation and achievement rules entirely in the browser.
 import initSqlJs from 'sql.js';
-import worker from '../worker/index.js';
+import worker,{albumBackupMerge} from '../worker/index.js';
 import migrations from './browser-migrations.json';
 import catalog from './browser-catalog.json';
 import {parseBackup,createBackup} from './album-backup.mjs';
@@ -34,7 +34,7 @@ async function execute(path,options){
   const additions=groves.filter(g=>!existing.has(g.id)),summary={total:groves.length,add:additions.length,skip:groves.length-additions.length,titles:additions.slice(0,5).map(g=>g.title)};
   if(path.endsWith('/preview'))return summary;
   for(const grove of additions){
-   const response=await worker.fetch({url:new URL('/api/drawings',location.origin).href,method:'POST',headers:new Headers({'oai-authenticated-user-id':owner,origin:location.origin,'x-grove-request':'1','content-type':'application/json'}),text:async()=>JSON.stringify({...grove,collection:'album'})},{DB,BUCKET},{});
+   const response=await worker.fetch({url:new URL('/api/drawings',location.origin).href,method:'POST',headers:new Headers({'oai-authenticated-user-id':owner,origin:location.origin,'x-grove-request':'1','content-type':'application/json'}),text:async()=>JSON.stringify({...grove,collection:'album'})},{DB,BUCKET},{[albumBackupMerge]:true});
    const saved=await response.json();if(!response.ok||!saved.saved)throw Error(saved.error||'A grove could not be imported.');
    await DB.prepare('UPDATE drawings SET created_at=? WHERE id=? AND user_id=?').bind(grove.createdAt,grove.id,owner).run();
   }
@@ -45,6 +45,7 @@ async function execute(path,options){
 
  const res=await worker.fetch({url:new URL(path,location.origin).href,method,headers:new Headers({'oai-authenticated-user-id':'browser-local','origin':location.origin,'x-grove-request':'1','content-type':'application/json'}),text:async()=>options.body||''},{DB,BUCKET},{});
  const result=await res.json();if(!res.ok)throw Error(result.error||'Browser storage could not complete this action.');
+ if(result.duplicate||result.titleTaken)return result;
  // Confirm persistence before returning a successful save to the editor.
  if(!snapshot||method!=='GET')await stored(disk,{database:sql.export(),images:[...images]});
  for(const item of [...(result.items||[]),...(result.drawing?[result.drawing]:[])])if(item.thumbnail){const image=images.get('drawings/browser-local/'+item.id);if(image){if(!urls.has(item.id))urls.set(item.id,URL.createObjectURL(new Blob([image.bytes],{type:image.mime})));item.thumbnail=urls.get(item.id);}}

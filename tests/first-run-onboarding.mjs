@@ -15,7 +15,47 @@ assert(welcome.includes('href="editor.html?start=1" aria-label="Create">Create</
 assert(startup.includes('if(firstGrove){'));
 assert(startup.includes('if(firstGrove){await startNewGrove(true);'), 'onboarding opens only after the editor is usable');
 assert(source.includes('if(first)markOnboardingComplete();'));
-assert(source.includes('ideas.slice(0,2)'));
+assert.doesNotMatch(readFileSync('public/index.html','utf8'),/id="draftStatus"/);
+{
+ const notices=[],record={scope:'test',editId:'current',scene:{}};
+ const context={signedIn:true,draftCloudReady:true,draftScope:'test',draftPending:record,
+  fallback:record,localDraft(){return context.fallback;},request:async()=>{throw Error('storage unavailable');},
+  notify:(text,kind)=>notices.push({text,kind}),console:{error(){}},pendingToast:null,$:()=>({firstChild:null})};
+ const warning=source.slice(source.indexOf('const draftSaveWarning='),source.indexOf('function freshScene('));
+ const save=source.slice(source.indexOf('async function saveDraftRecord('),source.indexOf('async function flushDraft('));
+ vm.runInNewContext(warning+save,context);
+ await context.saveDraftRecord(record);
+ assert.equal(notices.length,0,'a verified fallback is silent');
+ context.fallback={...record,editId:'stale'};
+ await context.saveDraftRecord(record);
+ assert.equal(notices.length,1,'a failed save with only an older fallback opens one popup');
+ assert.equal(notices[0].kind,'error');
+ assert.match(notices[0].text,/Download it before leaving/);
+ await context.saveDraftRecord(record);
+ assert.equal(notices.length,1,'retries do not reopen the same warning');
+ context.fallback=record;
+ await context.saveDraftRecord(record);
+ context.fallback=null;
+ await context.saveDraftRecord(record);
+ assert.equal(notices.length,2,'a new failure after recovery can warn again');
+}
+assert.match(source,/selectedGroveChoice=null;fillIdeas\(true\)/);
+assert.match(readFileSync('public/index.html','utf8'),/id="startTitle"[^>]*>Find your inspiration<\/h2>/);
+{
+ const allIdeas=Array.from({length:20},(_,id)=>({id}));let draws=0,probability=.999;
+ const context={allIdeas,remainingIdeas:[],displayedIdeas:[],Math:{floor:Math.floor,random:()=>{draws++;return draws===20?0:draws===21?.06:probability;}}};
+ vm.runInNewContext(source.slice(source.indexOf('function nextIdeaPair('),source.indexOf('function fillIdeas(')),context);
+ const next=(reset=false)=>[...vm.runInNewContext(`displayedIdeas=nextIdeaPair(allIdeas,${reset})`,context)].map(idea=>idea.id);
+ const seen=next(true);let last;
+ for(let i=1;i<10;i++){last=next();assert.equal(last.length,2);seen.push(...last);}
+ assert.equal(new Set(seen).size,20,'all 20 ideas appear before repeating');
+ assert.equal(draws,19,'one shuffle for the first round');
+ const afterWrap=next();assert(afterWrap.every(id=>!last.includes(id)),'no immediate repeat between rounds');
+ assert.equal(draws,38);
+ probability=0;
+ assert.notDeepEqual(next(true),seen.slice(0,2),'reopening starts a fresh shuffle');
+ assert.equal(draws,57);
+}
 assert(source.includes('area.append(freeCreateChoice)'));
 assert(!source.includes('biomeStep'));
 {
@@ -23,19 +63,23 @@ assert(!source.includes('biomeStep'));
  const finish=source.slice(source.indexOf('function clearGroveIdeaSelection('),source.indexOf('async function startNewGrove('));
  const dialog={open:true,returnValue:'cancel',close(){this.open=false;this.closeCount=(this.closeCount||0)+1;}};
  const buttons=['cosmic','free'].map(id=>({dataset:{ideaId:id},setAttribute(k,v){this[k]=v;},focus(){this.focused=true;}}));
- const nodes={'#startDialog':dialog,'#ideaChoices':{querySelectorAll:()=>buttons},'#startGrove':{},'#ideaStep':{},'#ideaReviewStep':{},'#startTitle':{focus(){this.focused=true;}},'#reviewIdeaTitle':{},'#reviewIdeaDescription':{}};
- const context={dialog,$:id=>nodes[id],displayedIdeas:[{id:'cosmic',biome:'space'},{id:'bridge',biome:'bridge'}],biomeNames:['none','space','bridge','cave'],ideaById:{cosmic:{id:'cosmic',biome:'space',title:'Cosmic Visitors',text:'A quiet corner.'}},freeCreateChoice:{querySelector:selector=>({textContent:selector==='strong'?'Free Create':'Start with a random biome.'})},pendingIdea:null,selectedGroveChoice:null,scrollNewGroveToTop(){}};
+ const icon={dataset:{},removeAttribute(name){delete this[name];}};
+ const nodes={'#startDialog':dialog,'#ideaChoices':{querySelectorAll:()=>buttons},'#startGrove':{},'#ideaStep':{},'#ideaReviewStep':{},'#startTitle':{focus(){this.focused=true;}},'#reviewIdeaTitle':{},'#reviewIdeaDescription':{},'#reviewIdeaOddity':icon};
+ const context={dialog,$:id=>nodes[id],displayedIdeas:[{id:'cosmic',biome:'space'},{id:'bridge',biome:'bridge'}],biomeNames:['none','space','bridge','cave'],ideaById:{cosmic:{id:'cosmic',biome:'space',title:'Cosmic Visitors',text:'A quiet corner.',oddity:'alien-antennae'}},freeCreateChoice:{querySelector:selector=>({dataset:{ideaOddity:'fireflies'},textContent:selector==='strong'?'Free Create':'Start with a random biome.'})},pendingIdea:null,selectedGroveChoice:null,scrollNewGroveToTop(){},syncIdeaOddityIcons(){icon.src=icon.dataset.ideaOddity;}};
  vm.runInNewContext(helpers+finish+';syncGroveIdeaSelection();finishGroveSetup();selectGroveIdea("cosmic");',context);
  assert.equal(dialog.open,true);assert.equal(dialog.returnValue,'cancel');assert.equal(context.selectedGroveChoice,null);
  assert.equal(nodes['#startGrove'].disabled,false);assert.equal(nodes['#ideaStep'].inert,true);assert.equal(nodes['#ideaReviewStep'].hidden,false);assert.equal(nodes['#reviewIdeaTitle'].textContent,'Cosmic Visitors');assert.equal(nodes['#reviewIdeaDescription'].textContent,'A quiet corner.');assert(nodes['#startTitle'].focused);
+ assert.equal(icon.src,'alien-antennae');
  vm.runInNewContext('clearGroveIdeaSelection();',context);
  assert.equal(nodes['#startGrove'].disabled,true);assert.equal(nodes['#ideaStep'].inert,false);assert.equal(nodes['#ideaReviewStep'].hidden,true);assert.equal(buttons[0].focused,true);
+ assert.equal(icon.src,undefined);
  vm.runInNewContext('selectGroveIdea("cosmic");finishGroveSetup();finishGroveSetup();',context);
  assert.equal(context.selectedGroveChoice.background,'space');assert.equal(context.selectedGroveChoice.promptId,'cosmic');
  assert.equal(dialog.closeCount,1);
  dialog.open=true;context.selectedGroveChoice=null;
  vm.runInNewContext('selectGroveIdea("free");finishGroveSetup();',context);
  assert.equal(context.selectedGroveChoice.background,'cave');assert.equal(context.selectedGroveChoice.promptId,null);
+ assert.equal(icon.src,'fireflies');
  dialog.open=true;context.selectedGroveChoice=null;context.biomeNames=['none','space','bridge'];
  vm.runInNewContext('selectGroveIdea("free");finishGroveSetup();',context);
  assert.equal(context.selectedGroveChoice.background,'haze','Haze is the fallback without another eligible biome');
@@ -180,14 +224,16 @@ assert.match(source,/^setBusy\(true,'Waking the grove\.\.\.'\);$/m);
   assert(source.includes('function renderOddities(){if(!catalogReady)return;'),'pending catalog retains loading status even when storage refreshes');
   assert.match(css,/#oddity-grid:has\(\.oddities-boot-status\)\{display:flex!important;align-items:center;justify-content:center;/);
   assert.match(css,/body:not\(\.grove-view\) \.toolbox\{display:none!important;\}/,'closed mobile picker stays hidden from initial paint');
-  assert(startup.includes("status.textContent='Oddities could not load. Refresh to try again.'"),'failed catalog load does not claim it is still loading');
+  assert(startup.includes("status.lastElementChild.innerHTML='Oddities could not load.<br>Refresh to try again.'"),'failed catalog load retains the mascot and shows two lines');
+  assert.match(css,/\.oddities-boot-status\[role=alert\] \.boot-mushroom img\{animation:none;\}/);
+  assert.match(css,/\.oddities-boot-status\[role=alert\] \.boot-mushroom::after\{content:none;\}/);
   console.log('PASS: pre-JS centered Oddities status is replaced by first render, hidden with mobile picker, and reports startup failure');
 }
 
 assert.match(readFileSync('public/index.html','utf8'),/class="dialog-symbol" aria-hidden="true"><img id="confirmNewMushroom" src="assets\/loading-mushroom\.svg" alt="" width="40" height="40"><span id="confirmOtherSymbol" hidden>☾<\/span>/);
 assert.match(source,/newGrove=kind!=='restore'&&kind!=='randomize';\$\('#confirmNewMushroom'\)\.hidden=!newGrove;\$\('#confirmOtherSymbol'\)\.hidden=newGrove;/);
 
-assert(source.includes("$('#confirmCancel').textContent=newGrove?'Cancel':'Keep Creating'"));
+assert(!source.includes("$('#confirmCancel').textContent="),"the shared confirmation keeps the visible Cancel label in every mode");
 assert(source.includes("'Let this grove become a memory?'"));
 assert.match(readFileSync('public/index.html','utf8'),/<button value="cancel" id="confirmCancel">Cancel<\/button>/);
 
@@ -241,11 +287,34 @@ console.log('PASS: whole-page prepaint loader, deferred canvas readiness, indepe
   console.log('PASS: restored scene waits for its own sheet, blank scene never waits for unrelated catalog, unknown illustrations remain a recoverable error.');
 }
 
-assert(readFileSync('public/index.html','utf8').includes('Start with a random biome. Follow your own imagination.'));
+assert(readFileSync('public/index.html','utf8').includes('Start with a random biome, &amp; follow your own imagination from there.'));
 assert.match(readFileSync('public/index.html','utf8'),/id="shuffleIdeas"[\s\S]*?<span>More Ideas<\/span><\/button>/);
+{
+ const context={window:{}};vm.runInNewContext(readFileSync('public/ideas.js','utf8'),context);
+ const ideas=context.window.GroveIdeas;
+ const oddities=new Set([...source.slice(source.indexOf('const oddityCatalog='),source.indexOf('const customRects=')).matchAll(/\{id:'([^']+)'/g)].map(match=>match[1]));
+ assert.equal(new Set(ideas.map(idea=>idea.id)).size,20);
+ for(const idea of ideas)assert(oddities.has(idea.oddity),`${idea.title} uses an existing oddity`);
+ assert(oddities.has('fireflies'));
+ assert.match(readFileSync('public/index.html','utf8'),/id="freeCreate"[^>]*><span class="idea-oddity-slot"><img[^>]*data-idea-oddity="fireflies"[^>]*alt=""/);
+ assert.match(bootCss,/#ideaChoices\{[^}]*grid-template-rows:repeat\(3,1fr\)/);
+ assert.match(bootCss,/#ideaChoices \.idea-oddity\{[^}]*height:100%;object-fit:contain/);
+ assert.match(bootCss,/#ideaStep :is\(button\.idea-choice,#shuffleIdeas\)\{border-color:transparent/);
+ const icon={dataset:{ideaOddity:'fireflies'}},thumbs=new Map();
+ const sync=source.slice(source.indexOf('function syncIdeaOddityIcons('),source.indexOf('function nextIdeaPair('));
+ const iconContext={thumbs,$:()=>({querySelectorAll:()=>[icon]})};
+ vm.runInNewContext(sync+';syncIdeaOddityIcons()',iconContext);
+ assert.equal(icon.src,undefined,'missing artwork keeps the decoration blank');
+ thumbs.set('fireflies','firefly-thumbnail');
+ vm.runInNewContext('syncIdeaOddityIcons()',iconContext);
+ assert.equal(icon.src,'firefly-thumbnail','the shared oddity thumbnail fills the reserved slot');
+}
 
 assert.doesNotMatch(readFileSync('public/index.html','utf8'),/class="boot-mushroom"[^>]*><img[^>]*><i>/);
-assert.doesNotMatch(bootCss,/boot-spore-drift/);
+const loaderMotion=bootCss.slice(bootCss.indexOf('@media(prefers-reduced-motion:no-preference){\n .boot-mushroom img'),bootCss.indexOf('@keyframes boot-bubble-rise'));
+assert.match(loaderMotion,/\.boot-mushroom img\{animation:boot-mushroom-sway/);
+assert.match(loaderMotion,/\.boot-mushroom::before,\.boot-mushroom::after\{[^}]*animation:boot-bubble-rise/);
+assert.match(bootCss,/@keyframes boot-mushroom-sway\{[^\n]*rotate\(-7deg\)[^\n]*rotate\(7deg\)/);
 
 assert.match(source,/\.toggle\('is-waking-grove',value&&text==='Waking the grove\.\.\.'\)/);
 assert.match(bootCss,/\.busy-overlay\.is-waking-grove \.busy-message \.boot-mushroom\{position:relative;display:block/);
@@ -255,7 +324,7 @@ assert.match(bootCss,/\.busy-overlay\.is-waking-grove \.busy-message>\.status-sp
  const hint={hidden:true},classes=new Set(),attributes=new Map(),stored=new Map(),events={};
  const plus={classList:{add:c=>classes.add(c),remove:c=>classes.delete(c)},setAttribute:(k,v)=>attributes.set(k,v),removeAttribute:k=>attributes.delete(k)};
  const state={creationId:'first',items:[]};
- const sandbox={URL,location:{href:'https://example.test/editor.html'},localStorage:{getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v)},document:{addEventListener:(k,fn)=>events[k]=fn},$:id=>id==='#firstOddityGuide'?hint:plus,state,ready:true,busy:false,isMobilePicker:()=>true,motionEnabled:()=>true,reducedMotion:false};
+ const sandbox={URL,location:{href:'https://example.test/editor.html'},localStorage:{getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v)},document:{addEventListener:(k,fn)=>events[k]=fn},$:id=>id==='#firstOddityGuide'?hint:plus,state,ready:true,busy:false,usesOddityModal:()=>true,motionEnabled:()=>true,reducedMotion:false};
  const guide=vm.runInNewContext(guideCode+';({armFirstOddityGuide,syncFirstOddityGuide})',sandbox);
  guide.armFirstOddityGuide();guide.syncFirstOddityGuide();
  assert.equal(hint.hidden,false);assert(classes.has('first-oddity-wiggle'));assert.equal(attributes.get('aria-describedby'),'firstOddityGuide');
@@ -270,13 +339,23 @@ assert.match(bootCss,/\.busy-overlay\.is-waking-grove \.busy-message>\.status-sp
  const createFlow=source.slice(source.indexOf('async function startNewGrove('),source.indexOf('const badgeDefinitions'));
  assert(createFlow.indexOf('await chooseGroveStart()')<createFlow.indexOf("await persistScene('history'"),'history is only written after the user presses Start');
  assert(createFlow.indexOf('await prepareScene(next)')<createFlow.indexOf("await persistScene('history'"),'failed scene prep does not write history');
- assert.match(readFileSync('public/index.html','utf8'),/<button id="startGrove"[^>]*disabled>Start Creating<\/button>/);
+ assert.match(readFileSync('public/index.html','utf8'),/<button id="startGrove"[^>]*disabled><span>Start Creating<\/span><svg[^>]*aria-hidden="true"/);
+ assert(createFlow.includes('last confirmed save) is unchanged'),'does not duplicate a storage error’s save reassurance');
+ const load=source.slice(source.indexOf('function loadBackground('),source.indexOf('async function prepareScene('));
+ const biomeNames=vm.runInNewContext(source.match(/^const biomeNames=(.*);$/m)[1]);
+ const biomeLabels=vm.runInNewContext('('+source.match(/^const biomeLabels=(.*);$/m)[1]+')');
+ const context={biomeNames,biomeLabels,backgroundImages:new Map(),Image:class{set src(path){assert(readFileSync('public/'+path).length>0);this.onload();}}};
+ vm.runInNewContext(load,context);
+ for(const name of biomeNames)await context.loadBackground(name);
+ context.backgroundImages.clear();
+ context.Image=class{set src(path){this.onerror();}};
+ await assert.rejects(context.loadBackground('frozen-lake'),{message:'The Frozen Lake biome could not load. Refresh the page and try again. Your creation is unchanged.'});
 }
 assert(source.includes("Error('Illustrations could not load. Try refreshing the page.')"));
 
 {
  const html=readFileSync('public/index.html','utf8');
  const chooser=html.split('id="ideaStep"')[1].split('id="ideaReviewStep"')[0];
- assert(chooser.includes('More Ideas'));assert.doesNotMatch(chooser,/Start Creating|Choose Another|aria-pressed/);
- assert.match(html,/id="ideaReviewStep" hidden>[\s\S]*?Choose Another[\s\S]*?Start Creating/);
+ assert(chooser.includes('More Ideas'));assert.doesNotMatch(chooser,/Start Creating|Go Back|aria-pressed/);
+ assert.match(html,/id="ideaReviewStep" hidden>[\s\S]*?id="reviewIdeaOddity"[^>]*alt=""><strong id="reviewIdeaTitle"[\s\S]*?id="chooseAnotherIdea"[^>]*><svg[^>]*aria-hidden="true"[\s\S]*?<span>Go Back<\/span>[\s\S]*?Start Creating/);
 }
