@@ -1027,6 +1027,7 @@ async function bootEditor(){
     await checkAccount();
     const fromSignIn=await restoreSignInDraft();
     const firstGrove=await restoreCurrentDraft(!!fromSignIn);
+    $('#startupLoadingText').textContent=firstGrove?'Gathering inspiration…':'Waking the grove...';
     const prepared=await prepareScene(state);
     ready=true;document.body.classList.remove('editor-loading');
     try{localStorage.setItem('whimsy-grove-visited:'+new URL('.',location.href).pathname,'1');}catch{}
