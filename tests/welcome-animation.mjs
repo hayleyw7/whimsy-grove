@@ -53,3 +53,14 @@ assert.match(html,/--grove-radius-control:8px/);
 assert.match(html,/\.button\{[^}]*border-radius:var\(--grove-radius-control\);/);
 assert(html.includes('.button:hover{filter:brightness(1.1)}'));
 assert(html.includes('.button:focus-visible{outline:3px solid var(--ui-focus-ring);outline-offset:3px}'));
+
+const editor=readFileSync('dist/editor.html','utf8');
+for (const page of [html,editor]) {
+ assert.match(page,/<link rel="stylesheet" href="grove-title-font\.css">/);
+}
+assert.match(html,/h1\{[^}]*font-family:Almendra,Georgia,serif;[^}]*font-weight:400;/);
+assert.match(readFileSync('dist/style.css','utf8'),/body\.editor-ui \.masthead h1,body\.editor-ui \.masthead h1 \*\{font-family:Almendra,[^}]*font-weight:400;/);
+assert.match(readFileSync('dist/grove-title-font.css','utf8'),/@font-face\{font-family:Almendra;src:url\('fonts\/almendra-regular\.woff2'\) format\('woff2'\);font-style:normal;font-weight:400;/);
+assert.equal(readFileSync('dist/fonts/almendra-regular.woff2').toString('ascii',0,4),'wOF2');
+assert.match(readFileSync('dist/fonts/almendra-OFL.txt','utf8'),/Ana Sanfelippo[\s\S]*SIL OPEN FONT LICENSE/);
+console.log('PASS: both built pages self-host the single Almendra Regular title font and include its OFL.');
