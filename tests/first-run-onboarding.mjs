@@ -218,7 +218,7 @@ assert.match(source,/^setBusy\(true,'Waking the grove\.\.\.'\);$/m);
 {
   const html=readFileSync('public/index.html','utf8');
   const css=readFileSync('public/style.css','utf8');
-  assert.match(html,/id="oddity-grid"[^>]*><p id="odditiesLoading" class="oddities-boot-status" role="status" aria-live="polite"><span class="boot-mushroom" aria-hidden="true"><img src="assets\/loading-mushroom\.svg" alt="" width="40" height="40"><\/span><span>Loading Oddities\.\.\.<\/span><\/p>/);
+  assert.match(html,/id="oddity-grid"[^>]*><p id="odditiesLoading" class="oddities-boot-status" role="status" aria-live="polite"><span class="boot-mushroom" aria-hidden="true"><img src="assets\/loading-mushroom\.svg" alt="" width="40" height="40"><\/span><span>Loading oddities…<\/span><\/p>/);
   const renderer=source.slice(source.indexOf('function renderOddities()'),source.indexOf('function drawSprite('));
   assert(renderer.includes('el.replaceChildren();'),'first card or empty-state render removes startup status');
   assert(source.includes('function renderOddities(){if(!catalogReady)return;'),'pending catalog retains loading status even when storage refreshes');

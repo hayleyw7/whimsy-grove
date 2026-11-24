@@ -698,7 +698,7 @@ html[data-theme] .picker-section .category-control #favoriteFilter[aria-pressed=
 
 /* Editor interface uses the existing sans face; the app wordmark stays serif. */
 body.editor-ui,body.editor-ui *{font-family:Arial,Helvetica,sans-serif!important;}
-body.editor-ui .masthead h1,body.editor-ui .masthead h1 *{font-family:Georgia,'Times New Roman',serif!important;}
+body.editor-ui .masthead h1,body.editor-ui .masthead h1 *{font-family:Almendra,Georgia,'Times New Roman',serif!important;font-weight:400;}
 
 /* Notice dismiss stays visually transparent in every theme and state. */
 #promptReminder{position:relative;}

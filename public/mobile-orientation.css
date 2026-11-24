@@ -1,0 +1,14 @@
+#mobileLandscapeGate{display:none;}
+html.mobile-landscape,html.mobile-landscape body{overflow:hidden!important;}
+html.mobile-landscape body>:not(#mobileLandscapeGate){
+ visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
+html.mobile-landscape dialog::backdrop{display:none!important;}
+html.mobile-landscape #mobileLandscapeGate{
+ position:fixed;inset:0;z-index:10000;display:grid;place-content:center;
+ justify-items:center;gap:12px;text-align:center;padding:20px;
+ background:var(--paper,#23192b);color:var(--ink,#faf3f3);
+ font:16px/1.4 system-ui,sans-serif;
+}
+#mobileLandscapeGate strong{font-size:clamp(18px,4vw,24px);}
+#mobileLandscapeGate p{margin:4px 0 0;}
