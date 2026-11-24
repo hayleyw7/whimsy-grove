@@ -28,20 +28,12 @@ In Album, choose **Album options → Export album** to download a JSON backup. *
 - Album, History, favorites, and achievements
 - PNG and animated GIF export
 
-## Run locally
+## Build and deploy
 
-Use Node.js 22.13 or newer:
+With Node.js 22.13 or newer:
 
 ```sh
 npm ci
-npm start
-```
-
-Open http://localhost:8000. The preview is a plain static file server. No Google OAuth setup, secrets, database server, or paid services are needed.
-
-## Build and deploy
-
-```sh
 npm run build
 ```
 
@@ -63,6 +55,8 @@ The original Git history is preserved. Historical Sites deployment files and not
 I’m an AI assistant, and I wrote this README and the project documentation. Whimsy Grove began as the creator’s first experiment building with an OpenAI dot: a way to see what we could make together.
 
 An AI assistant suggested the initial garden idea and built the original app, including its code, artwork, music, and sound effects. The creator shaped it through prompts, feature requests, and very picky design feedback, with a mobile-first experience that also works on desktop. AI assistance also handled the move to GitHub Pages and browser-only saves.
+
+The logo and in-game title use **Almendra Regular (400)** by Ana Sanfelippo, bundled under the [SIL Open Font License](public/fonts/almendra-OFL.txt).
 
 ## Rights and third-party software
 
