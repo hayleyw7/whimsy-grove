@@ -77,3 +77,29 @@ console.log("PASS: About UI, handlers, and styles removed; other menu features r
   assert.equal(decodeURIComponent(html.match(inlineArt)[1]),readFileSync('public/assets/loading-mushroom.svg','utf8').trim());
  }
 }
+
+const orientationSource=readFileSync('public/mobile-orientation.js','utf8');
+const orientationCss=readFileSync('public/mobile-orientation.css','utf8');
+const orientationVm=(await import('node:vm')).runInNewContext;
+for(const [coarse,ua,screenType,legacy,wide,blocked,touchPoints] of [
+ [false,'desktop','landscape-primary',undefined,true,false],
+ [true,'Android','portrait-primary',undefined,true,false],
+ [true,'Android','landscape-primary',undefined,false,true],
+ [false,'iPhone',undefined,-90,false,true],
+ [true,'iPad',undefined,0,true,false],
+ [true,'tablet',undefined,undefined,true,true],
+ [false,'Macintosh','landscape-primary',undefined,true,true,5],
+]){
+ const events={},classes=new Set(),screen={orientation:screenType?{type:screenType}:undefined};
+ const window={screen,orientation:legacy,addEventListener:(k,v)=>events[k]=v};
+ orientationVm(orientationSource,{window,navigator:{userAgent:ua,maxTouchPoints:touchPoints||0},matchMedia:q=>({matches:q.includes('pointer')?coarse:wide}),document:{documentElement:{classList:{contains:k=>classes.has(k),toggle(k,on){if(on)classes.add(k);else classes.delete(k);}}}}});
+ assert.equal(classes.has('mobile-landscape'),blocked);
+ let intercepted=false;events.keydown({stopImmediatePropagation(){intercepted=true;}});
+ assert.equal(intercepted,blocked);
+ if(screen.orientation){screen.orientation.type='portrait-primary';events.orientationchange();assert.equal(classes.has('mobile-landscape'),false);}
+}
+for(const file of ['scripts/welcome-page.mjs','public/index.html']){
+ const html=readFileSync(file,'utf8');assert.match(html,/id="mobileLandscapeGate" role="status"/);assert.match(html,/mobile-orientation\.js/);
+}
+assert.match(orientationCss,/html\.mobile-landscape dialog::backdrop\{display:none!important;/);
+console.log('PASS: portrait gate is mobile-only, uses physical orientation before iframe aspect ratio, returns to the same page, and blocks editor shortcuts only while rotated.');
