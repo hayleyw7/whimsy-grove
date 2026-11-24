@@ -1,5 +1,7 @@
 # Whimsy Grove
 
+![Whimsy Grove title beneath an illustrated cat, ghost, sleeping pink rabbit, and mushroom creature.](public/assets/whimsy-grove-preview-v4.jpg)
+
 **Somewhere to put your weird little guys.**
 
 Create a whimsical scene with plants, creatures, weather, and whatever else belongs there.

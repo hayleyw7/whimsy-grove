@@ -103,3 +103,14 @@ for(const file of ['scripts/welcome-page.mjs','public/index.html']){
 }
 assert.match(orientationCss,/html\.mobile-landscape dialog::backdrop\{display:none!important;/);
 console.log('PASS: portrait gate is mobile-only, uses physical orientation before iframe aspect ratio, returns to the same page, and blocks editor shortcuts only while rotated.');
+
+for(const html of [welcome,editor]){
+ assert.match(html,/<meta property="og:image" content="https:\/\/hayleyw7\.github\.io\/whimsy-grove\/assets\/whimsy-grove-preview-v4\.jpg">/);
+ assert.match(html,/<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">/);
+ assert.match(html,/<meta name="twitter:image" content="https:\/\/hayleyw7\.github\.io\/whimsy-grove\/assets\/whimsy-grove-preview-v4\.jpg">/);
+ assert.match(html,/<meta name="twitter:image:alt" content="Whimsy Grove title beneath an illustrated cat, ghost, sleeping pink rabbit, and mushroom creature\.">/);
+}
+assert.equal(readFileSync('dist/assets/whimsy-grove-preview-v4.jpg').subarray(0,3).toString('hex'),'ffd8ff');
+assert.match(readFileSync('README.md','utf8'),/!\[[^\]]+\]\(public\/assets\/whimsy-grove-preview-v4\.jpg\)/);
+assert.equal(readFileSync('docs/branding/whimsy-grove-itch-cover-almendra.png').subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+console.log('PASS: both pages and README use the new social artwork and the itch cover is stored separately.');
