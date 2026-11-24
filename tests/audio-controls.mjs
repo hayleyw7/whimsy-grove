@@ -23,6 +23,25 @@ function harness(saved=null,random=0){
  const settle=async()=>{for(let i=0;i<100;i++){await new Promise(r=>setTimeout(r,5));if(!get('audioStatus').textContent?.startsWith('Preparing'))return;}throw Error('Audio did not finish preparing')};
  return {window,document,contexts,sources,get,storage,settle,settings:()=>JSON.parse(storage.get('spooky-grove-audio-v1')),label:()=>get('masterMute').attrs['aria-label'],readIdeaGesture:()=>document.listeners.click(event({...element(),inSetup:true})),ideaGesture:()=>document.listeners.click(event({...element(),inSetup:true,ideaChoice:true})),click:async()=>{get('masterMute').audioAction=true;get('masterMute').listeners.click(event(get('masterMute')));await settle()},gesture:async()=>{document.listeners.click(event(element()));await settle()}};
 }
+const savedUnmuted=harness({music:'haunted',musicPinned:true,volume:22,sfx:true,muted:false});
+assert.equal(savedUnmuted.get('masterMute').attrs['aria-pressed'],'false');
+assert.match(savedUnmuted.get('masterMute').innerHTML,/M15 8a6/);
+assert.equal(savedUnmuted.contexts.length,0,'an unmuted preference does not bypass browser autoplay');
+savedUnmuted.document.listeners.click({isTrusted:false});
+assert.equal(savedUnmuted.contexts.length,0);
+await savedUnmuted.ideaGesture();
+await savedUnmuted.window.groveAudio.chooseGroveTrack('cosmic-visitors');
+assert.equal(savedUnmuted.label(),'Mute All Audio');
+assert.equal(savedUnmuted.settings().muted,false);
+savedUnmuted.window.listeners.pagehide();
+assert.equal(savedUnmuted.get('masterMute').attrs['aria-pressed'],'false');
+const savedMuted=harness({...savedUnmuted.settings(),muted:true});
+assert.equal(savedMuted.get('masterMute').attrs['aria-pressed'],'true');
+assert.match(savedMuted.get('masterMute').innerHTML,/M16 9l5 6/);
+await savedMuted.ideaGesture();
+await savedMuted.window.groveAudio.chooseGroveTrack('cosmic-visitors');
+assert.equal(savedMuted.contexts.length,0,'a saved mute remains muted even after Start Creating');
+assert.equal(savedMuted.settings().muted,true);
 const first=harness();assert.equal(first.label(),'Resume Audio');assert.equal(first.contexts.length,0);
 await first.click();assert.equal(first.settings().music,'gentle');assert.equal(first.settings().sfx,true);assert.equal(first.label(),'Mute All Audio');assert.equal(first.contexts[0].state,'running');assert(first.sources.some(s=>s.started&&s.buffer.data.some(v=>v!==0)));
 const firstMusic=first.sources.find(s=>s.loop);assert.deepEqual(firstMusic.gain.gain.events,[['set',0,0],['ramp',1,.9]],'the source fades in once over 0.9 seconds');
